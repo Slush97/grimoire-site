@@ -1,0 +1,299 @@
+---
+import Base from '../layouts/Base.astro';
+
+const githubUrl = 'https://github.com/Slush97/grimoire';
+const aurUrl = 'https://aur.archlinux.org/packages/grimoire-bin';
+
+interface Asset {
+  name: string;
+  size: number;
+  browser_download_url: string;
+}
+
+interface Release {
+  tag_name: string;
+  name: string;
+  published_at: string;
+  html_url: string;
+  body: string;
+  assets: Asset[];
+}
+
+function fmtBytes(b: number): string {
+  if (!b) return '';
+  if (b < 1024 * 1024) return `${(b / 1024).toFixed(0)} KB`;
+  return `${(b / 1024 / 1024).toFixed(1)} MB`;
+}
+
+function fmtDate(s: string): string {
+  return new Date(s).toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
+}
+
+let release: Release | null = null;
+try {
+  const res = await fetch('https://api.github.com/repos/Slush97/grimoire/releases/latest', {
+    headers: {
+      Accept: 'application/vnd.github+json',
+      'User-Agent': 'grimoire-site-build',
+    },
+  });
+  if (res.ok) release = (await res.json()) as Release;
+} catch {
+  release = null;
+}
+
+const assets = release?.assets ?? [];
+const lc = (s: string) => s.toLowerCase();
+const find = (pred: (name: string) => boolean): Asset | undefined =>
+  assets.find((a) => pred(lc(a.name)));
+
+const winInstaller = find((n) => n.endsWith('.exe') && n.includes('setup'));
+const winPortable = find((n) => n.endsWith('.exe') && !n.includes('setup') && !n.includes('blockmap'));
+const appImage = find((n) => n.endsWith('.appimage'));
+const deb = find((n) => n.endsWith('.deb'));
+const sums = find((n) => n === 'sha256sums' || n.endsWith('.sha256sums'));
+
+const tag = release?.tag_name ?? '';
+const version = tag.replace(/^v/, '') || 'latest';
+const releaseDate = release ? fmtDate(release.published_at) : null;
+const releaseUrl = release?.html_url ?? `${githubUrl}/releases/latest`;
+const allReleasesUrl = `${githubUrl}/releases`;
+---
+
+<Base
+  title="Download Grimoire"
+  description="Download Grimoire, the open-source Deadlock mod manager, for Windows, Linux, and Arch."
+>
+  <main class="relative z-10">
+    <section class="relative mx-auto max-w-6xl px-6 pt-20 pb-12 sm:pt-24">
+      <h1 class="text-4xl font-semibold tracking-tight text-white sm:text-5xl">
+        Download Grimoire
+      </h1>
+      <p class="mt-4 max-w-2xl text-lg text-[var(--color-muted)]">
+        Free and open source. Requires Deadlock installed via Steam.
+      </p>
+
+      <div
+        class="mt-6 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-[var(--color-muted)]"
+      >
+        {
+          release ? (
+            <>
+              <span class="inline-flex items-center gap-2 rounded-full border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-1 text-xs">
+                <span class="h-1.5 w-1.5 rounded-full bg-[var(--color-accent)]" />
+                Latest: v{version}
+              </span>
+              <span>Released {releaseDate}</span>
+              <a href={releaseUrl} target="_blank" rel="noopener" class="hover:text-white">
+                Release notes
+              </a>
+            </>
+          ) : (
+            <span>Live release data unavailable. See <a href={releaseUrl} target="_blank" rel="noopener" class="text-white hover:text-[var(--color-accent)]">all releases on GitHub</a>.</span>
+          )
+        }
+      </div>
+    </section>
+
+    <section class="relative mx-auto max-w-6xl px-6 pb-16">
+      <h2 class="text-xs font-medium uppercase tracking-widest text-[var(--color-muted)]">
+        Windows
+      </h2>
+      <div class="mt-4 grid gap-4 sm:grid-cols-2">
+        <a
+          href={winInstaller?.browser_download_url ?? releaseUrl}
+          class="spotlight group rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-6 transition-colors hover:border-[var(--color-accent)]/50"
+        >
+          <div class="flex items-start justify-between gap-3">
+            <div>
+              <div class="text-base font-medium text-white">Installer</div>
+              <div class="mt-1 text-sm text-[var(--color-muted)]">
+                Recommended. Adds Start Menu shortcut and auto-update.
+              </div>
+            </div>
+            <div class="rounded-md border border-[var(--color-border)] bg-[var(--color-surface-2)] px-2 py-1 text-xs text-[var(--color-muted)]">
+              {winInstaller ? fmtBytes(winInstaller.size) : '.exe'}
+            </div>
+          </div>
+          <div class="mt-4 font-mono text-xs text-[var(--color-muted)]">
+            {winInstaller?.name ?? `Grimoire-Setup-${version}.exe`}
+          </div>
+        </a>
+
+        <a
+          href={winPortable?.browser_download_url ?? releaseUrl}
+          class="spotlight group rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-6 transition-colors hover:border-[var(--color-accent)]/50"
+        >
+          <div class="flex items-start justify-between gap-3">
+            <div>
+              <div class="text-base font-medium text-white">Portable</div>
+              <div class="mt-1 text-sm text-[var(--color-muted)]">
+                Single executable. Run from anywhere, no installation.
+              </div>
+            </div>
+            <div class="rounded-md border border-[var(--color-border)] bg-[var(--color-surface-2)] px-2 py-1 text-xs text-[var(--color-muted)]">
+              {winPortable ? fmtBytes(winPortable.size) : '.exe'}
+            </div>
+          </div>
+          <div class="mt-4 font-mono text-xs text-[var(--color-muted)]">
+            {winPortable?.name ?? `Grimoire-${version}.exe`}
+          </div>
+        </a>
+      </div>
+      <p class="mt-4 text-xs text-[var(--color-muted)]">
+        Not yet code-signed. SmartScreen may show "Unknown Publisher" on first run. Click
+        <span class="text-white">More info → Run anyway</span>.
+      </p>
+    </section>
+
+    <section class="relative mx-auto max-w-6xl px-6 pb-16">
+      <h2 class="text-xs font-medium uppercase tracking-widest text-[var(--color-muted)]">
+        Linux
+      </h2>
+      <div class="mt-4 grid gap-4 sm:grid-cols-2">
+        <a
+          href={appImage?.browser_download_url ?? releaseUrl}
+          class="spotlight group rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-6 transition-colors hover:border-[var(--color-accent)]/50"
+        >
+          <div class="flex items-start justify-between gap-3">
+            <div>
+              <div class="text-base font-medium text-white">AppImage</div>
+              <div class="mt-1 text-sm text-[var(--color-muted)]">
+                Universal. Works on any distro with FUSE.
+              </div>
+            </div>
+            <div class="rounded-md border border-[var(--color-border)] bg-[var(--color-surface-2)] px-2 py-1 text-xs text-[var(--color-muted)]">
+              {appImage ? fmtBytes(appImage.size) : '.AppImage'}
+            </div>
+          </div>
+          <div class="mt-4 font-mono text-xs text-[var(--color-muted)]">
+            {appImage?.name ?? `Grimoire-${version}.AppImage`}
+          </div>
+          <div class="mt-3 rounded-md bg-[var(--color-bg)] p-3 font-mono text-xs text-[var(--color-muted)]">
+            chmod +x {appImage?.name ?? `Grimoire-${version}.AppImage`}
+          </div>
+        </a>
+
+        <a
+          href={deb?.browser_download_url ?? releaseUrl}
+          class="spotlight group rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-6 transition-colors hover:border-[var(--color-accent)]/50"
+        >
+          <div class="flex items-start justify-between gap-3">
+            <div>
+              <div class="text-base font-medium text-white">Debian / Ubuntu</div>
+              <div class="mt-1 text-sm text-[var(--color-muted)]">
+                .deb package. Installs system-wide via apt.
+              </div>
+            </div>
+            <div class="rounded-md border border-[var(--color-border)] bg-[var(--color-surface-2)] px-2 py-1 text-xs text-[var(--color-muted)]">
+              {deb ? fmtBytes(deb.size) : '.deb'}
+            </div>
+          </div>
+          <div class="mt-4 font-mono text-xs text-[var(--color-muted)]">
+            {deb?.name ?? `grimoire_${version}_amd64.deb`}
+          </div>
+          <div class="mt-3 rounded-md bg-[var(--color-bg)] p-3 font-mono text-xs text-[var(--color-muted)]">
+            sudo apt install ./{deb?.name ?? `grimoire_${version}_amd64.deb`}
+          </div>
+        </a>
+      </div>
+    </section>
+
+    <section class="relative mx-auto max-w-6xl px-6 pb-16">
+      <h2 class="text-xs font-medium uppercase tracking-widest text-[var(--color-muted)]">
+        Arch Linux
+      </h2>
+      <div class="mt-4">
+        <a
+          href={aurUrl}
+          target="_blank"
+          rel="noopener"
+          class="spotlight group block rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-6 transition-colors hover:border-[var(--color-accent)]/50"
+        >
+          <div class="flex items-start justify-between gap-3">
+            <div>
+              <div class="text-base font-medium text-white">grimoire-bin</div>
+              <div class="mt-1 text-sm text-[var(--color-muted)]">
+                Pre-built binary package from the AUR.
+              </div>
+            </div>
+            <div class="rounded-md border border-[var(--color-border)] bg-[var(--color-surface-2)] px-2 py-1 text-xs text-[var(--color-muted)]">
+              AUR
+            </div>
+          </div>
+          <div class="mt-4 rounded-md bg-[var(--color-bg)] p-3 font-mono text-xs text-[var(--color-muted)]">
+            yay -S grimoire-bin
+          </div>
+        </a>
+      </div>
+    </section>
+
+    <section class="relative mx-auto max-w-6xl px-6 pb-16">
+      <h2 class="text-xs font-medium uppercase tracking-widest text-[var(--color-muted)]">
+        Verify your download
+      </h2>
+      <div class="mt-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-6 sm:p-8">
+        <p class="text-sm text-[var(--color-muted)]">
+          Every release ships a <code class="font-mono text-white">SHA256SUMS</code> file and a
+          GitHub build provenance attestation. Either is enough to confirm a download came from
+          the official build pipeline.
+        </p>
+
+        <div class="mt-6 grid gap-4 sm:grid-cols-2">
+          <div>
+            <div class="text-sm font-medium text-white">Checksum</div>
+            <div class="mt-2 rounded-md bg-[var(--color-bg)] p-3 font-mono text-xs text-[var(--color-muted)]">
+              # Linux<br />sha256sum -c SHA256SUMS<br /><br /># PowerShell<br />Get-FileHash &lt;file&gt;
+            </div>
+          </div>
+          <div>
+            <div class="text-sm font-medium text-white">Build provenance</div>
+            <div class="mt-2 rounded-md bg-[var(--color-bg)] p-3 font-mono text-xs text-[var(--color-muted)]">
+              gh attestation verify &lt;file&gt; --owner Slush97
+            </div>
+          </div>
+        </div>
+
+        {
+          sums && (
+            <div class="mt-4">
+              <a
+                href={sums.browser_download_url}
+                class="text-sm text-[var(--color-accent)] hover:text-[var(--color-accent-hover)]"
+              >
+                Download SHA256SUMS for v{version} &rarr;
+              </a>
+            </div>
+          )
+        }
+      </div>
+    </section>
+
+    <section class="relative mx-auto max-w-6xl px-6 pb-28">
+      <div class="flex flex-wrap items-center justify-between gap-3 text-sm text-[var(--color-muted)]">
+        <span>Looking for an older version, or want to read changelog history?</span>
+        <a
+          href={allReleasesUrl}
+          target="_blank"
+          rel="noopener"
+          class="text-white hover:text-[var(--color-accent)]"
+          >All releases on GitHub &rarr;</a
+        >
+      </div>
+    </section>
+  </main>
+</Base>
+
+<script>
+  for (const el of document.querySelectorAll<HTMLElement>('.spotlight')) {
+    el.addEventListener('pointermove', (e) => {
+      const r = el.getBoundingClientRect();
+      el.style.setProperty('--mx', `${e.clientX - r.left}px`);
+      el.style.setProperty('--my', `${e.clientY - r.top}px`);
+    });
+  }
+</script>
