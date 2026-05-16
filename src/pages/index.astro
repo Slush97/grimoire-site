@@ -1,0 +1,345 @@
+---
+import Base from '../layouts/Base.astro';
+
+const githubUrl = 'https://github.com/Slush97/grimoire';
+const releasesUrl = `${githubUrl}/releases/latest`;
+const discordUrl = 'https://discord.gg/KgYGHEMq2P';
+const gameBananaUrl = 'https://gamebanana.com/tools/22583';
+const aurUrl = 'https://aur.archlinux.org/packages/grimoire-bin';
+
+const features = [
+  {
+    title: 'Browse the GameBanana catalog',
+    body:
+      "GameBanana's full Deadlock library, mirrored locally and searchable in milliseconds. One-click install via gb1click:// straight from the site.",
+    image: '/screenshots/browse.png',
+    alt: 'Grimoire browsing Deadlock mods from GameBanana',
+  },
+  {
+    title: 'Manage your library',
+    body:
+      'Toggle, reorder, prioritize. Catch overlapping VPK paths before they crash a match.',
+    image: '/screenshots/installed.png',
+    alt: 'Installed mods view with toggle and reorder controls',
+  },
+  {
+    title: 'Hero Locker',
+    body:
+      'One active skin per hero, picked from every variant you have installed. The rest stay on disk, ready to swap.',
+    image: '/screenshots/locker.png',
+    alt: 'Hero Locker grid showing every Deadlock hero with their active skin',
+    image2: '/screenshots/locker2.png',
+    alt2: 'Per-hero skin picker showing every installed variant for Yamato',
+  },
+  {
+    title: 'Profiles',
+    body:
+      'Save full mod loadouts. Switch instantly between them. Share with mp1: codes or .modprofile.json files.',
+    image: '/screenshots/profiles.png',
+    alt: 'Profiles view with two saved mod configurations',
+  },
+];
+
+const extras = [
+  { title: 'Crosshair designer', body: 'Live preview. Save presets. Apply to autoexec.' },
+  { title: 'Autoexec manager', body: 'Edit console commands without leaving the app.' },
+  { title: 'Conflict detection', body: 'Find overlapping VPK paths between mods.' },
+  { title: 'Player stats', body: 'MMR, match history, hero stats, leaderboards.' },
+];
+---
+
+<Base>
+  <header
+    class="sticky top-0 z-50 border-b border-[var(--color-border)]/60 bg-[var(--color-bg)]/70 backdrop-blur-md"
+  >
+    <div class="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
+      <a href="/" class="flex items-center gap-2.5">
+        <img src="/logo.png" alt="" width="28" height="28" class="h-7 w-7" />
+        <span
+          class="text-xl font-semibold tracking-wide text-[var(--color-accent)]"
+          >Grimoire</span
+        >
+      </a>
+      <nav class="flex items-center gap-6 text-sm text-[var(--color-muted)]">
+        <a href="#features" class="hidden hover:text-white sm:inline">Features</a>
+        <a href="#download" class="hidden hover:text-white sm:inline">Download</a>
+        <a href={githubUrl} class="hover:text-white" target="_blank" rel="noopener">GitHub</a>
+        <a
+          href="#download"
+          class="rounded-md bg-[var(--color-accent)] px-3 py-1.5 text-sm font-medium text-black hover:bg-[var(--color-accent-hover)]"
+          >Download</a
+        >
+      </nav>
+    </div>
+  </header>
+
+  <main class="relative z-10">
+    <section class="relative">
+      <div class="relative mx-auto max-w-6xl px-6 pt-24 pb-12 sm:pt-32">
+        <div class="max-w-3xl">
+          <h1
+            class="text-5xl font-semibold tracking-tight text-white sm:text-7xl"
+          >
+            A mod manager built for
+            <span class="text-[var(--color-accent)]">Deadlock</span>.
+          </h1>
+          <p class="mt-6 max-w-2xl text-lg text-[var(--color-muted)]">
+            Every Deadlock mod on GameBanana, indexed offline and one click away. Manage your
+            library, design crosshairs, save full loadouts per match. All in one window.
+          </p>
+          <div class="mt-8 flex flex-wrap items-center gap-3">
+            <a
+              href={releasesUrl}
+              class="inline-flex items-center gap-2 rounded-md bg-[var(--color-accent)] px-5 py-2.5 text-sm font-medium text-black shadow-lg shadow-[var(--color-accent)]/20 hover:bg-[var(--color-accent-hover)]"
+              >Download Grimoire</a
+            >
+            <a
+              href={githubUrl}
+              target="_blank"
+              rel="noopener"
+              class="inline-flex items-center gap-2 rounded-md border border-[var(--color-border)] bg-[var(--color-surface)] px-5 py-2.5 text-sm font-medium text-white hover:bg-[var(--color-surface-2)]"
+              >View on GitHub</a
+            >
+            <span class="text-xs text-[var(--color-muted)]">Windows + Linux. MIT.</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="relative mx-auto max-w-6xl px-6 pb-28">
+      <div class="hero-shot">
+        <div
+          class="overflow-hidden rounded-xl border border-[var(--color-accent)]/30 bg-[var(--color-surface)] shadow-2xl shadow-[var(--color-accent)]/20 ring-1 ring-white/5"
+        >
+          <img
+            src="/screenshots/browse.png"
+            alt="The Grimoire app showing the GameBanana browse view with a grid of Deadlock mods"
+            width="1920"
+            height="1080"
+            loading="eager"
+            decoding="async"
+            fetchpriority="high"
+            class="block w-full"
+          />
+        </div>
+      </div>
+    </section>
+
+    <section id="features" class="relative mx-auto max-w-6xl px-6 pb-28">
+      <h2 class="text-3xl font-semibold tracking-tight sm:text-4xl">
+        Everything in one window
+      </h2>
+      <p class="mt-2 max-w-2xl text-[var(--color-muted)]">
+        No browser extensions. No standalone tools. No bouncing between sites.
+      </p>
+
+      <div class="mt-14 grid gap-16 sm:gap-20">
+        {
+          features.map((f, i) => (
+            <div
+              class={`grid items-center gap-8 lg:grid-cols-2 lg:gap-14 ${
+                i % 2 === 1 ? 'lg:[&>*:first-child]:order-2' : ''
+              }`}
+            >
+              <div>
+                <h3 class="text-2xl font-semibold tracking-tight text-white sm:text-3xl">
+                  {f.title}
+                </h3>
+                <p class="mt-3 text-[var(--color-muted)]">{f.body}</p>
+              </div>
+              {f.image2 ? (
+                <button
+                  type="button"
+                  class="stack-wrap group"
+                  data-stack
+                  aria-label={`Cycle through ${f.title} views`}
+                >
+                  <div class="stack-card" data-stack-card style="--i:0">
+                    <img
+                      src={f.image}
+                      alt={f.alt}
+                      width="1600"
+                      height="1000"
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  </div>
+                  <div class="stack-card" data-stack-card style="--i:1">
+                    <img
+                      src={f.image2}
+                      alt={f.alt2}
+                      width="1600"
+                      height="1000"
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  </div>
+                  <span class="stack-counter" data-stack-counter>1 / 2</span>
+                </button>
+              ) : (
+                <div class="overflow-hidden rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] shadow-xl shadow-black/30 ring-1 ring-white/5">
+                  <img
+                    src={f.image}
+                    alt={f.alt}
+                    width="1600"
+                    height="1000"
+                    loading="lazy"
+                    decoding="async"
+                    class="block w-full"
+                  />
+                </div>
+              )}
+            </div>
+          ))
+        }
+      </div>
+    </section>
+
+    <section class="relative mx-auto max-w-6xl px-6 pb-28">
+      <h2 class="text-2xl font-semibold tracking-tight sm:text-3xl">Also includes</h2>
+      <div class="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {
+          extras.map((x) => (
+            <div class="spotlight rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] p-5">
+              <div class="font-medium">{x.title}</div>
+              <div class="mt-1 text-sm text-[var(--color-muted)]">{x.body}</div>
+            </div>
+          ))
+        }
+      </div>
+    </section>
+
+    <section id="download" class="relative mx-auto max-w-6xl px-6 pb-28">
+      <div
+        class="rounded-2xl border border-[var(--color-border)] bg-gradient-to-b from-[var(--color-surface)] to-[var(--color-bg)] p-8 sm:p-12"
+      >
+        <h2 class="text-3xl font-semibold tracking-tight sm:text-4xl">Download</h2>
+        <p class="mt-2 text-[var(--color-muted)]">
+          Free, open source, no account. Requires Deadlock installed via Steam.
+        </p>
+
+        <div class="mt-8 grid gap-4 sm:grid-cols-3">
+          <a
+            href={releasesUrl}
+            class="spotlight rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-2)] p-5 transition-colors hover:border-[var(--color-accent)]/50"
+          >
+            <div class="text-xs uppercase tracking-wider text-[var(--color-muted)]">Windows</div>
+            <div class="mt-1 font-medium">Grimoire-Setup.exe</div>
+            <div class="mt-3 text-xs text-[var(--color-muted)]">NSIS installer or portable</div>
+          </a>
+          <a
+            href={releasesUrl}
+            class="spotlight rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-2)] p-5 transition-colors hover:border-[var(--color-accent)]/50"
+          >
+            <div class="text-xs uppercase tracking-wider text-[var(--color-muted)]">Linux</div>
+            <div class="mt-1 font-medium">.AppImage or .deb</div>
+            <div class="mt-3 text-xs text-[var(--color-muted)]">Latest GitHub release</div>
+          </a>
+          <a
+            href={aurUrl}
+            target="_blank"
+            rel="noopener"
+            class="spotlight rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-2)] p-5 transition-colors hover:border-[var(--color-accent)]/50"
+          >
+            <div class="text-xs uppercase tracking-wider text-[var(--color-muted)]">Arch Linux</div>
+            <div class="mt-1 font-medium">grimoire-bin</div>
+            <div class="mt-3 text-xs text-[var(--color-muted)]">
+              <code class="font-mono">yay -S grimoire-bin</code>
+            </div>
+          </a>
+        </div>
+
+        <p class="mt-6 text-xs text-[var(--color-muted)]">
+          Windows installer is not yet code-signed; SmartScreen may flag "Unknown Publisher" on
+          first run. Every release ships a <code class="font-mono">SHA256SUMS</code> file and GitHub
+          build provenance so you can verify what you downloaded.
+        </p>
+      </div>
+    </section>
+
+    <section class="relative mx-auto max-w-6xl px-6 pb-28">
+      <div class="grid gap-6 sm:grid-cols-3">
+        <a
+          href={githubUrl}
+          target="_blank"
+          rel="noopener"
+          class="spotlight rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] p-5 transition-colors hover:border-[var(--color-accent)]/50"
+        >
+          <div class="font-medium">Open source</div>
+          <div class="mt-1 text-sm text-[var(--color-muted)]">
+            MIT licensed. Read the code, build from source, audit any release.
+          </div>
+        </a>
+        <a
+          href={discordUrl}
+          target="_blank"
+          rel="noopener"
+          class="spotlight rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] p-5 transition-colors hover:border-[var(--color-accent)]/50"
+        >
+          <div class="font-medium">Discord</div>
+          <div class="mt-1 text-sm text-[var(--color-muted)]">
+            Help, mod recommendations, bug reports.
+          </div>
+        </a>
+        <a
+          href={gameBananaUrl}
+          target="_blank"
+          rel="noopener"
+          class="spotlight rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] p-5 transition-colors hover:border-[var(--color-accent)]/50"
+        >
+          <div class="font-medium">GameBanana</div>
+          <div class="mt-1 text-sm text-[var(--color-muted)]">
+            Listed under Deadlock tools. Same catalog, web-side.
+          </div>
+        </a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="relative z-10 border-t border-[var(--color-border)]">
+    <div
+      class="mx-auto flex max-w-6xl flex-col items-start justify-between gap-3 px-6 py-10 text-sm text-[var(--color-muted)] sm:flex-row sm:items-center"
+    >
+      <div class="flex items-center gap-2.5">
+        <img src="/logo.png" alt="" width="20" height="20" class="h-5 w-5 opacity-80" />
+        <span>
+          Built by <a href={githubUrl} target="_blank" rel="noopener" class="text-white hover:text-[var(--color-accent)]">Slush</a>. MIT licensed. Not affiliated with Valve.
+        </span>
+      </div>
+      <div class="flex gap-5">
+        <a href={githubUrl} target="_blank" rel="noopener" class="hover:text-white">GitHub</a>
+        <a href={discordUrl} target="_blank" rel="noopener" class="hover:text-white">Discord</a>
+        <a href={gameBananaUrl} target="_blank" rel="noopener" class="hover:text-white">GameBanana</a>
+      </div>
+    </div>
+  </footer>
+</Base>
+
+<script>
+  for (const el of document.querySelectorAll<HTMLElement>('.spotlight')) {
+    el.addEventListener('pointermove', (e) => {
+      const r = el.getBoundingClientRect();
+      el.style.setProperty('--mx', `${e.clientX - r.left}px`);
+      el.style.setProperty('--my', `${e.clientY - r.top}px`);
+    });
+  }
+
+  for (const stack of document.querySelectorAll<HTMLElement>('[data-stack]')) {
+    const cards = Array.from(stack.querySelectorAll<HTMLElement>('[data-stack-card]'));
+    const counter = stack.querySelector<HTMLElement>('[data-stack-counter]');
+    const total = cards.length;
+    let active = 0;
+    const update = () => {
+      cards.forEach((card, idx) => {
+        const offset = (idx - active + total) % total;
+        card.style.setProperty('--i', String(offset));
+      });
+      if (counter) counter.textContent = `${active + 1} / ${total}`;
+    };
+    stack.addEventListener('click', () => {
+      active = (active + 1) % total;
+      update();
+    });
+    update();
+  }
+</script>

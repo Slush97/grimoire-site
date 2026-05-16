@@ -1,0 +1,150 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bg: #0a0a0a;
+  --color-surface: #161616;
+  --color-surface-2: #1f1f1f;
+  --color-border: #2a2a2a;
+  --color-text: #ffffff;
+  --color-muted: #a1a1aa;
+  --color-accent: #f97316;
+  --color-accent-hover: #ea580c;
+  --color-accent-soft: rgba(249, 115, 22, 0.18);
+
+  --font-body: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  position: relative;
+}
+
+/* Paper-grain noise overlay */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0.035;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+::selection {
+  background: var(--color-accent);
+  color: #0a0a0a;
+}
+
+/* Cursor-spotlight card effect */
+.spotlight {
+  position: relative;
+  overflow: hidden;
+}
+.spotlight::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 200ms ease;
+  background: radial-gradient(
+    320px circle at var(--mx, 50%) var(--my, 50%),
+    rgba(249, 115, 22, 0.18),
+    transparent 50%
+  );
+}
+.spotlight:hover::before {
+  opacity: 1;
+}
+
+/* Subtle screenshot perspective */
+.hero-shot {
+  transform: perspective(2400px) rotateX(2deg);
+  transform-origin: center top;
+}
+
+/* Stacked screenshot deck — click to rotate through */
+.stack-wrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  cursor: pointer;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  appearance: none;
+  display: block;
+}
+.stack-card {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: 0.5rem;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  transition:
+    transform 380ms cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 380ms cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 380ms ease;
+  transform: translate(calc(var(--i, 0) * 16px), calc(var(--i, 0) * 12px))
+    rotate(calc(var(--i, 0) * 1.6deg));
+  z-index: calc(10 - var(--i, 0));
+  opacity: calc(1 - var(--i, 0) * 0.15);
+}
+.stack-card img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: var(--color-bg);
+}
+.stack-wrap:hover .stack-card[style*="--i:0"] {
+  box-shadow: 0 30px 60px -12px rgba(249, 115, 22, 0.18);
+}
+.stack-counter {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  z-index: 100;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(10, 10, 10, 0.75);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--color-border);
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  pointer-events: none;
+}
+.stack-counter::before {
+  content: "";
+  width: 5px;
+  height: 5px;
+  border-radius: 999px;
+  background: var(--color-accent);
+}
+
+/* Reduce motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .hero-shot {
+    transform: none;
+  }
+  .stack-card {
+    transition: none;
+  }
+}
