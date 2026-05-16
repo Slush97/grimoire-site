@@ -1,43 +1,49 @@
-# Astro Starter Kit: Minimal
+# grimoire-site
+
+Marketing site for [Grimoire](https://github.com/Slush97/grimoire), the Deadlock mod manager.
+Deployed at <https://grimoiremods.com>.
+
+Astro + Tailwind v4, hosted on Cloudflare Workers via `@astrojs/cloudflare`.
+
+## Local development
 
 ```sh
-pnpm create astro@latest -- --template minimal
+pnpm install
+pnpm dev      # localhost:4321
+pnpm build    # output to ./dist
+pnpm preview  # preview the built site
 ```
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+The `/download` page fetches the latest GitHub release at build time. If
+`api.github.com` is unreachable from CI, the page degrades to a "Live release
+data unavailable" notice rather than failing the build.
 
-## 🚀 Project Structure
+### `GITHUB_TOKEN` (optional, recommended in CI)
 
-Inside of your Astro project, you'll see the following folders and files:
+Unauthenticated, the GitHub REST API gives any single IP 60 requests/hour. If
+Cloudflare's build pool burns that quota, builds during the next window render
+the degraded page. Setting `GITHUB_TOKEN` in the build environment bumps the
+quota to 5000/hr and removes the risk in practice.
 
-```text
-/
-├── public/
-├── src/
-│   └── pages/
-│       └── index.astro
-└── package.json
+In Cloudflare Pages: Settings → Environment variables → Production →
+`GITHUB_TOKEN` = a fine-grained PAT with `public_repo` read access. Locally,
+drop it in an untracked `.env` (Vite picks it up automatically).
+
+## Layout
+
+```
+src/
+  layouts/Base.astro    header, footer, meta, global script
+  pages/
+    index.astro         landing
+    download.astro      release-driven downloads page
+  styles/global.css     @theme tokens + a few effects
+public/                 static assets (logo, screenshots, og.png)
+wrangler.jsonc          Cloudflare Worker config
 ```
 
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
+## Deploying
 
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
-
-Any static assets, like images, can be placed in the `public/` directory.
-
-## 🧞 Commands
-
-All commands are run from the root of the project, from a terminal:
-
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `pnpm install`             | Installs dependencies                            |
-| `pnpm dev`             | Starts local dev server at `localhost:4321`      |
-| `pnpm build`           | Build your production site to `./dist/`          |
-| `pnpm preview`         | Preview your build locally, before deploying     |
-| `pnpm astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `pnpm astro -- --help` | Get help using the Astro CLI                     |
-
-## 👀 Want to learn more?
-
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+`astro build` produces a Cloudflare Worker bundle under `dist/`. Cloudflare's
+build pipeline runs `pnpm build` and deploys the result; no manual `wrangler
+deploy` step in the normal flow.

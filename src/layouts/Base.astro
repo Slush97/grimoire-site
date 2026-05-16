@@ -52,14 +52,19 @@ const isActive = (p: string) => path === p;
   </head>
   <body class="antialiased">
     <header
-      class="sticky top-0 z-50 border-b border-[var(--color-border)]/60 bg-[var(--color-bg)]/70 backdrop-blur-md"
+      class="sticky top-0 z-50 border-b border-border/60 bg-base/70 backdrop-blur-md"
     >
       <div class="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-        <a href="/" class="flex items-center gap-2.5">
-          <img src="/logo.png" alt="" width="28" height="28" class="h-7 w-7" />
-          <span class="text-xl font-semibold tracking-wide text-[var(--color-accent)]">Grimoire</span>
+        <a href="/" class="group flex items-center gap-3">
+          <span class="relative grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-accent/10 ring-1 ring-accent/25 transition-all group-hover:ring-accent/50 group-hover:bg-accent/15">
+            <img src="/logo.png" alt="" width="22" height="22" class="h-[22px] w-[22px]" />
+          </span>
+          <span class="flex items-baseline gap-2">
+            <span class="text-xl font-semibold tracking-tight text-white">Grimoire</span>
+            <span class="hidden text-[10px] font-semibold uppercase tracking-[0.22em] text-accent/80 sm:inline">Deadlock</span>
+          </span>
         </a>
-        <nav class="flex items-center gap-6 text-sm text-[var(--color-muted)]">
+        <nav class="flex items-center gap-6 text-sm text-muted">
           <a
             href="/#features"
             class={`hidden hover:text-white sm:inline ${isActive('/') ? 'text-white' : ''}`}
@@ -73,7 +78,7 @@ const isActive = (p: string) => path === p;
           <a href={githubUrl} class="hover:text-white" target="_blank" rel="noopener">GitHub</a>
           <a
             href="/download"
-            class="rounded-md bg-[var(--color-accent)] px-3 py-1.5 text-sm font-medium text-black hover:bg-[var(--color-accent-hover)]"
+            class="rounded-md bg-accent px-3 py-1.5 text-sm font-medium text-black hover:bg-accent-hover"
             >Get Grimoire</a
           >
         </nav>
@@ -82,14 +87,14 @@ const isActive = (p: string) => path === p;
 
     <slot />
 
-    <footer class="relative z-10 border-t border-[var(--color-border)]">
+    <footer class="relative z-10 border-t border-border">
       <div
-        class="mx-auto flex max-w-6xl flex-col items-start justify-between gap-3 px-6 py-10 text-sm text-[var(--color-muted)] sm:flex-row sm:items-center"
+        class="mx-auto flex max-w-6xl flex-col items-start justify-between gap-3 px-6 py-10 text-sm text-muted sm:flex-row sm:items-center"
       >
         <div class="flex items-center gap-2.5">
           <img src="/logo.png" alt="" width="20" height="20" class="h-5 w-5 opacity-80" />
           <span>
-            Built by <a href={githubUrl} target="_blank" rel="noopener" class="text-white hover:text-[var(--color-accent)]">Slush</a>. MIT licensed. Not affiliated with Valve.
+            Built by <a href={githubUrl} target="_blank" rel="noopener" class="text-white hover:text-accent">Slush</a>. MIT licensed. Not affiliated with Valve.
           </span>
         </div>
         <div class="flex gap-5">
@@ -99,5 +104,6 @@ const isActive = (p: string) => path === p;
         </div>
       </div>
     </footer>
+
   </body>
 </html>

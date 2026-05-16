@@ -32,14 +32,14 @@ const features = [
   {
     title: 'Profiles',
     body:
-      'Save full mod loadouts. Switch instantly between them. Share with mp1: codes or .modprofile.json files.',
+      'Save full mod loadouts and switch between them in one click. Profiles export as short mp1: codes for sharing, or as .modprofile.json files if a link feels too sketchy.',
     image: '/screenshots/profiles.png',
     alt: 'Profiles view with two saved mod configurations',
   },
 ];
 
 const extras = [
-  { title: 'Crosshair designer', body: 'Live preview. Save presets. Apply to autoexec.' },
+  { title: 'Crosshair designer', body: 'Live preview, saved presets, and direct apply to your autoexec.' },
   { title: 'Autoexec manager', body: 'Edit console commands without leaving the app.' },
   { title: 'Conflict detection', body: 'Find overlapping VPK paths between mods.' },
   { title: 'Player stats', body: 'MMR, match history, hero stats, leaderboards.' },
@@ -53,26 +53,27 @@ const extras = [
         <div class="max-w-3xl">
           <h1 class="text-5xl font-semibold tracking-tight text-white sm:text-7xl">
             A mod manager built for
-            <span class="text-[var(--color-accent)]">Deadlock</span>.
+            <span class="text-accent">Deadlock</span>.
           </h1>
-          <p class="mt-6 max-w-2xl text-lg text-[var(--color-muted)]">
-            Every Deadlock mod on GameBanana, indexed offline and one click away. Manage your
-            library, design crosshairs, save full loadouts per match. All in one window.
+          <p class="mt-6 max-w-2xl text-lg text-muted">
+            The full GameBanana catalog, indexed locally so search is instant and install
+            is one click. From there Grimoire handles your library, your crosshair, and as
+            many mod loadouts as you want to keep around.
           </p>
           <div class="mt-8 flex flex-wrap items-center gap-3">
             <a
               href="/download"
-              class="inline-flex items-center gap-2 rounded-md bg-[var(--color-accent)] px-5 py-2.5 text-sm font-medium text-black shadow-lg shadow-[var(--color-accent)]/20 hover:bg-[var(--color-accent-hover)]"
+              class="inline-flex items-center gap-2 rounded-md bg-accent px-5 py-2.5 text-sm font-medium text-black hover:bg-accent-hover"
               >Download Grimoire</a
             >
             <a
               href={githubUrl}
               target="_blank"
               rel="noopener"
-              class="inline-flex items-center gap-2 rounded-md border border-[var(--color-border)] bg-[var(--color-surface)] px-5 py-2.5 text-sm font-medium text-white hover:bg-[var(--color-surface-2)]"
+              class="inline-flex items-center gap-2 rounded-md border border-border bg-surface px-5 py-2.5 text-sm font-medium text-white hover:bg-surface-2"
               >View on GitHub</a
             >
-            <span class="text-xs text-[var(--color-muted)]">Windows + Linux. MIT.</span>
+            <span class="text-xs text-muted">Windows + Linux. MIT.</span>
           </div>
         </div>
       </div>
@@ -81,7 +82,7 @@ const extras = [
     <section class="relative mx-auto max-w-6xl px-6 pb-28">
       <div class="hero-shot">
         <div
-          class="overflow-hidden rounded-xl border border-[var(--color-accent)]/30 bg-[var(--color-surface)] shadow-2xl shadow-[var(--color-accent)]/20 ring-1 ring-white/5"
+          class="overflow-hidden rounded-xl border border-border bg-surface"
         >
           <img
             src="/screenshots/browse.png"
@@ -98,9 +99,10 @@ const extras = [
     </section>
 
     <section id="features" class="relative mx-auto max-w-6xl px-6 pb-28">
-      <h2 class="text-3xl font-semibold tracking-tight sm:text-4xl">Everything in one window</h2>
-      <p class="mt-2 max-w-2xl text-[var(--color-muted)]">
-        No browser extensions. No standalone tools. No bouncing between sites.
+      <h2 class="text-3xl font-semibold tracking-tight sm:text-4xl">Built around one window</h2>
+      <p class="mt-2 max-w-2xl text-muted">
+        Browsing, installing, organizing, profile-swapping — all in the app, instead of
+        spread across a browser and a few other tools.
       </p>
 
       <div class="mt-14 grid gap-16 sm:gap-20">
@@ -115,7 +117,7 @@ const extras = [
                 <h3 class="text-2xl font-semibold tracking-tight text-white sm:text-3xl">
                   {f.title}
                 </h3>
-                <p class="mt-3 text-[var(--color-muted)]">{f.body}</p>
+                <p class="mt-3 text-muted">{f.body}</p>
               </div>
               {f.image2 ? (
                 <button
@@ -147,7 +149,7 @@ const extras = [
                   <span class="stack-counter" data-stack-counter>1 / 2</span>
                 </button>
               ) : (
-                <div class="overflow-hidden rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] shadow-xl shadow-black/30 ring-1 ring-white/5">
+                <div class="overflow-hidden rounded-lg border border-border bg-surface">
                   <img
                     src={f.image}
                     alt={f.alt}
@@ -170,9 +172,9 @@ const extras = [
       <div class="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {
           extras.map((x) => (
-            <div class="spotlight rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] p-5">
+            <div class="rounded-lg border border-border bg-surface p-5">
               <div class="font-medium">{x.title}</div>
-              <div class="mt-1 text-sm text-[var(--color-muted)]">{x.body}</div>
+              <div class="mt-1 text-sm text-muted">{x.body}</div>
             </div>
           ))
         }
@@ -181,17 +183,17 @@ const extras = [
 
     <section class="relative mx-auto max-w-6xl px-6 pb-28">
       <div
-        class="flex flex-col items-start justify-between gap-6 rounded-2xl border border-[var(--color-border)] bg-gradient-to-b from-[var(--color-surface)] to-[var(--color-bg)] p-8 sm:flex-row sm:items-center sm:p-10"
+        class="flex flex-col items-start justify-between gap-6 rounded-2xl border border-border bg-surface p-8 sm:flex-row sm:items-center sm:p-10"
       >
         <div>
           <h2 class="text-2xl font-semibold tracking-tight">Ready to install?</h2>
-          <p class="mt-2 text-[var(--color-muted)]">
+          <p class="mt-2 text-muted">
             Windows, Linux (.AppImage / .deb), or Arch via the AUR.
           </p>
         </div>
         <a
           href="/download"
-          class="inline-flex items-center gap-2 rounded-md bg-[var(--color-accent)] px-5 py-2.5 text-sm font-medium text-black shadow-lg shadow-[var(--color-accent)]/20 hover:bg-[var(--color-accent-hover)]"
+          class="inline-flex items-center gap-2 rounded-md bg-accent px-5 py-2.5 text-sm font-medium text-black hover:bg-accent-hover"
           >Go to downloads</a
         >
       </div>
@@ -203,10 +205,10 @@ const extras = [
           href={githubUrl}
           target="_blank"
           rel="noopener"
-          class="spotlight rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] p-5 transition-colors hover:border-[var(--color-accent)]/50"
+          class="rounded-lg border border-border bg-surface p-5 transition-colors hover:border-accent/50"
         >
           <div class="font-medium">Open source</div>
-          <div class="mt-1 text-sm text-[var(--color-muted)]">
+          <div class="mt-1 text-sm text-muted">
             MIT licensed. Read the code, build from source, audit any release.
           </div>
         </a>
@@ -214,10 +216,10 @@ const extras = [
           href={discordUrl}
           target="_blank"
           rel="noopener"
-          class="spotlight rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] p-5 transition-colors hover:border-[var(--color-accent)]/50"
+          class="rounded-lg border border-border bg-surface p-5 transition-colors hover:border-accent/50"
         >
           <div class="font-medium">Discord</div>
-          <div class="mt-1 text-sm text-[var(--color-muted)]">
+          <div class="mt-1 text-sm text-muted">
             Help, mod recommendations, bug reports.
           </div>
         </a>
@@ -225,10 +227,10 @@ const extras = [
           href={gameBananaUrl}
           target="_blank"
           rel="noopener"
-          class="spotlight rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] p-5 transition-colors hover:border-[var(--color-accent)]/50"
+          class="rounded-lg border border-border bg-surface p-5 transition-colors hover:border-accent/50"
         >
           <div class="font-medium">GameBanana</div>
-          <div class="mt-1 text-sm text-[var(--color-muted)]">
+          <div class="mt-1 text-sm text-muted">
             Listed under Deadlock tools. Same catalog, web-side.
           </div>
         </a>
@@ -238,14 +240,6 @@ const extras = [
 </Base>
 
 <script>
-  for (const el of document.querySelectorAll<HTMLElement>('.spotlight')) {
-    el.addEventListener('pointermove', (e) => {
-      const r = el.getBoundingClientRect();
-      el.style.setProperty('--mx', `${e.clientX - r.left}px`);
-      el.style.setProperty('--my', `${e.clientY - r.top}px`);
-    });
-  }
-
   for (const stack of document.querySelectorAll<HTMLElement>('[data-stack]')) {
     const cards = Array.from(stack.querySelectorAll<HTMLElement>('[data-stack-card]'));
     const counter = stack.querySelector<HTMLElement>('[data-stack-counter]');
