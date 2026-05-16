@@ -7,6 +7,10 @@
 		"directory": "./dist",
 		"binding": "ASSETS"
 	},
+	"routes": [
+		{ "pattern": "grimoiremods.com", "custom_domain": true },
+		{ "pattern": "www.grimoiremods.com", "custom_domain": true }
+	],
 	"observability": {
 		"enabled": true
 	}
