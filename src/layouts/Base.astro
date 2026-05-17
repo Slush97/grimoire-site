@@ -51,41 +51,42 @@ const isActive = (p: string) => path === p;
     <meta name="twitter:image" content={ogImageUrl} />
   </head>
   <body class="antialiased">
+    <a href="#main" class="skip-link">Skip to content</a>
+
     <header
       class="sticky top-0 z-50 border-b border-border/60 bg-base/70 backdrop-blur-md"
     >
       <div class="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-        <a href="/" class="group flex items-center gap-3">
-          <span class="relative grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-accent/10 ring-1 ring-accent/25 transition-all group-hover:ring-accent/50 group-hover:bg-accent/15">
-            <img src="/logo.png" alt="" width="22" height="22" class="h-[22px] w-[22px]" />
-          </span>
-          <span class="flex items-baseline gap-2">
-            <span class="text-xl font-semibold tracking-tight text-white">Grimoire</span>
-            <span class="hidden text-[10px] font-semibold uppercase tracking-[0.22em] text-accent/80 sm:inline">Deadlock</span>
-          </span>
+        <a href="/" class="group flex items-center gap-3" aria-label="Grimoire, home">
+          <img src="/logo.png" alt="" width="32" height="32" class="h-8 w-8 transition-opacity group-hover:opacity-90" />
+          <span class="font-display text-2xl tracking-tight text-white">Grimoire</span>
         </a>
-        <nav class="flex items-center gap-6 text-sm text-muted">
+        <nav class="flex items-center gap-6 text-sm text-muted" aria-label="Primary">
           <a
             href="/#features"
             class={`hidden hover:text-white sm:inline ${isActive('/') ? 'text-white' : ''}`}
+            aria-current={isActive('/') ? 'page' : undefined}
             >Features</a
           >
           <a
             href="/download"
             class={`hover:text-white ${isActive('/download') ? 'text-white' : ''}`}
+            aria-current={isActive('/download') ? 'page' : undefined}
             >Download</a
           >
           <a href={githubUrl} class="hover:text-white" target="_blank" rel="noopener">GitHub</a>
           <a
             href="/download"
-            class="rounded-md bg-accent px-3 py-1.5 text-sm font-medium text-black hover:bg-accent-hover"
+            class="btn-primary rounded-md px-3.5 py-1.5 text-sm"
             >Get Grimoire</a
           >
         </nav>
       </div>
     </header>
 
-    <slot />
+    <div id="main">
+      <slot />
+    </div>
 
     <footer class="relative z-10 border-t border-border">
       <div

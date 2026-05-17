@@ -9,8 +9,11 @@
   --color-muted: #a1a1aa;
   --color-accent: #f97316;
   --color-accent-hover: #ea580c;
+  --color-paper: #e7d2a3;
+  --color-paper-dim: rgba(231, 210, 163, 0.55);
 
   --font-body: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-display: "Iowan Old Style", "Hoefler Text", "Palatino Linotype", Palatino, ui-serif, Cambria, Georgia, serif;
 }
 
 html {
@@ -36,7 +39,7 @@ body::before {
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='3'/%3E%3CfeColorMatrix type='matrix' values='0.85 0 0 0 0.22  0.55 0 0 0 0.10  0.25 0 0 0 0.03  0 0 0 1 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
-/* Warm wash on top of the base black — pulls everything toward old-paper temperature. */
+/* Warm wash on top of the base black, pulls everything toward old-paper temperature. */
 body::after {
   content: "";
   position: fixed;
@@ -53,13 +56,118 @@ body::after {
   color: #0a0a0a;
 }
 
+/* Single focus style for everything keyboard-reachable. */
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 3px;
+  border-radius: 3px;
+}
+
+/* Skip-to-content. Off-screen until focused, then slides into view. */
+.skip-link {
+  position: fixed;
+  top: -100px;
+  left: 16px;
+  z-index: 100;
+  padding: 10px 16px;
+  border-radius: 6px;
+  background: var(--color-accent);
+  color: #0a0a0a;
+  font-size: 14px;
+  font-weight: 600;
+  transition: top 180ms ease;
+}
+.skip-link:focus-visible {
+  top: 16px;
+  outline: 2px solid #0a0a0a;
+  outline-offset: 2px;
+}
+
+/* Serif display face for headlines. Italic span gets the accent color. */
+.font-display {
+  font-family: var(--font-display);
+  font-weight: 500;
+  letter-spacing: -0.005em;
+  line-height: 1.04;
+}
+.font-display em {
+  font-style: italic;
+  color: var(--color-accent);
+  font-weight: 500;
+}
+
+/* Editorial flourish: a small diamond between two fading rules. */
+.flourish {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  color: var(--color-accent);
+}
+.flourish::before,
+.flourish::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  max-width: 160px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--color-border) 25%,
+    var(--color-border) 75%,
+    transparent
+  );
+}
+.flourish > svg {
+  width: 14px;
+  height: 14px;
+  opacity: 0.9;
+}
+
+/* Primary CTA: near-white on dark. Reserves orange for accents. */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: #fafafa;
+  color: #0a0a0a;
+  font-weight: 600;
+  transition: background-color 160ms ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.45);
+}
+.btn-primary:hover {
+  background-color: #ffffff;
+}
+.btn-primary:active {
+  background-color: #e4e4e7;
+}
+
+/* Small kicker label: uppercase, tracked, with a leading dot. */
+.kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--color-paper);
+}
+.kicker::before {
+  content: "";
+  width: 18px;
+  height: 1px;
+  background: currentColor;
+  opacity: 0.55;
+}
+
 /* Subtle screenshot perspective */
 .hero-shot {
   transform: perspective(2400px) rotateX(2deg);
   transform-origin: center top;
 }
 
-/* Stacked screenshot deck — click to rotate through */
+/* Stacked screenshot deck, click to rotate through. */
 .stack-wrap {
   position: relative;
   width: 100%;
@@ -70,6 +178,11 @@ body::after {
   background: transparent;
   appearance: none;
   display: block;
+  border-radius: 0.5rem;
+}
+.stack-wrap:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 6px;
 }
 .stack-card {
   position: absolute;
@@ -133,6 +246,9 @@ body::after {
     transform: none;
   }
   .stack-card {
+    transition: none;
+  }
+  .skip-link {
     transition: none;
   }
 }
