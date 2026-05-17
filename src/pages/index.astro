@@ -1,5 +1,6 @@
 ---
 import Base from '../layouts/Base.astro';
+import Doodle from '../components/Doodle.astro';
 
 const githubUrl = 'https://github.com/Slush97/grimoire';
 const discordUrl = 'https://discord.gg/KgYGHEMq2P';
@@ -48,39 +49,57 @@ const extras = [
 
 <Base>
   <main class="relative z-10">
-    <section class="relative">
-      <div class="relative mx-auto max-w-6xl px-6 pt-24 pb-12 sm:pt-32">
-        <div class="max-w-3xl">
-          <span class="kicker">An open-source mod manager</span>
-          <h1 class="font-display mt-5 text-5xl text-white sm:text-7xl">
-            A mod manager bound<br class="hidden sm:inline" /> for <em>Deadlock</em>.
-          </h1>
-          <p class="mt-7 max-w-2xl text-lg leading-relaxed text-muted">
-            The full GameBanana catalog, indexed locally so search is instant and install
-            is one click. From there Grimoire handles your library, your crosshair, and as
-            many mod loadouts as you want to keep around.
-          </p>
-          <div class="mt-9 flex flex-wrap items-center gap-3">
-            <a
-              href="/download"
-              class="btn-primary rounded-md px-5 py-2.5 text-sm"
-              >Download Grimoire</a
-            >
-            <a
-              href={githubUrl}
-              target="_blank"
-              rel="noopener"
-              class="inline-flex items-center gap-2 rounded-md border border-border bg-surface px-5 py-2.5 text-sm font-medium text-white hover:bg-surface-2"
-              >View on GitHub</a
-            >
-            <span class="text-xs text-muted">Windows + Linux. MIT.</span>
+    <section class="relative overflow-hidden">
+      <div class="relative mx-auto max-w-6xl px-6 pt-20 pb-16 sm:pt-28 sm:pb-20">
+        <div
+          class="pointer-events-none absolute right-4 top-1/2 z-10 hidden -translate-y-1/2 lg:block"
+          aria-hidden="true"
+        >
+          <div class="candle">
+            <span class="glow"></span>
+            <span class="flame"></span>
+            <span class="wick"></span>
+            <span class="drip"></span>
+            <span class="body"></span>
+            <span class="puddle"></span>
           </div>
+        </div>
+
+        <div class="relative max-w-4xl">
+          <span class="kicker">An open-source spellbook</span>
+          <h1 class="font-display mt-6 text-5xl leading-[1.05] text-white sm:text-7xl">
+            A mod manager<br />bound for <em>Deadlock</em>.
+          </h1>
+          <p class="mt-7 max-w-xl text-lg leading-relaxed text-muted">
+            Summon the full GameBanana catalog: indexed locally so search is
+            instant, and install is one click. From there Grimoire handles your
+            library, your crosshair, and as many mod loadouts as you want bound
+            to the book.
+          </p>
+          <div class="mt-9 flex flex-wrap items-center gap-4">
+            <a href="/download" class="btn-win95 btn-win95--lg btn-win95--accent">Download Grimoire</a>
+            <a href={githubUrl} target="_blank" rel="noopener" class="btn-win95 btn-win95--lg">
+              View on GitHub
+            </a>
+            <span class="text-xs text-muted">Windows + Linux. MIT. <span class="blink" aria-hidden="true">▸</span></span>
+          </div>
+
+          <div class="mt-14 hidden max-w-2xl items-start gap-10 lg:flex" aria-hidden="true">
+            <span class="marginalia">vide: gb1click protocol. one click pulls the VPK, the manifest, and the icon. no folder spelunking.</span>
+            <span class="marginalia marginalia--right" style="max-width: 220px;">profiles export as short mp1: codes. share like a sigil.</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="mx-auto mt-6 max-w-6xl px-6">
+        <div class="glyph-rule" aria-hidden="true">
+          <span class="glyph-rule-text">✦ ⚝ ☥ ⚝ ✦</span>
         </div>
       </div>
     </section>
 
     <section class="relative mx-auto max-w-6xl px-6 pb-28">
-      <div class="hero-shot">
+      <div class="hero-shot relative">
         <div
           class="overflow-hidden rounded-xl border border-border bg-surface"
         >
@@ -95,20 +114,21 @@ const extras = [
             class="block w-full"
           />
         </div>
+        <div
+          class="pointer-events-none absolute -top-6 right-6 z-10 hidden sm:block"
+          aria-hidden="true"
+        >
+          <span class="stamp">Bound by the Order of Slush · mmxxvi</span>
+        </div>
       </div>
     </section>
 
-    <section id="features" class="relative mx-auto max-w-6xl px-6 pb-28">
-      <div class="flourish mb-12" aria-hidden="true">
-        <svg viewBox="0 0 12 12" fill="currentColor" aria-hidden="true">
-          <path d="M6 0 L9 6 L6 12 L3 6 Z" />
-        </svg>
-      </div>
+    <section id="features" class="relative mx-auto max-w-6xl overflow-hidden px-6 pb-28">
       <span class="kicker">What it does</span>
-      <h2 class="font-display mt-4 text-3xl text-white sm:text-4xl">Built around one window.</h2>
+      <h2 class="font-display mt-4 text-4xl text-white sm:text-5xl">All in one cursed window.</h2>
       <p class="mt-3 max-w-2xl text-muted">
-        Browsing, installing, organizing, profile-swapping: all in the app, instead of
-        spread across a browser and a few other tools.
+        Browsing, installing, organizing, profile-swapping: in the app, not across
+        five browser tabs and a folder you forgot about.
       </p>
 
       <div class="mt-14 grid gap-16 sm:gap-20">
@@ -120,7 +140,7 @@ const extras = [
               }`}
             >
               <div>
-                <h3 class="font-display text-2xl text-white sm:text-3xl">
+                <h3 class="font-display text-3xl text-white sm:text-4xl">
                   {f.title}
                 </h3>
                 <p class="mt-3 text-muted">{f.body}</p>
@@ -174,71 +194,85 @@ const extras = [
     </section>
 
     <section class="relative mx-auto max-w-6xl px-6 pb-28">
-      <span class="kicker">Also includes</span>
-      <h2 class="font-display mt-4 text-2xl text-white sm:text-3xl">A few more things on the shelf.</h2>
-      <div class="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {
-          extras.map((x) => (
-            <div class="rounded-lg border border-border bg-surface p-5">
-              <div class="font-medium">{x.title}</div>
-              <div class="mt-1 text-sm text-muted">{x.body}</div>
-            </div>
-          ))
-        }
+      <div class="mb-10 glyph-rule" aria-hidden="true">
+        <span class="glyph-rule-text">❉ ✶ ⚜ ✶ ❉</span>
+      </div>
+      <div class="color-block color-block-loud font-fun relative sm:p-10">
+        <div class="absolute -top-8 right-6 hidden sm:block" aria-hidden="true">
+          <Doodle name="chaos-star" size={80} opacity={0.85} color="#ff9ad5" spin />
+        </div>
+        <div class="absolute -bottom-6 -left-4 hidden sm:block" aria-hidden="true">
+          <Doodle name="ouroboros" size={90} rotate={14} opacity={0.7} color="#7dd3fc" />
+        </div>
+        <div class="absolute top-6 left-6 hidden sm:block" aria-hidden="true">
+          <Doodle name="sparkle" size={36} opacity={0.9} color="#fde047" />
+        </div>
+        <div class="relative">
+          <span class="inline-block rounded bg-fuchsia-500/40 px-2 py-0.5 text-xs font-bold uppercase tracking-widest text-fuchsia-50">
+            ★ Side spells ★
+          </span>
+          <h2 class="font-fun mt-3 text-3xl font-bold text-white sm:text-4xl">
+            Other incantations on the shelf
+          </h2>
+          <p class="font-fun mt-2 max-w-2xl text-base text-white/85">
+            stuff that ships in the box. extras for the obsessed.
+          </p>
+          <div class="mt-7 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {
+              extras.map((x) => (
+                <div class="rounded-lg border border-white/20 bg-black/30 p-5 backdrop-blur-sm">
+                  <div class="font-fun text-base font-bold text-white">{x.title}</div>
+                  <div class="font-fun mt-1 text-sm text-white/80">{x.body}</div>
+                </div>
+              ))
+            }
+          </div>
+        </div>
+        <div class="inline-marquee mt-8" aria-hidden="true">
+          <div class="inline-marquee-track">
+            <span>★ crosshair designer ★ autoexec manager ★ conflict detection ★ player stats ★ profile codes ★ hero locker ★ gb1click:// ★</span>
+            <span>★ crosshair designer ★ autoexec manager ★ conflict detection ★ player stats ★ profile codes ★ hero locker ★ gb1click:// ★</span>
+          </div>
+        </div>
       </div>
     </section>
 
-    <section class="relative mx-auto max-w-6xl px-6 pb-28">
-      <div
-        class="flex flex-col items-start justify-between gap-6 rounded-2xl border border-border bg-surface p-8 sm:flex-row sm:items-center sm:p-10"
-      >
-        <div>
-          <h2 class="font-display text-2xl text-white sm:text-3xl">Ready to install?</h2>
+    <section class="relative mx-auto max-w-6xl overflow-hidden px-6 pb-28">
+      <div class="mb-10 glyph-rule" aria-hidden="true">
+        <span class="glyph-rule-text">⚝ ☉ ⚝ ☽ ⚝</span>
+      </div>
+      <div class="codex-entry relative flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-center">
+        <div class="relative">
+          <h2 class="font-display text-3xl text-white sm:text-4xl">Ready to bind it to your PC?</h2>
           <p class="mt-2 text-muted">
             Windows, Linux (.AppImage / .deb), or Arch via the AUR.
           </p>
         </div>
-        <a
-          href="/download"
-          class="btn-primary rounded-md px-5 py-2.5 text-sm"
-          >Go to downloads</a
-        >
+        <a href="/download" class="btn-win95 btn-win95--accent relative">Go to downloads</a>
       </div>
     </section>
 
     <section class="relative mx-auto max-w-6xl px-6 pb-28">
-      <div class="grid gap-6 sm:grid-cols-3">
-        <a
-          href={githubUrl}
-          target="_blank"
-          rel="noopener"
-          class="rounded-lg border border-border bg-surface p-5 transition-colors hover:border-accent/50"
-        >
-          <div class="font-medium">Open source</div>
-          <div class="mt-1 text-sm text-muted">
-            MIT licensed. Read the code, build from source, audit any release.
+      <div class="grid gap-5 sm:grid-cols-3">
+        <a href={githubUrl} target="_blank" rel="noopener" class="codex-entry block group">
+          <div class="relative">
+            <div class="codex-entry-title">Open source</div>
+            <div class="codex-entry-body">MIT licensed. Read the code, build from source, audit any release.</div>
+            <div class="mt-3 font-sc text-[11px] tracking-[0.22em] uppercase text-paper opacity-70 group-hover:text-accent group-hover:opacity-100">github →</div>
           </div>
         </a>
-        <a
-          href={discordUrl}
-          target="_blank"
-          rel="noopener"
-          class="rounded-lg border border-border bg-surface p-5 transition-colors hover:border-accent/50"
-        >
-          <div class="font-medium">Discord</div>
-          <div class="mt-1 text-sm text-muted">
-            Help, mod recommendations, bug reports.
+        <a href={discordUrl} target="_blank" rel="noopener" class="codex-entry block group">
+          <div class="relative">
+            <div class="codex-entry-title">Discord</div>
+            <div class="codex-entry-body">Help, mod recommendations, bug reports.</div>
+            <div class="mt-3 font-sc text-[11px] tracking-[0.22em] uppercase text-paper opacity-70 group-hover:text-accent group-hover:opacity-100">discord.gg/KgYGHEMq2P →</div>
           </div>
         </a>
-        <a
-          href={gameBananaUrl}
-          target="_blank"
-          rel="noopener"
-          class="rounded-lg border border-border bg-surface p-5 transition-colors hover:border-accent/50"
-        >
-          <div class="font-medium">GameBanana</div>
-          <div class="mt-1 text-sm text-muted">
-            Listed under Deadlock tools. Same catalog, web-side.
+        <a href={gameBananaUrl} target="_blank" rel="noopener" class="codex-entry block group">
+          <div class="relative">
+            <div class="codex-entry-title">GameBanana</div>
+            <div class="codex-entry-body">Listed under Deadlock tools. Same catalog, web-side.</div>
+            <div class="mt-3 font-sc text-[11px] tracking-[0.22em] uppercase text-paper opacity-70 group-hover:text-accent group-hover:opacity-100">gamebanana/22583 →</div>
           </div>
         </a>
       </div>
