@@ -1,0 +1,781 @@
+---
+/*
+ * Stage 2 : FRUTIGER AERO (2004–2013)
+ *
+ * Glossy aqua, Bondi blue, glass panes, koi, water droplets, lens flares,
+ * Vista-gadget feature widgets. Lucida Grande / Helvetica Neue type stack.
+ * 2008 Apple keynote voice ("Discover," "Experience").
+ *
+ * No real photography : every visual is CSS gradients + inline SVG. Koi
+ * and clouds are stylized, not photorealistic, to avoid asset bloat.
+ */
+import type { DownloadUrls } from '../../data/content';
+import { fmtBytes } from '../../data/content';
+const dl = Astro.props as DownloadUrls;
+
+/*
+ * Per-platform download links surfaced by the "Pick your OS" gadget tile.
+ * Order is Windows-first to match the rest of the site; falls back to the
+ * releases page when an asset is missing so the CTA never dead-ends.
+ */
+const platforms = [
+  { os: 'Windows', label: 'Installer',  asset: dl.windowsInstaller },
+  { os: 'Windows', label: 'Portable',   asset: dl.windowsPortable  },
+  { os: 'Linux',   label: 'AppImage',   asset: dl.linuxAppImage    },
+  { os: 'Linux',   label: '.deb',       asset: dl.linuxDeb         },
+];
+
+const aeroFeatures = [
+  {
+    title: 'GameBanana, in your pocket',
+    body: 'Mods at your fingertips, beautifully organized. One click pulls the file and the icon and the manifest. No folder spelunking. Ever.',
+    glyph: 'mods',
+  },
+  {
+    title: 'Your library, your way',
+    body: 'Toggle, reorder, prioritize. Designed for the modder who loves the details, made for everyone else too.',
+    glyph: 'library',
+  },
+  {
+    title: 'Skins that shine',
+    body: 'Every variant you have, ready to wear. Switch in a single click. Yamato has never looked better.',
+    glyph: 'skins',
+  },
+  {
+    title: 'Profiles, made simple',
+    body: 'Save your favorite setups. Share them with a single code. Restore in seconds, like nothing happened.',
+    glyph: 'profiles',
+  },
+];
+
+const clouds = [
+  { left: '5%', top: '12%', scale: 1.0, opacity: 0.85 },
+  { left: '78%', top: '8%', scale: 1.3, opacity: 0.7 },
+  { left: '38%', top: '20%', scale: 0.8, opacity: 0.6 },
+  { left: '62%', top: '32%', scale: 1.1, opacity: 0.65 },
+  { left: '18%', top: '40%', scale: 0.7, opacity: 0.5 },
+];
+---
+
+<section class="stage stage-aero" data-era="aero" aria-labelledby="aero-h1">
+
+  <!-- ─── HERO ─── -->
+  <section class="aero-hero">
+    <div class="aero-sky" aria-hidden="true"></div>
+    {clouds.map((c) => (
+      <svg
+        class="cloud"
+        viewBox="0 0 200 80"
+        style={`left:${c.left}; top:${c.top}; transform: scale(${c.scale}); opacity: ${c.opacity};`}
+        aria-hidden="true"
+      >
+        <defs>
+          <radialGradient id={`cloud-grad-${c.left.replace('%','')}`} cx="50%" cy="40%" r="70%">
+            <stop offset="0%" stop-color="#ffffff" stop-opacity="1" />
+            <stop offset="60%" stop-color="#ffffff" stop-opacity="0.85" />
+            {/* End stop must keep the same color as the previous opaque stop;
+                a different color at opacity 0 still color-interpolates through
+                the alpha cliff and paints a faint blue ring around the cloud. */}
+            <stop offset="100%" stop-color="#ffffff" stop-opacity="0" />
+          </radialGradient>
+        </defs>
+        <ellipse cx="60" cy="50" rx="40" ry="22" fill={`url(#cloud-grad-${c.left.replace('%','')})`} />
+        <ellipse cx="110" cy="40" rx="50" ry="28" fill={`url(#cloud-grad-${c.left.replace('%','')})`} />
+        <ellipse cx="150" cy="52" rx="38" ry="20" fill={`url(#cloud-grad-${c.left.replace('%','')})`} />
+      </svg>
+    ))}
+
+    <!-- Decorative koi gliding low in the frame. -->
+    <svg class="koi" viewBox="0 0 200 100" aria-hidden="true">
+      <defs>
+        <linearGradient id="koi-body" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#ffffff" />
+          <stop offset="50%" stop-color="#ffd8d8" />
+          <stop offset="100%" stop-color="#ff7a7a" />
+        </linearGradient>
+      </defs>
+      <path
+        d="M 30 50 Q 60 25 110 30 Q 160 35 175 55 Q 168 70 155 60 L 165 70 L 178 78 L 168 70 Q 145 80 100 75 Q 60 70 30 60 Q 20 55 30 50 Z"
+        fill="url(#koi-body)"
+        stroke="#c44"
+        stroke-width="0.8"
+      />
+      <circle cx="55" cy="48" r="3" fill="#0a0a0a" />
+      <circle cx="55" cy="47" r="1.2" fill="#fff" />
+      <path d="M 80 38 Q 95 45 110 40" stroke="#c44" stroke-width="1" fill="none" opacity="0.6" />
+      <path d="M 100 60 Q 115 65 130 60" stroke="#c44" stroke-width="1" fill="none" opacity="0.6" />
+    </svg>
+
+    <!-- Drifting bubble field. -->
+    <div class="aero-bubbles" aria-hidden="true">
+      {Array.from({length: 14}).map((_, i) => (
+        <span
+          class="aero-bubble"
+          style={`--size: ${12 + ((i * 11) % 30)}px; --left: ${(i * 17) % 100}%; --dur: ${10 + (i % 7)}s; --delay: ${-(i % 9)}s; --drift: ${((i % 5) - 2) * 6}px;`}
+        />
+      ))}
+    </div>
+
+    <div class="wrap">
+      <span class="eyebrow">Welcome to Grimoire</span>
+      <h1 id="aero-h1">Discover Grimoire.</h1>
+      <p class="lead">
+        Beautifully designed for the modder who loves the details. Made for
+        everyone else too.
+      </p>
+
+      <a class="aqua-btn" href={dl.primaryHref}>
+        <span class="aqua-btn-text">Get Grimoire</span>
+        <span class="aqua-btn-arrow" aria-hidden="true">›</span>
+      </a>
+
+      <p class="micro">
+        Free download. Windows and Linux. The experience is reimagined.
+      </p>
+    </div>
+  </section>
+
+  <!-- ─── FEATURE GADGETS ─── -->
+  <section class="aero-features">
+    <div class="wrap">
+      <header>
+        <span class="eyebrow">An experience reimagined</span>
+        <h2>Every detail, considered.</h2>
+        <p class="section-lead">
+          Built around the way you already think about your mods. Just a
+          little bit better. A little more delightful.
+        </p>
+      </header>
+
+      <div class="gadgets">
+        {aeroFeatures.map((f) => (
+          <article class="gadget">
+            <div class="gadget-icon" aria-hidden="true">
+              <div class="orb">
+                <span class="orb-highlight"></span>
+                {f.glyph === 'mods' && (
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="3" width="7" height="7" rx="1" />
+                    <rect x="14" y="3" width="7" height="7" rx="1" />
+                    <rect x="3" y="14" width="7" height="7" rx="1" />
+                    <rect x="14" y="14" width="7" height="7" rx="1" />
+                  </svg>
+                )}
+                {f.glyph === 'library' && (
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M4 5h16M4 12h16M4 19h10" />
+                    <circle cx="19" cy="19" r="2" />
+                  </svg>
+                )}
+                {f.glyph === 'skins' && (
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 3l4 3v6c0 4-2 6-4 8-2-2-4-4-4-8V6l4-3z" />
+                    <path d="M12 8v6" />
+                  </svg>
+                )}
+                {f.glyph === 'profiles' && (
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="9" cy="8" r="3" />
+                    <path d="M3 20c0-3 3-5 6-5s6 2 6 5" />
+                    <path d="M16 11h5M18.5 8.5v5" />
+                  </svg>
+                )}
+              </div>
+            </div>
+            <h3>{f.title}</h3>
+            <p>{f.body}</p>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── GADGET SHELF (Vista-gadget side panel) ─── -->
+  <section class="aero-shelf">
+    <div class="wrap">
+      <header>
+        <span class="eyebrow">At a glance</span>
+        <h2>Your modding day, organized.</h2>
+      </header>
+
+      <div class="shelf">
+        <div class="gadget-tile gadget-tile-now">
+          <span class="g-label">Now playing</span>
+          <span class="g-big">Lane 4</span>
+          <span class="g-small">Match in progress · Yamato (Crimson)</span>
+          <div class="g-bar"><span style="width: 62%"></span></div>
+        </div>
+        <div class="gadget-tile gadget-tile-mods">
+          <span class="g-label">Active mods</span>
+          <span class="g-big">17</span>
+          <span class="g-small">No conflicts detected</span>
+          <span class="g-pulse"></span>
+        </div>
+        <div class="gadget-tile gadget-tile-weather">
+          <span class="g-label">GameBanana</span>
+          <span class="g-big">+34</span>
+          <span class="g-small">New mods this week</span>
+          <span class="g-arrow" aria-hidden="true">↗</span>
+        </div>
+        <div class="gadget-tile gadget-tile-clock">
+          <span class="g-label">Loadouts</span>
+          <span class="g-big">8</span>
+          <span class="g-small">Saved profiles, ready to swap</span>
+          <span class="g-rings" aria-hidden="true"></span>
+        </div>
+        <div class="gadget-tile gadget-tile-platforms">
+          <span class="g-label">Pick your OS</span>
+          <ul class="platform-list">
+            {platforms.map((p) => (
+              <li>
+                <a
+                  class="platform-pill"
+                  href={p.asset?.browser_download_url ?? dl.releaseUrl}
+                  title={p.asset ? `${p.asset.name} (${fmtBytes(p.asset.size)})` : 'Open releases'}
+                >
+                  <span class="platform-os">{p.os}</span>
+                  <span class="platform-label">{p.label}</span>
+                  <span class="platform-size">{p.asset ? fmtBytes(p.asset.size) : '·'}</span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── FINAL CTA ─── -->
+  <section class="aero-final">
+    <div class="aero-final-sky" aria-hidden="true"></div>
+    <div class="wrap">
+      <h2>Beautifully simple.<br />Surprisingly powerful.</h2>
+      <p class="section-lead">
+        Available now. Free for everyone.
+      </p>
+      <a class="aqua-btn aqua-btn-lg" href={dl.primaryHref}>
+        <span class="aqua-btn-text">Get Grimoire</span>
+        <span class="aqua-btn-arrow" aria-hidden="true">›</span>
+      </a>
+    </div>
+  </section>
+</section>
+
+<style>
+  /* ─────────────────────────────────────────────────────────────────
+     AERO: scoped Frutiger Aero world. Sky-cloud gradient bg, koi,
+     bubbles, glassy aqua pills, Vista-gadget tiles. Lucida Grande
+     type stack. Everything has a gradient. Everything has gloss.
+     ───────────────────────────────────────────────────────────────── */
+  .stage-aero {
+    background: linear-gradient(180deg, #87ceeb 0%, #5cb3e0 50%, #2196f3 100%);
+    color: #0a2d4a;
+    font-family: 'Lucida Grande', 'Lucida Sans Unicode', 'Helvetica Neue',
+      'Segoe UI', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    display: block;
+    min-height: auto;
+    overflow: visible;
+    text-shadow: 0 1px 0 rgba(255,255,255,0.5);
+  }
+  .stage-aero .wrap {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+  .stage-aero h1, .stage-aero h2, .stage-aero h3 { margin: 0; color: #0a2d4a; }
+  .stage-aero p { margin: 0; }
+  .stage-aero ul { margin: 0; padding: 0; list-style: none; }
+  .stage-aero a { color: inherit; text-decoration: none; }
+
+  .stage-aero .eyebrow {
+    display: inline-block;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: rgba(10, 45, 74, 0.8);
+    margin-bottom: 18px;
+    text-shadow: 0 1px 0 rgba(255,255,255,0.7);
+  }
+  .stage-aero .section-lead {
+    color: rgba(10, 45, 74, 0.75);
+    font-size: 17px;
+    line-height: 1.55;
+    max-width: 640px;
+    margin: 12px auto 0;
+  }
+
+  /* ─── Hero ─── */
+  .stage-aero .aero-hero {
+    position: relative;
+    padding: 120px 0 140px;
+    text-align: center;
+    overflow: hidden;
+    isolation: isolate;
+  }
+  /*
+   * Top stop must equal the bottom of FugaziToAero (#87ceeb) so the
+   * stage→transition boundary disappears. The white radial near 20% Y
+   * still gives the "open sky overhead" lift without needing a paler
+   * starting color.
+   */
+  .stage-aero .aero-sky {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    background:
+      radial-gradient(ellipse 90% 60% at 50% 100%, rgba(255,255,255,0.5), transparent 60%),
+      radial-gradient(ellipse 60% 40% at 20% 20%, rgba(255,255,255,0.55), transparent 60%),
+      linear-gradient(180deg, #87ceeb 0%, #87ceeb 30%, #6cc0e6 65%, #5cb3e0 100%);
+  }
+  .stage-aero .cloud {
+    position: absolute;
+    width: 200px;
+    height: 80px;
+    z-index: 1;
+    pointer-events: none;
+    animation: cloud-drift 60s linear infinite;
+  }
+  .stage-aero .cloud:nth-of-type(2n) { animation-duration: 90s; animation-direction: reverse; }
+  .stage-aero .cloud:nth-of-type(3n) { animation-duration: 75s; }
+  @keyframes cloud-drift {
+    from { transform: translateX(-30px); }
+    to   { transform: translateX(30px); }
+  }
+  .stage-aero .koi {
+    position: absolute;
+    right: -40px;
+    bottom: 14%;
+    width: 240px;
+    height: 120px;
+    z-index: 1;
+    opacity: 0.45;
+    animation: koi-swim 28s ease-in-out infinite alternate;
+    filter: drop-shadow(0 8px 18px rgba(0,30,60,0.18));
+  }
+  @keyframes koi-swim {
+    from { transform: translate(0, 0); }
+    to   { transform: translate(-200px, -40px) rotate(-3deg); }
+  }
+  .stage-aero .aero-bubbles {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+  }
+  .stage-aero .aero-bubble {
+    position: absolute;
+    bottom: -40px;
+    left: var(--left);
+    width: var(--size);
+    height: var(--size);
+    border-radius: 50%;
+    background:
+      radial-gradient(circle at 30% 28%,
+        rgba(255,255,255,0.95) 0%,
+        rgba(255,255,255,0.4) 20%,
+        rgba(126,182,229,0.18) 55%,
+        rgba(126,182,229,0.05) 100%);
+    border: 1px solid rgba(255,255,255,0.6);
+    box-shadow:
+      inset 0 -2px 4px rgba(255,255,255,0.7),
+      0 2px 6px rgba(0, 41, 89, 0.1);
+    animation: aero-bubble-rise var(--dur) linear infinite;
+    animation-delay: var(--delay);
+  }
+  @keyframes aero-bubble-rise {
+    0%   { transform: translate3d(0, 0, 0) scale(0.9); opacity: 0; }
+    10%  { opacity: 1; }
+    50%  { transform: translate3d(var(--drift), -50vh, 0); }
+    90%  { opacity: 1; }
+    100% { transform: translate3d(calc(var(--drift) * 2), -100vh, 0) scale(0.8); opacity: 0; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .stage-aero .cloud,
+    .stage-aero .koi,
+    .stage-aero .aero-bubble { animation: none; }
+  }
+
+  .stage-aero .aero-hero .wrap {
+    position: relative;
+    z-index: 2;
+  }
+  .stage-aero h1 {
+    font-size: clamp(48px, 10vw, 96px);
+    font-weight: 200;
+    line-height: 1.0;
+    letter-spacing: -0.025em;
+    color: #ffffff;
+    text-shadow:
+      0 1px 2px rgba(0, 45, 100, 0.25),
+      0 2px 12px rgba(0, 45, 100, 0.2);
+  }
+  .stage-aero .aero-hero .lead {
+    color: #ffffff;
+    font-size: clamp(17px, 2vw, 21px);
+    font-weight: 300;
+    line-height: 1.5;
+    max-width: 560px;
+    margin: 24px auto 36px;
+    text-shadow: 0 1px 2px rgba(0, 45, 100, 0.25);
+  }
+  .stage-aero .micro {
+    margin-top: 24px;
+    font-size: 13px;
+    color: rgba(255,255,255,0.85);
+    font-weight: 400;
+    text-shadow: 0 1px 1px rgba(0, 45, 100, 0.3);
+  }
+
+  /* ─── Aqua button (the classic 2-stop gloss pill) ─── */
+  .stage-aero .aqua-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 28px;
+    background:
+      linear-gradient(180deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0) 50%),
+      linear-gradient(180deg, #7eb6e5 0%, #4a8fcc 49%, #2c6cad 51%, #1a4d8a 100%);
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: 700;
+    text-shadow: 0 1px 1px rgba(0, 25, 60, 0.5);
+    border-radius: 100px;
+    border: 1px solid rgba(255,255,255,0.55);
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,0.7),
+      inset 0 -1px 0 rgba(0, 25, 60, 0.4),
+      0 1px 0 rgba(255,255,255,0.3),
+      0 4px 12px rgba(0, 41, 89, 0.35),
+      0 8px 24px -8px rgba(0, 41, 89, 0.45);
+    transition: transform 120ms ease, box-shadow 120ms ease;
+    position: relative;
+    overflow: hidden;
+  }
+  .stage-aero .aqua-btn::before {
+    /* Specular highlight on the top half */
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 50%;
+    background: linear-gradient(180deg, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0) 100%);
+    border-radius: 100px 100px 0 0;
+    pointer-events: none;
+  }
+  .stage-aero .aqua-btn:hover {
+    transform: translateY(-1px);
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,0.8),
+      inset 0 -1px 0 rgba(0, 25, 60, 0.45),
+      0 1px 0 rgba(255,255,255,0.4),
+      0 6px 16px rgba(0, 41, 89, 0.4),
+      0 12px 32px -8px rgba(0, 41, 89, 0.5);
+  }
+  .stage-aero .aqua-btn:active { transform: translateY(0); }
+  .stage-aero .aqua-btn-text { position: relative; z-index: 1; }
+  .stage-aero .aqua-btn-arrow {
+    position: relative;
+    z-index: 1;
+    font-size: 18px;
+    line-height: 1;
+    transition: transform 160ms ease;
+  }
+  .stage-aero .aqua-btn:hover .aqua-btn-arrow { transform: translateX(2px); }
+  .stage-aero .aqua-btn-lg { padding: 16px 36px; font-size: 17px; }
+
+  /* ─── Features (Vista-gadget cards) ─── */
+  .stage-aero .aero-features {
+    padding: 96px 0;
+    background:
+      radial-gradient(ellipse 80% 60% at 50% 0%, rgba(255,255,255,0.5), transparent 70%),
+      linear-gradient(180deg, #5cb3e0 0%, #4a9dd6 100%);
+    position: relative;
+  }
+  .stage-aero .aero-features header { text-align: center; margin-bottom: 56px; }
+  .stage-aero .aero-features h2 {
+    font-size: clamp(32px, 5vw, 48px);
+    font-weight: 200;
+    line-height: 1.08;
+    color: #ffffff;
+    text-shadow: 0 1px 2px rgba(0, 45, 100, 0.3);
+    letter-spacing: -0.015em;
+  }
+  .stage-aero .aero-features .section-lead { color: rgba(255,255,255,0.85); }
+  .stage-aero .gadgets {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 20px;
+  }
+  .stage-aero .gadget {
+    background: linear-gradient(180deg, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0.25) 100%);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255,255,255,0.7);
+    border-radius: 14px;
+    padding: 28px 22px;
+    text-align: left;
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,0.9),
+      0 8px 24px -8px rgba(0, 41, 89, 0.25);
+    transition: transform 200ms ease, box-shadow 200ms ease;
+  }
+  .stage-aero .gadget:hover {
+    transform: translateY(-3px);
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,0.95),
+      0 12px 32px -8px rgba(0, 41, 89, 0.35);
+  }
+  .stage-aero .gadget h3 {
+    font-size: 17px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: #0a2d4a;
+  }
+  .stage-aero .gadget p {
+    font-size: 13.5px;
+    line-height: 1.5;
+    color: rgba(10, 45, 74, 0.78);
+  }
+  .stage-aero .gadget-icon { margin-bottom: 18px; }
+  .stage-aero .orb {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background:
+      radial-gradient(circle at 30% 28%, #ffffff 0%, #b8e1f5 18%, #4a8fcc 60%, #1a4d8a 100%);
+    border: 1px solid rgba(255,255,255,0.5);
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,0.7),
+      0 4px 12px rgba(0, 41, 89, 0.25);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    position: relative;
+    overflow: hidden;
+  }
+  .stage-aero .orb svg { width: 22px; height: 22px; position: relative; z-index: 1; filter: drop-shadow(0 1px 1px rgba(0, 25, 60, 0.4)); }
+  .stage-aero .orb-highlight {
+    position: absolute;
+    top: 4px;
+    left: 6px;
+    width: 22px;
+    height: 14px;
+    background: radial-gradient(ellipse at center, rgba(255,255,255,0.85) 0%, rgba(255,255,255,0) 70%);
+    border-radius: 50%;
+    pointer-events: none;
+  }
+
+  /* ─── Shelf (Vista-gadget tiles) ─── */
+  .stage-aero .aero-shelf {
+    padding: 96px 0;
+    background: linear-gradient(180deg, #4a9dd6 0%, #2c80c2 100%);
+    position: relative;
+  }
+  .stage-aero .aero-shelf header { text-align: center; margin-bottom: 48px; }
+  .stage-aero .aero-shelf h2 {
+    font-size: clamp(28px, 4.5vw, 44px);
+    font-weight: 200;
+    line-height: 1.08;
+    color: #ffffff;
+    letter-spacing: -0.015em;
+    text-shadow: 0 1px 2px rgba(0, 45, 100, 0.3);
+  }
+  .stage-aero .shelf {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 18px;
+  }
+  .stage-aero .gadget-tile {
+    position: relative;
+    padding: 20px 22px;
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.4);
+    background:
+      linear-gradient(180deg, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0.05) 100%),
+      rgba(20, 60, 110, 0.45);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    color: #ffffff;
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,0.5),
+      0 6px 18px rgba(0, 41, 89, 0.25);
+    overflow: hidden;
+  }
+  .stage-aero .g-label {
+    display: block;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.75);
+    margin-bottom: 8px;
+  }
+  .stage-aero .g-big {
+    display: block;
+    font-size: 38px;
+    font-weight: 200;
+    line-height: 1.0;
+    margin-bottom: 4px;
+    letter-spacing: -0.02em;
+  }
+  .stage-aero .g-small {
+    display: block;
+    font-size: 12px;
+    color: rgba(255,255,255,0.85);
+    line-height: 1.4;
+  }
+  .stage-aero .g-bar {
+    margin-top: 12px;
+    height: 6px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 100px;
+    overflow: hidden;
+    border: 1px solid rgba(0,0,0,0.2);
+  }
+  .stage-aero .g-bar span {
+    display: block;
+    height: 100%;
+    background: linear-gradient(180deg, #7eb6e5 0%, #4a8fcc 100%);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.4);
+    border-radius: 100px;
+  }
+  .stage-aero .g-pulse {
+    position: absolute;
+    top: 16px;
+    right: 18px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, #b6f0a3, #4caf50);
+    box-shadow: 0 0 8px rgba(76, 175, 80, 0.6);
+    animation: pulse-ring 2s ease-in-out infinite;
+  }
+  @keyframes pulse-ring {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+  .stage-aero .g-arrow {
+    position: absolute;
+    top: 14px;
+    right: 16px;
+    font-size: 20px;
+    color: #b6f0a3;
+    text-shadow: 0 0 8px rgba(76, 175, 80, 0.4);
+  }
+  .stage-aero .g-rings {
+    position: absolute;
+    top: 50%;
+    right: -20px;
+    width: 80px;
+    height: 80px;
+    transform: translateY(-50%);
+    border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.3);
+    box-shadow:
+      inset 0 0 20px rgba(255,255,255,0.15),
+      0 0 0 12px rgba(255,255,255,0.05);
+  }
+
+  /* Pick-your-OS tile: lists all four release artifacts as glassy pills. */
+  .stage-aero .gadget-tile-platforms {
+    grid-column: span 2;
+  }
+  .stage-aero .platform-list {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 4px;
+  }
+  .stage-aero .platform-pill {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: baseline;
+    gap: 10px;
+    padding: 10px 14px;
+    border-radius: 999px;
+    background:
+      linear-gradient(180deg, rgba(255,255,255,0.45) 0%, rgba(255,255,255,0.1) 48%, rgba(0,0,0,0.05) 52%, rgba(255,255,255,0.18) 100%),
+      rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.55);
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,0.7),
+      0 2px 6px rgba(0, 41, 89, 0.15);
+    color: #ffffff;
+    text-shadow: 0 1px 0 rgba(0, 41, 89, 0.4);
+    text-decoration: none;
+    transition: transform 120ms ease, box-shadow 120ms ease;
+  }
+  .stage-aero .platform-pill:hover {
+    transform: translateY(-1px);
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,0.85),
+      0 4px 12px rgba(0, 41, 89, 0.25);
+  }
+  .stage-aero .platform-pill:active { transform: translateY(0); }
+  .stage-aero .platform-os {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.85);
+  }
+  .stage-aero .platform-label {
+    font-size: 14px;
+    font-weight: 600;
+  }
+  .stage-aero .platform-size {
+    font-size: 11px;
+    color: rgba(255,255,255,0.7);
+    font-variant-numeric: tabular-nums;
+  }
+  @media (max-width: 720px) {
+    .stage-aero .gadget-tile-platforms { grid-column: span 1; }
+    .stage-aero .platform-list { grid-template-columns: 1fr; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .stage-aero .g-pulse { animation: none; }
+  }
+
+  /* ─── Final CTA ─── */
+  .stage-aero .aero-final {
+    padding: 120px 0;
+    position: relative;
+    overflow: hidden;
+    text-align: center;
+  }
+  .stage-aero .aero-final-sky {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 50% at 50% 0%, rgba(255,255,255,0.5), transparent 70%),
+      linear-gradient(180deg, #2c80c2 0%, #1a5e9a 100%);
+  }
+  .stage-aero .aero-final .wrap { position: relative; z-index: 2; }
+  .stage-aero .aero-final h2 {
+    font-size: clamp(36px, 6vw, 64px);
+    font-weight: 200;
+    line-height: 1.05;
+    color: #ffffff;
+    text-shadow: 0 2px 4px rgba(0, 45, 100, 0.35);
+    letter-spacing: -0.02em;
+  }
+  .stage-aero .aero-final .section-lead {
+    color: rgba(255,255,255,0.9);
+    margin: 20px auto 36px;
+  }
+
+  /* ─── Responsive ─── */
+  @media (max-width: 720px) {
+    .stage-aero .aero-hero { padding: 80px 0 80px; }
+    .stage-aero .aero-features,
+    .stage-aero .aero-shelf,
+    .stage-aero .aero-final { padding: 72px 0; }
+    .stage-aero .koi { width: 160px; right: -30px; }
+    .stage-aero .cloud { transform: scale(0.7) !important; }
+  }
+</style>

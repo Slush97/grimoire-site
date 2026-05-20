@@ -1,0 +1,354 @@
+---
+/*
+ * Transition: WIN95 → GEOCITIES
+ *
+ * Reworked for motion. The desktop crashes (CRT glitch + BSOD that
+ * RGB-splits and shudders), a horizontal scanline sweep wipes the
+ * screen, the BIOS reboot text reveals scroll-linked like a typewriter,
+ * and finally the starfield bursts forward as if we're falling through
+ * it into the amateur web below.
+ *
+ * 110vh of vertical scroll. Scroll-linked where supported. Decorative;
+ * aria-hidden.
+ */
+---
+
+<section class="trans-w2g" aria-hidden="true">
+  <!--
+    The bands are gradient bands; they no longer carry the only motion.
+    A scanline element sweeps across the whole transition and three
+    pieces of content (BSOD, BIOS text, stars) cross-fade as scroll
+    progresses.
+  -->
+  <div class="bg-bsod"></div>
+  <div class="bg-void"></div>
+  <div class="bg-stars"></div>
+
+  <!-- TV scan-line wipe travelling top-to-bottom -->
+  <div class="scan-wipe" aria-hidden="true"></div>
+
+  <!-- BSOD content -->
+  <div class="bsod-layer">
+    <div class="bsod-content">
+      <p class="bsod-head">
+        A fatal exception 0E has occurred at 0028:C0011E36 in VXD VMM(01) +
+        00010E36. The current application will be terminated.
+      </p>
+      <ul class="bsod-list">
+        <li>* Press any key to terminate the current application.</li>
+        <li>* Press CTRL+ALT+DEL again to restart your computer. You will</li>
+        <li>&nbsp;&nbsp;lose any unsaved information in all applications.</li>
+      </ul>
+      <p class="bsod-prompt">Press any key to continue <span class="cursor">_</span></p>
+    </div>
+  </div>
+
+  <!-- BIOS reboot text revealing scroll-linked -->
+  <pre class="reboot-text" aria-hidden="true">PhoenixBIOS 4.0 Release 6.0
+Copyright 1985-1995 Phoenix Technologies Ltd.
+
+CPU = Intel Pentium 75 MHz
+640K System RAM Passed
+31744K Extended RAM Passed
+Initializing USB Controllers .. Done.
+Fixed Disk 0: WDC AC2540H
+ATAPI CD-ROM: GoldStar CRD-8240B
+
+Starting Windows...
+_</pre>
+
+  <!-- Starfield zooming toward viewer -->
+  <div class="stars" aria-hidden="true"></div>
+</section>
+
+<style>
+  .trans-w2g {
+    position: relative;
+    width: 100%;
+    height: 110vh;
+    overflow: hidden;
+    isolation: isolate;
+    /*
+     * Solid fallback under all the opacity-animated bg layers. Without
+     * this, when bg-bsod fades out before bg-void is fully in, the body
+     * (#000) bleeds through and reads as an unintended void above the
+     * BIOS reboot text. #0000aa is the same BSOD color bg-bsod settles
+     * on, so the fallback is invisible while bg-bsod is opaque, and
+     * shows up only during the cross-fade : exactly what we want.
+     */
+    background: #0000aa;
+  }
+
+  /*
+   * Bottom edge bleed only: Geocities #000010 fades up over the last 3vh
+   * to insulate the handoff. No top bleed : the Win95 stage's bottom
+   * edge is the taskbar chrome (#c0c0c0), not the teal desktop, so a
+   * teal fade here painted a strip below the start bar that read as
+   * "desktop continuing past the taskbar." The BSOD layer (#0000aa,
+   * inset 0) already covers the top edge solidly, which is the right
+   * read for a crash anyway: taskbar, then immediate BSOD.
+   */
+  .trans-w2g::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 3vh;
+    pointer-events: none;
+    z-index: 5;
+    background: linear-gradient(0deg, #000010 0%, rgba(0,0,16,0) 100%);
+  }
+
+  /*
+   * Three stacked background layers. The previous version split the
+   * frame into three flex bands which created hard horizontal lines on
+   * the boundaries. These layers now cover the whole frame and
+   * cross-fade by opacity, so any "seam" is also temporal, not
+   * spatial.
+   */
+  /*
+   * Flat BSOD blue. The transition is the *crash* : visually the monitor
+   * jumps from teal desktop straight to BSOD, not a gentle fade. The
+   * stage→transition seam is smoothed by the 3vh `::before` edge bleed
+   * above (teal fading to transparent over the first 3vh of the
+   * section), which gives just enough boundary softening to kill any
+   * sub-pixel mismatch without painting "more Win95" into the
+   * transition.
+   *
+   * Earlier versions ramped teal→BSOD across 8-22% of the section,
+   * which read as Win95 continuing into the transition. The crash is
+   * meant to be abrupt : leave it abrupt.
+   */
+  .trans-w2g .bg-bsod {
+    position: absolute;
+    inset: 0;
+    background: #0000aa;
+  }
+  .trans-w2g .bg-void {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg in oklab, #000010 0%, #000000 100%);
+    opacity: 0;
+  }
+  .trans-w2g .bg-stars {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg in oklab, #000000 0%, #000010 100%);
+    opacity: 0;
+  }
+
+  /*
+   * TV scan-line wipe. A 12vh-tall bright bar that travels top to
+   * bottom across the scroll range, painting away the previous frame
+   * and revealing the next. Mix-blend-mode: screen brightens whatever
+   * is below it.
+   */
+  .trans-w2g .scan-wipe {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: -20vh;
+    height: 14vh;
+    background: linear-gradient(
+      180deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.05) 20%,
+      rgba(255, 255, 255, 0.9) 50%,
+      rgba(255, 255, 255, 0.05) 80%,
+      transparent 100%
+    );
+    mix-blend-mode: screen;
+    pointer-events: none;
+    z-index: 4;
+    opacity: 0;
+  }
+
+  /* ─── BSOD ─── */
+  .trans-w2g .bsod-layer {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    color: #ffffff;
+    font-family: 'Cascadia Mono', 'Lucida Console', 'Courier New', monospace;
+    font-size: 13px;
+    line-height: 1.45;
+    z-index: 2;
+    /*
+     * Tiny vertical jitter + RGB split via text-shadow gives the CRT
+     * crash a felt-quality of failing hardware, without animating a
+     * filter (which would force a layer paint per frame).
+     */
+    text-shadow: 1px 0 #ff3030, -1px 0 #30ffff;
+    animation: bsod-jitter 80ms steps(2, end) infinite;
+  }
+  @keyframes bsod-jitter {
+    0%, 100% { transform: translate(0, 0); }
+    50%      { transform: translate(0.5px, -0.5px); }
+  }
+  .trans-w2g .bsod-content {
+    max-width: 720px;
+    width: 100%;
+  }
+  .trans-w2g .bsod-head { margin: 0 0 16px; }
+  .trans-w2g .bsod-list {
+    margin: 0 0 16px;
+    padding: 0;
+    list-style: none;
+  }
+  .trans-w2g .bsod-prompt { margin: 0; }
+  .trans-w2g .cursor {
+    animation: blink-w2g 1s steps(2, end) infinite;
+  }
+  @keyframes blink-w2g { 50% { opacity: 0; } }
+
+  /* ─── BIOS reboot text ─── */
+  .trans-w2g .reboot-text {
+    position: absolute;
+    inset: 0;
+    margin: 0;
+    padding: 32px 24px;
+    color: #00ff66;
+    font-family: 'Cascadia Mono', 'Lucida Console', 'Courier New', monospace;
+    font-size: 12px;
+    line-height: 1.5;
+    text-shadow: 0 0 4px rgba(0, 255, 102, 0.5);
+    max-width: 720px;
+    margin: 0 auto;
+    z-index: 2;
+    /*
+     * Reveal scroll-linked by clipping the bottom of the block. The
+     * text exists in the layout from frame 0; only its visible portion
+     * grows. Cheap, no JS, no per-character markup.
+     */
+    clip-path: inset(0 0 100% 0);
+    opacity: 0;
+  }
+
+  /*
+   * ─── Starfield zoom ───
+   *
+   * A radial vignette of dots that scales up from 0.6× to 2.4× across
+   * the scroll range, simulating "flying through" stars. Brightness
+   * also ramps so the field reads as ignited only when it should.
+   */
+  .trans-w2g .stars {
+    position: absolute;
+    inset: 0;
+    background-image:
+      radial-gradient(2px 2px at 13% 17%, #ffffff, transparent 60%),
+      radial-gradient(1px 1px at 47% 7%,  #ffffff, transparent 60%),
+      radial-gradient(2px 2px at 80% 25%, #ffffff, transparent 60%),
+      radial-gradient(1px 1px at 25% 42%, #ffffff, transparent 60%),
+      radial-gradient(1.5px 1.5px at 60% 50%, #ccddff, transparent 60%),
+      radial-gradient(1px 1px at 87% 60%, #ffffff, transparent 60%),
+      radial-gradient(1px 1px at 35% 75%, #ffffff, transparent 60%),
+      radial-gradient(2px 2px at 70% 85%, #ffffff, transparent 60%),
+      radial-gradient(1px 1px at 18% 88%, #ffccff, transparent 60%),
+      radial-gradient(1px 1px at 92% 30%, #ffffff, transparent 60%),
+      radial-gradient(1.5px 1.5px at 8% 55%, #ffffff, transparent 60%);
+    background-repeat: no-repeat;
+    transform: scale(0.6);
+    opacity: 0;
+    z-index: 1;
+  }
+
+  @supports (animation-timeline: view()) {
+    .trans-w2g .bg-bsod {
+      animation: bg-bsod-out linear both;
+      animation-timeline: view();
+      animation-range: cover 25% cover 45%;
+    }
+    .trans-w2g .bg-void {
+      animation: bg-void-in linear both;
+      animation-timeline: view();
+      /*
+       * Ends at cover 45% : same point bg-bsod hits opacity 0 : so the
+       * cross-fade is never less than 1.0 combined coverage. Without
+       * this overlap the section's solid #0000aa fallback (or worse,
+       * the body's #000) would show through during the handoff.
+       */
+      animation-range: cover 20% cover 45%;
+    }
+    .trans-w2g .bg-stars {
+      animation: bg-stars-in linear both;
+      animation-timeline: view();
+      animation-range: cover 60% cover 100%;
+    }
+    .trans-w2g .scan-wipe {
+      animation: scan-travel linear both;
+      animation-timeline: view();
+      animation-range: cover 25% cover 70%;
+    }
+    .trans-w2g .bsod-layer {
+      animation: bsod-life linear both, bsod-jitter 80ms steps(2, end) infinite;
+      animation-timeline: view(), auto;
+      animation-range: cover 0% cover 35%, auto;
+    }
+    .trans-w2g .reboot-text {
+      animation: reboot-reveal linear both;
+      animation-timeline: view();
+      animation-range: cover 35% cover 70%;
+    }
+    .trans-w2g .stars {
+      animation: stars-zoom linear both;
+      animation-timeline: view();
+      animation-range: cover 55% cover 100%;
+    }
+  }
+  @keyframes bg-bsod-out { to { opacity: 0; } }
+  @keyframes bg-void-in  { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes bg-stars-in { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes scan-travel {
+    0%   { opacity: 0; transform: translateY(0); }
+    8%   { opacity: 1; }
+    92%  { opacity: 1; }
+    100% { opacity: 0; transform: translateY(140vh); }
+  }
+  @keyframes bsod-life {
+    0%   { opacity: 0; transform: scale(1.04); }
+    8%   { opacity: 1; transform: scale(1); }
+    80%  { opacity: 1; transform: scale(1); filter: blur(0); }
+    100% { opacity: 0; transform: scale(0.95); filter: blur(8px); }
+  }
+  @keyframes reboot-reveal {
+    0%   { opacity: 0; clip-path: inset(0 0 100% 0); }
+    15%  { opacity: 1; }
+    100% { opacity: 1; clip-path: inset(0 0 0 0); }
+  }
+  @keyframes stars-zoom {
+    0%   { opacity: 0; transform: scale(0.6); }
+    25%  { opacity: 0.6; }
+    100% { opacity: 1; transform: scale(2.4); }
+  }
+
+  @supports not (animation-timeline: view()) {
+    .trans-w2g .bg-bsod    { animation: bg-bsod-out 1s ease forwards 2s; }
+    .trans-w2g .bg-void    { animation: bg-void-in 1.5s ease forwards 2s; }
+    .trans-w2g .bg-stars   { animation: bg-stars-in 1.5s ease forwards 5s; }
+    .trans-w2g .scan-wipe  { animation: scan-travel 3s ease forwards 1.5s; }
+    .trans-w2g .bsod-layer {
+      animation: bsod-life 3s ease forwards 0s, bsod-jitter 80ms steps(2, end) infinite;
+    }
+    .trans-w2g .reboot-text { animation: reboot-reveal 3s linear forwards 3s; }
+    .trans-w2g .stars       { animation: stars-zoom 4s ease-out forwards 5s; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .trans-w2g .bsod-layer,
+    .trans-w2g .cursor,
+    .trans-w2g .scan-wipe,
+    .trans-w2g .reboot-text,
+    .trans-w2g .stars,
+    .trans-w2g .bg-bsod,
+    .trans-w2g .bg-void,
+    .trans-w2g .bg-stars { animation: none; }
+    .trans-w2g .bsod-layer { opacity: 0; }
+    .trans-w2g .stars { opacity: 1; transform: none; }
+    .trans-w2g .bg-stars { opacity: 1; }
+    .trans-w2g .reboot-text { opacity: 0.6; clip-path: none; }
+  }
+</style>

@@ -1,0 +1,320 @@
+---
+/*
+ * Transition: FUGAZI → AERO
+ *
+ * Reworked for motion. The corporate scaffolding (chart line, mesh
+ * blobs) dissolves while the sky brightens and a lens flare grows. As
+ * the flare peaks, bubbles emerge from below and rise into Aero.
+ *
+ * 100vh of vertical scroll. Scroll-linked motion where supported, with
+ * graceful fallback to time-based animation. Decorative; aria-hidden.
+ */
+
+const bubbles = Array.from({ length: 22 }, (_, i) => {
+  const size = 10 + ((i * 7) % 28);
+  const left = (i * 13) % 100;
+  const dur = 7 + ((i * 3) % 8);
+  const delay = -((i * 0.6) % 8);
+  const drift = ((i % 5) - 2) * 4;
+  return { size, left, dur, delay, drift, n: i };
+});
+---
+
+<section class="trans-f2a" aria-hidden="true">
+  <div class="sky"></div>
+  <div class="aero-rise"></div>
+  <div class="haze"></div>
+
+  <!-- The Fugazi residue: dashboard chart line + sparkline that dissolves -->
+  <svg class="chart" viewBox="0 0 400 80" preserveAspectRatio="none">
+    <defs>
+      <linearGradient id="chart-fill" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" stop-color="#a78bfa" stop-opacity="0.45" />
+        <stop offset="100%" stop-color="#a78bfa" stop-opacity="0" />
+      </linearGradient>
+    </defs>
+    <path d="M 0 60 L 40 50 L 80 55 L 120 40 L 160 45 L 200 30 L 240 35 L 280 22 L 320 28 L 360 15 L 400 20 L 400 80 L 0 80 Z" fill="url(#chart-fill)" />
+    <path d="M 0 60 L 40 50 L 80 55 L 120 40 L 160 45 L 200 30 L 240 35 L 280 22 L 320 28 L 360 15 L 400 20" fill="none" stroke="#a78bfa" stroke-width="1.5" />
+  </svg>
+
+  <div class="flare"></div>
+
+  <div class="bubbles">
+    {bubbles.map((b) => (
+      <span
+        class="bubble"
+        style={`--size: ${b.size}px; --left: ${b.left}%; --dur: ${b.dur}s; --delay: ${b.delay}s; --drift: ${b.drift}px;`}
+      />
+    ))}
+  </div>
+</section>
+
+<style>
+  .trans-f2a {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+    isolation: isolate;
+    background: #fafafa;
+  }
+
+  /*
+   * Edge bleeds: the first/last 3vh of the section is dominated by the
+   * adjacent stage's edge color (Fugazi #fafafa above, Aero #87ceeb
+   * below), fading to transparent so the transition's own painting
+   * takes over a few percent in. Belt-and-suspenders against any
+   * sub-pixel seam at the stage→transition handoffs.
+   */
+  .trans-f2a::before,
+  .trans-f2a::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 3vh;
+    pointer-events: none;
+    z-index: 1;
+  }
+  .trans-f2a::before {
+    top: 0;
+    background: linear-gradient(180deg, #fafafa 0%, rgba(250,250,250,0) 100%);
+  }
+  .trans-f2a::after {
+    bottom: 0;
+    height: 8vh;
+    background: linear-gradient(0deg, #87ceeb 0%, #87ceeb 25%, rgba(135,206,235,0) 100%);
+    z-index: 4;
+  }
+
+  /*
+   * Two stacked sky layers: the Fugazi-pale base, and an Aero-rich layer
+   * on top that fades in scroll-linked. The cross-fade is the actual era
+   * change; gradient stops alone weren't enough motion.
+   */
+  /*
+   * Single-arc gradient interpolated in oklab (perceptual space) to
+   * keep the ramp from #fafafa to #87ceeb visually even across the
+   * full height. Tight RGB stops were producing visible banding on
+   * 8-bit displays; oklab + 2-stop kills it.
+   */
+  .trans-f2a .sky {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg in oklab, #fafafa 0%, #87ceeb 100%);
+  }
+  /*
+   * Monotonically darkens top→bottom and ends at exactly Aero's top
+   * color (#87ceeb). The earlier curve dipped to #5cb3e0 at 75% then
+   * brightened back to #87ceeb at 100%, which read as a hard seam at the
+   * Aero boundary because the brightness derivative reversed right
+   * before crossing into Aero (which itself darkens going down).
+   */
+  .trans-f2a .aero-rise {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      180deg in oklab,
+      #ffffff 0%,
+      #d4ecf9 35%,
+      #a4d8f0 70%,
+      #87ceeb 100%
+    );
+    opacity: 0;
+  }
+
+  /*
+   * Fugazi mesh-gradient haze: drifts across as the corporate look
+   * dissolves. The radials are anchored near the top of the section
+   * (Y=10% / 8%), which used to paint a purple/pink ring right at the
+   * Fugazi→transition handoff because Fugazi's cta-final above is mostly
+   * white with only a small wash at its center. A vertical mask fades
+   * the haze fully to transparent across the top 14vh, so the handoff
+   * is pure white-meets-white and the haze only becomes visible after
+   * a comfortable insulation band.
+   */
+  .trans-f2a .haze {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 40% at 15% 10%, rgba(167, 139, 250, 0.45), transparent 60%),
+      radial-gradient(ellipse 55% 35% at 85% 8%, rgba(240, 171, 252, 0.4), transparent 60%);
+    filter: blur(36px);
+    mask-image: linear-gradient(180deg, transparent 0%, #000 14% 86%, transparent 100%);
+    -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 14% 86%, transparent 100%);
+  }
+
+  /* Stock chart line: visible at top, dissolves quickly as we scroll. */
+  .trans-f2a .chart {
+    position: absolute;
+    top: 18%;
+    left: 8%;
+    right: 8%;
+    width: 84%;
+    height: 80px;
+    pointer-events: none;
+    opacity: 0.7;
+    filter: drop-shadow(0 4px 12px rgba(167, 139, 250, 0.3));
+  }
+
+  /* Lens flare ring: the optimism pivot. Starts small, grows scroll-linked. */
+  .trans-f2a .flare {
+    position: absolute;
+    left: 50%;
+    top: 58%;
+    width: 360px;
+    height: 360px;
+    transform: translate(-50%, -50%) scale(0.2);
+    background:
+      radial-gradient(circle at 50% 50%, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.35) 24%, rgba(126,182,229,0.18) 50%, transparent 75%);
+    filter: blur(2px);
+    opacity: 0.4;
+    pointer-events: none;
+    mix-blend-mode: screen;
+  }
+  .trans-f2a .flare::before,
+  .trans-f2a .flare::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+  }
+  .trans-f2a .flare::before {
+    background:
+      radial-gradient(circle at 50% 50%, rgba(255,255,255,0.7) 0%, transparent 4%);
+    filter: blur(0.5px);
+  }
+  .trans-f2a .flare::after {
+    background:
+      linear-gradient(45deg, transparent 47%, rgba(255,255,255,0.5) 50%, transparent 53%),
+      linear-gradient(135deg, transparent 47%, rgba(255,255,255,0.35) 50%, transparent 53%);
+    transform: scale(1.4);
+  }
+
+  /*
+   * Bubble field rising from below the viewport. Baseline opacity is
+   * non-zero so the scroll-linked reveal isn't a hard step from "plain
+   * sky" to "fully populated bubble field" : that step used to read as
+   * a horizontal band wherever the user happened to be when the reveal
+   * started.
+   */
+  .trans-f2a .bubbles {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.18;
+  }
+  .trans-f2a .bubble {
+    position: absolute;
+    bottom: -60px;
+    left: var(--left);
+    width: var(--size);
+    height: var(--size);
+    border-radius: 50%;
+    background:
+      radial-gradient(circle at 32% 28%,
+        rgba(255,255,255,0.95) 0%,
+        rgba(255,255,255,0.4) 20%,
+        rgba(126,182,229,0.18) 55%,
+        rgba(126,182,229,0.05) 100%);
+    border: 1px solid rgba(255,255,255,0.55);
+    box-shadow:
+      inset 0 -2px 4px rgba(255,255,255,0.7),
+      inset 1px 1px 3px rgba(255,255,255,0.4),
+      0 2px 6px rgba(0, 41, 89, 0.08);
+    animation: bubble-rise var(--dur) linear infinite;
+    animation-delay: var(--delay);
+    will-change: transform, opacity;
+  }
+  @keyframes bubble-rise {
+    0%   { transform: translate3d(0, 0, 0) scale(0.9); opacity: 0; }
+    8%   { opacity: 1; }
+    50%  { transform: translate3d(var(--drift), -55vh, 0) scale(1.05); }
+    92%  { opacity: 1; }
+    100% { transform: translate3d(calc(var(--drift) * 2), -110vh, 0) scale(0.85); opacity: 0; }
+  }
+
+  /*
+   * Scroll-linked sequence (modern browsers): the Aero layer fades in,
+   * the Fugazi chart dissolves out, the flare grows and brightens, the
+   * bubble field reveals. Each stage of the transition is gated to a
+   * portion of the scroll range so the user perceives an arc, not a
+   * collection of looping elements.
+   */
+  @supports (animation-timeline: view()) {
+    .trans-f2a .aero-rise {
+      animation: aero-rise-in linear both;
+      animation-timeline: view();
+      animation-range: cover 10% cover 80%;
+    }
+    .trans-f2a .haze {
+      animation: haze-drift linear both;
+      animation-timeline: view();
+      animation-range: cover 0% cover 100%;
+    }
+    .trans-f2a .chart {
+      animation: chart-fade linear both;
+      animation-timeline: view();
+      animation-range: cover 5% cover 45%;
+    }
+    .trans-f2a .flare {
+      animation: flare-grow linear both;
+      animation-timeline: view();
+      animation-range: cover 20% cover 75%;
+    }
+    .trans-f2a .bubbles {
+      animation: bubbles-reveal linear both;
+      animation-timeline: view();
+      animation-range: cover 15% cover 70%;
+    }
+  }
+  @keyframes aero-rise-in {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+  @keyframes haze-drift {
+    from { opacity: 1; transform: translateX(0); }
+    to   { opacity: 0; transform: translateX(8vw); }
+  }
+  @keyframes chart-fade {
+    0%   { opacity: 0.7; transform: translateY(0); filter: blur(0); }
+    100% { opacity: 0; transform: translateY(-40px); filter: blur(6px); }
+  }
+  @keyframes flare-grow {
+    0%   { transform: translate(-50%, -50%) scale(0.2); opacity: 0.4; }
+    60%  { transform: translate(-50%, -50%) scale(1);   opacity: 1;   }
+    100% { transform: translate(-50%, -50%) scale(1.6); opacity: 0.55; }
+  }
+  @keyframes bubbles-reveal {
+    from { opacity: 0.18; }
+    to   { opacity: 1; }
+  }
+
+  /*
+   * Time-based fallback for browsers without scroll-linked support. The
+   * transition still reads (era change happens), just on a fixed timer
+   * once the section enters the viewport.
+   */
+  @supports not (animation-timeline: view()) {
+    .trans-f2a .aero-rise { animation: aero-rise-in 4s ease forwards 0.6s; opacity: 0; }
+    .trans-f2a .chart     { animation: chart-fade 2s ease forwards 0.4s; }
+    .trans-f2a .flare     { animation: flare-grow 4s ease-out forwards 0.8s; }
+    .trans-f2a .bubbles   { animation: bubbles-reveal 2s ease forwards 1.5s; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .trans-f2a .bubble { animation: none; opacity: 0.3; bottom: 50%; }
+    .trans-f2a .aero-rise,
+    .trans-f2a .chart,
+    .trans-f2a .flare,
+    .trans-f2a .haze,
+    .trans-f2a .bubbles { animation: none; }
+    .trans-f2a .aero-rise { opacity: 0.6; }
+    .trans-f2a .bubbles { opacity: 1; }
+  }
+
+  @media (max-width: 720px) {
+    .trans-f2a { height: 70vh; }
+    .trans-f2a .flare { width: 240px; height: 240px; }
+    .trans-f2a .chart { top: 14%; height: 50px; }
+  }
+</style>

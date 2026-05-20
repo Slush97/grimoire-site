@@ -1,0 +1,336 @@
+---
+/*
+ * Transition: AERO → WIN95
+ *
+ * Reworked for motion. The Vista glass UI shrinks and pixelates as we
+ * scroll: a glassy ring contracts into a single pixel of light, drops
+ * through the black void, then re-blooms as the chunky Win95 boot
+ * logo. The three "bands" stay as color zones but one travelling
+ * element bridges them so the transition reads as one motion, not
+ * three slideshow frames.
+ *
+ * 100vh of vertical scroll. Scroll-linked where supported. Decorative;
+ * aria-hidden.
+ */
+---
+
+<section class="trans-a2w" aria-hidden="true">
+  <div class="bg"></div>
+
+  <!-- Vista taskbar fragment dissolving at the top -->
+  <div class="vista-bar" aria-hidden="true">
+    <span class="vista-orb"></span>
+    <span class="vista-pill">Grimoire: Setup is closing</span>
+    <span class="vista-tray">3:14 PM</span>
+  </div>
+
+  <!-- Centered traveller: glassy ring that contracts → pixel → boot logo -->
+  <div class="traveller">
+    <span class="glass-ring" aria-hidden="true"></span>
+    <span class="pixel-core" aria-hidden="true"></span>
+    <span class="boot-logo" aria-hidden="true">
+      <span class="boot-cloud">
+        <svg viewBox="0 0 80 50" fill="none">
+          <path d="M 12 32 Q 8 22 16 18 Q 18 10 28 12 Q 32 5 42 9 Q 50 5 56 14 Q 66 14 68 24 Q 72 32 64 38 L 16 38 Q 8 38 12 32 Z" fill="url(#cloud-g-a2w)" />
+          <defs>
+            <linearGradient id="cloud-g-a2w" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#ff3b1f" />
+              <stop offset="33%" stop-color="#ffcc00" />
+              <stop offset="66%" stop-color="#00aa55" />
+              <stop offset="100%" stop-color="#0066cc" />
+            </linearGradient>
+          </defs>
+        </svg>
+      </span>
+      <span class="boot-text">Microsoft<sub>®</sub> Windows<sub>®</sub> 95</span>
+    </span>
+  </div>
+
+  <!-- Pixel rain: the screen "rasterizing" into the older machine -->
+  <div class="pixel-rain" aria-hidden="true">
+    {Array.from({ length: 26 }).map((_, i) => (
+      <span class="pixel" style={`--x:${(i * 11) % 100}%; --d:${0.4 + (i % 7) * 0.15}s; --s:${4 + (i % 5)}px;`} />
+    ))}
+  </div>
+</section>
+
+<style>
+  .trans-a2w {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+    isolation: isolate;
+  }
+
+  /*
+   * Edge bleeds: Aero ends at #1a5e9a (aero-final bottom : not the shelf,
+   * which is no longer the last Aero section), Win95 starts at #008080.
+   * These pseudos paint a 3vh band of the adjacent stage's exact color
+   * that fades into the transition's gradient, so any sub-pixel mismatch
+   * at the boundary is masked.
+   */
+  .trans-a2w::before,
+  .trans-a2w::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 3vh;
+    pointer-events: none;
+    z-index: 1;
+  }
+  .trans-a2w::before {
+    top: 0;
+    background: linear-gradient(180deg, #1a5e9a 0%, rgba(26,94,154,0) 100%);
+  }
+  .trans-a2w::after {
+    bottom: 0;
+    background: linear-gradient(0deg, #008080 0%, rgba(0,128,128,0) 100%);
+  }
+  /* vista-bar sits inside the top bleed zone; lift it above. */
+  .trans-a2w .vista-bar { z-index: 2; }
+
+  /*
+   * One vertical gradient covers all three "bands" so there are no
+   * inter-band seams. Top stop matches Aero's bottom (aero-final's
+   * #1a5e9a) so the stage→transition boundary is invisible; the
+   * Vista-navy → shutdown-black → Win95-teal arc still reads through.
+   */
+  .trans-a2w .bg {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      180deg in oklab,
+      #1a5e9a 0%,
+      #0a3c66 18%,
+      #061f35 30%,
+      #000000 44%,
+      #000000 60%,
+      #001818 74%,
+      #004848 88%,
+      #008080 100%
+    );
+  }
+
+  /* Vista taskbar residue, pinned to the top, dissolves with scroll. */
+  .trans-a2w .vista-bar {
+    position: absolute;
+    top: 18px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.18), rgba(255,255,255,0.04));
+    border: 1px solid rgba(255,255,255,0.3);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    box-shadow: 0 4px 18px rgba(0, 41, 89, 0.3), inset 0 1px 0 rgba(255,255,255,0.4);
+    color: #ffffff;
+    font: 12px 'Segoe UI', 'Lucida Grande', sans-serif;
+    text-shadow: 0 1px 0 rgba(0,0,0,0.3);
+  }
+  .trans-a2w .vista-orb {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background:
+      radial-gradient(circle at 30% 30%, #fff 0%, #b6dff7 30%, #2c80c2 80%);
+    box-shadow: 0 0 4px rgba(120, 200, 255, 0.5);
+  }
+  .trans-a2w .vista-pill {
+    font-weight: 500;
+  }
+  .trans-a2w .vista-tray {
+    font-variant-numeric: tabular-nums;
+    opacity: 0.85;
+  }
+
+  /* Traveller: pinned center, three composited children that cross-fade. */
+  .trans-a2w .traveller {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 220px;
+    height: 220px;
+    transform: translate(-50%, -50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Glass ring (Vista shutdown spinner descendant): visible in band 1 */
+  .trans-a2w .glass-ring {
+    position: absolute;
+    width: 110px;
+    height: 110px;
+    border-radius: 50%;
+    border: 4px solid rgba(255, 255, 255, 0.18);
+    border-top-color: rgba(255, 255, 255, 0.95);
+    box-shadow:
+      inset 0 0 20px rgba(120, 200, 255, 0.25),
+      0 0 28px rgba(120, 200, 255, 0.3);
+    animation: spin-ring 1.4s linear infinite;
+  }
+  @keyframes spin-ring { to { transform: rotate(360deg); } }
+
+  /* Pixel core: the single bright dot at the bottom of the descent */
+  .trans-a2w .pixel-core {
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    background: #00ff66;
+    box-shadow: 0 0 16px #00ff66, 0 0 36px rgba(0, 255, 102, 0.5);
+    opacity: 0;
+    transform: scale(0.6);
+  }
+
+  /* Boot logo: Win95 cloud + text, blooms at the end */
+  .trans-a2w .boot-logo {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    opacity: 0;
+    transform: scale(0.6) translateY(40px);
+    filter: blur(6px);
+  }
+  .trans-a2w .boot-cloud {
+    display: inline-block;
+    width: 96px;
+    height: 60px;
+    filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.5));
+  }
+  .trans-a2w .boot-cloud svg { width: 100%; height: 100%; }
+  .trans-a2w .boot-text {
+    color: #ffffff;
+    font: 700 22px/1 'MS Sans Serif', 'Microsoft Sans Serif', Tahoma, sans-serif;
+    letter-spacing: 0.005em;
+    text-shadow: 0 2px 0 rgba(0, 0, 0, 0.4);
+  }
+  .trans-a2w .boot-text sub {
+    font-size: 0.5em;
+    vertical-align: super;
+  }
+
+  /*
+   * Pixel rain: tiny chunky squares that fall in band 2, signalling
+   * the bit-depth dropping from 32-bit aqua to 8-bit chrome. Each
+   * pixel falls on its own time loop; the field is hidden until the
+   * scroll-linked animation un-hides it.
+   */
+  .trans-a2w .pixel-rain {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0;
+  }
+  .trans-a2w .pixel {
+    position: absolute;
+    top: -10px;
+    left: var(--x);
+    width: var(--s);
+    height: var(--s);
+    background: #008080;
+    box-shadow: 1px 1px 0 #000;
+    animation: pixel-fall calc(var(--d) * 4) linear infinite;
+    animation-delay: calc(var(--d) * -2);
+  }
+  @keyframes pixel-fall {
+    0%   { transform: translateY(0); opacity: 0; }
+    10%  { opacity: 0.9; }
+    90%  { opacity: 0.9; }
+    100% { transform: translateY(110vh); opacity: 0; }
+  }
+
+  /*
+   * Scroll-linked sequence. The traveller's three children cross-fade
+   * across the scroll range; the Vista bar dissolves; the pixel rain
+   * reveals in band 2 and recedes by band 3.
+   */
+  @supports (animation-timeline: view()) {
+    .trans-a2w .vista-bar {
+      animation: bar-dissolve linear both;
+      animation-timeline: view();
+      animation-range: cover 0% cover 30%;
+    }
+    .trans-a2w .glass-ring {
+      animation: ring-collapse linear both, spin-ring 1.4s linear infinite;
+      animation-timeline: view(), auto;
+      animation-range: cover 5% cover 40%, auto;
+    }
+    .trans-a2w .pixel-core {
+      animation: core-life linear both;
+      animation-timeline: view();
+      animation-range: cover 30% cover 70%;
+    }
+    .trans-a2w .pixel-rain {
+      animation: rain-reveal linear both;
+      animation-timeline: view();
+      animation-range: cover 30% cover 75%;
+    }
+    .trans-a2w .boot-logo {
+      animation: boot-bloom linear both;
+      animation-timeline: view();
+      animation-range: cover 60% cover 95%;
+    }
+  }
+  @keyframes bar-dissolve {
+    0%   { opacity: 1; transform: translateX(-50%) translateY(0); filter: blur(0); }
+    100% { opacity: 0; transform: translateX(-50%) translateY(-30px); filter: blur(8px); }
+  }
+  @keyframes ring-collapse {
+    0%   { opacity: 1; width: 110px; height: 110px; border-width: 4px; }
+    100% { opacity: 0; width: 8px;   height: 8px;   border-width: 1px; }
+  }
+  @keyframes core-life {
+    0%   { opacity: 0; transform: scale(0.4); }
+    50%  { opacity: 1; transform: scale(1.6); }
+    100% { opacity: 0; transform: scale(0.6); }
+  }
+  @keyframes rain-reveal {
+    0%   { opacity: 0; }
+    30%  { opacity: 1; }
+    70%  { opacity: 1; }
+    100% { opacity: 0; }
+  }
+  @keyframes boot-bloom {
+    0%   { opacity: 0; transform: scale(0.6) translateY(40px); filter: blur(6px); }
+    60%  { opacity: 1; transform: scale(1)   translateY(0);    filter: blur(0); }
+    100% { opacity: 1; transform: scale(1.02) translateY(-4px); filter: blur(0); }
+  }
+
+  /* Fallback for browsers without scroll-linked animation */
+  @supports not (animation-timeline: view()) {
+    .trans-a2w .vista-bar { animation: bar-dissolve 2s ease forwards 0.4s; }
+    .trans-a2w .glass-ring {
+      animation: ring-collapse 2.5s ease forwards 0.8s, spin-ring 1.4s linear infinite;
+    }
+    .trans-a2w .pixel-core { animation: core-life 2s ease forwards 2.5s; }
+    .trans-a2w .pixel-rain { animation: rain-reveal 3s ease forwards 2.8s; }
+    .trans-a2w .boot-logo  { animation: boot-bloom 2s ease forwards 4.8s; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .trans-a2w .glass-ring,
+    .trans-a2w .pixel-core,
+    .trans-a2w .pixel,
+    .trans-a2w .vista-bar,
+    .trans-a2w .pixel-rain,
+    .trans-a2w .boot-logo { animation: none; }
+    .trans-a2w .glass-ring { opacity: 0; }
+    .trans-a2w .boot-logo { opacity: 1; transform: none; filter: none; }
+  }
+
+  @media (max-width: 720px) {
+    .trans-a2w .vista-bar { font-size: 11px; padding: 5px 10px; }
+    .trans-a2w .vista-pill { display: none; }
+    .trans-a2w .traveller { width: 160px; height: 160px; }
+    .trans-a2w .glass-ring { width: 88px; height: 88px; }
+    .trans-a2w .boot-text { font-size: 18px; }
+  }
+</style>

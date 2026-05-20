@@ -1,0 +1,388 @@
+---
+/*
+ * Transition: GEOCITIES → GRIMOIRE
+ *
+ * Reworked for motion. The starfield darkens scroll-linked, a single
+ * candle is struck and grows mid-scroll, the warm wash blooms from
+ * nothing into vellum-orange, and sigils rise denser as we descend
+ * into the parchment world.
+ *
+ * 100vh of vertical scroll. Scroll-linked where supported. Decorative;
+ * aria-hidden.
+ */
+
+const sigils = Array.from({ length: 14 }, (_, i) => ({
+  left: 6 + (i * 7.5) % 88,
+  size: 14 + (i % 4) * 4,
+  delay: -(i * 1.2) % 12,
+  dur: 18 + (i % 4) * 5,
+  glyph: ['✦', '⚝', '☥', '✶', '☽', '⚜', '✧', '❉'][i % 8],
+}));
+---
+
+<section class="trans-g2g" aria-hidden="true">
+  <div class="bg-geo"></div>
+  <div class="bg-vellum"></div>
+  <div class="stars"></div>
+  <div class="warm-wash"></div>
+
+  <div class="center">
+    <div class="candle">
+      <span class="glow"></span>
+      <span class="flame"></span>
+      <span class="spark"></span>
+      <span class="wick"></span>
+      <span class="body"></span>
+      <span class="puddle"></span>
+    </div>
+  </div>
+
+  <div class="sigils">
+    {sigils.map((s) => (
+      <span
+        class="sigil"
+        style={`--left: ${s.left}%; --size: ${s.size}px; --delay: ${s.delay}s; --dur: ${s.dur}s;`}
+      >{s.glyph}</span>
+    ))}
+  </div>
+</section>
+
+<style>
+  .trans-g2g {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+    isolation: isolate;
+  }
+
+  /*
+   * Edge bleeds: Geocities #000010 above, Grimoire #0a0907 below.
+   * Both stages and both transition endpoints are already matched in
+   * color; these bleeds insulate against banding from oklab interpolation
+   * at the extreme low end of luminance where 1-2 RGB ticks can read
+   * as a horizontal step.
+   */
+  .trans-g2g::before,
+  .trans-g2g::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 3vh;
+    pointer-events: none;
+    z-index: 3;
+  }
+  .trans-g2g::before {
+    top: 0;
+    background: linear-gradient(180deg, #000010 0%, rgba(0,0,16,0) 100%);
+  }
+  .trans-g2g::after {
+    bottom: 0;
+    background: linear-gradient(0deg, #0a0907 0%, rgba(10,9,7,0) 100%);
+  }
+
+  /*
+   * Two cross-faded backgrounds: Geocities ink → Grimoire vellum-dark.
+   *
+   * bg-geo: top stop matches Geocities stage bg (#000010). Bottom stop
+   * matches Grimoire stage bg (#0a0907) so when bg-vellum hasn't faded
+   * in yet (top of transition), or anywhere it's partially transparent,
+   * the underlying color is already on the right ramp.
+   *
+   * bg-vellum: a linear gradient that bottoms out at the exact Grimoire
+   * stage color (#0a0907). The earlier radial peaked at center then
+   * dropped, which left a slightly cooler color along the bottom edge
+   * where the transition meets Grimoire : that was the seam.
+   */
+  .trans-g2g .bg-geo {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg in oklab, #000010 0%, #0a0907 100%);
+  }
+  .trans-g2g .bg-vellum {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      180deg in oklab,
+      #14110d 0%,
+      #14110d 35%,
+      #0f0e0a 65%,
+      #0a0907 100%
+    );
+    opacity: 0;
+  }
+
+  /*
+   * Starfield: present at the top of the transition (continuing the
+   * Geocities sky), masked out below the candle. Fades scroll-linked.
+   */
+  .trans-g2g .stars {
+    position: absolute;
+    inset: 0;
+    background-image:
+      radial-gradient(1px 1px at 8% 8%,  #ffffff, transparent),
+      radial-gradient(1px 1px at 22% 14%, #ffffff, transparent),
+      radial-gradient(1.5px 1.5px at 38% 6%, #ccddff, transparent),
+      radial-gradient(1px 1px at 54% 18%, #ffffff, transparent),
+      radial-gradient(1px 1px at 68% 10%, #ffffff, transparent),
+      radial-gradient(1.5px 1.5px at 82% 20%, #ffffff, transparent),
+      radial-gradient(1px 1px at 92% 8%,  #ffccff, transparent),
+      radial-gradient(1px 1px at 14% 28%, #ffffff, transparent),
+      radial-gradient(1px 1px at 46% 32%, #ffffff, transparent),
+      radial-gradient(1.5px 1.5px at 74% 30%, #ffffff, transparent);
+    background-repeat: no-repeat;
+    mask-image: linear-gradient(180deg, #000 0%, #000 25%, transparent 60%);
+    -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 25%, transparent 60%);
+  }
+
+  /*
+   * Warm wash: the candle's glow over the rest of the page. Starts at
+   * scale 0; scroll-linked, grows to fill the lower half of the frame,
+   * brining the parchment heat into view.
+   */
+  .trans-g2g .warm-wash {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 40% at 50% 60%, rgba(249, 115, 22, 0.32), transparent 70%);
+    transform: scale(0.1);
+    transform-origin: 50% 60%;
+    opacity: 0;
+  }
+
+  /* Candle pinned mid-stage */
+  .trans-g2g .center {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 2;
+  }
+  .trans-g2g .candle {
+    position: relative;
+    width: 88px;
+    height: 200px;
+  }
+  .trans-g2g .candle .puddle {
+    position: absolute;
+    bottom: 0;
+    left: 8px;
+    right: 8px;
+    height: 12px;
+    background: radial-gradient(ellipse at center, #d8b07a 0%, #a47238 70%, transparent 100%);
+    border-radius: 50%;
+    opacity: 0.4;
+  }
+  .trans-g2g .candle .body {
+    position: absolute;
+    bottom: 6px;
+    left: 18px;
+    width: 52px;
+    height: 130px;
+    background:
+      linear-gradient(90deg, rgba(0,0,0,0.42) 0%, transparent 18%, transparent 76%, rgba(0,0,0,0.52) 100%),
+      linear-gradient(180deg, #f4e2b5 0%, #e3c890 38%, #c89c5e 70%, #8d5b25 100%);
+    border: 1px solid #14110d;
+    opacity: 0.5;
+  }
+  .trans-g2g .candle .wick {
+    position: absolute;
+    bottom: 136px;
+    left: 42px;
+    width: 2.5px;
+    height: 10px;
+    background: #14110d;
+  }
+  /*
+   * Flame is invisible at the start of the transition. It blooms
+   * mid-scroll: opacity 0 → 1, scale 0 → 1, plus a brief jitter to
+   * sell the strike of a match.
+   */
+  .trans-g2g .candle .flame {
+    position: absolute;
+    bottom: 144px;
+    left: 34px;
+    width: 18px;
+    height: 30px;
+    border-radius: 50% 50% 20% 20%;
+    background: radial-gradient(ellipse at 50% 75%, #fff9c4 0%, #ffe082 18%, #ffcc55 38%, #f97316 70%, #c2410c 100%);
+    filter: blur(0.6px);
+    transform-origin: 50% 100%;
+    transform: scale(0);
+    opacity: 0;
+    box-shadow:
+      0 0 24px 6px rgba(249, 115, 22, 0.55),
+      0 0 60px 18px rgba(249, 115, 22, 0.22);
+  }
+  /* Strike spark: a brief white flare at ignition */
+  .trans-g2g .candle .spark {
+    position: absolute;
+    bottom: 152px;
+    left: 38px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: radial-gradient(circle, #ffffff 0%, #ffe082 50%, transparent 80%);
+    opacity: 0;
+  }
+  .trans-g2g .candle .glow {
+    position: absolute;
+    bottom: 124px;
+    left: -32px;
+    right: -32px;
+    height: 80px;
+    border-radius: 50%;
+    background: radial-gradient(ellipse at center, rgba(249, 115, 22, 0.45), transparent 70%);
+    opacity: 0;
+  }
+
+  /* Drifting sigils: rise from below, denser toward the parchment landing. */
+  .trans-g2g .sigils {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+    opacity: 0;
+  }
+  .trans-g2g .sigil {
+    position: absolute;
+    bottom: -30px;
+    left: var(--left);
+    font-size: var(--size);
+    color: #e7d2a3;
+    opacity: 0;
+    animation: sigil-rise var(--dur) linear infinite;
+    animation-delay: var(--delay);
+  }
+  @keyframes sigil-rise {
+    0%   { transform: translateY(0); opacity: 0; }
+    20%  { opacity: 0.55; }
+    80%  { opacity: 0.55; }
+    100% { transform: translateY(-100vh); opacity: 0; }
+  }
+
+  /*
+   * Scroll-linked sequence. The match is struck around 35% scroll, the
+   * flame stabilizes by 55%, the warm-wash blooms 40-90%, and the
+   * vellum background takes over from 60% onward.
+   */
+  @supports (animation-timeline: view()) {
+    .trans-g2g .bg-vellum {
+      animation: vellum-in linear both;
+      animation-timeline: view();
+      animation-range: cover 30% cover 95%;
+    }
+    .trans-g2g .stars {
+      animation: stars-out linear both;
+      animation-timeline: view();
+      animation-range: cover 15% cover 55%;
+    }
+    .trans-g2g .candle .body,
+    .trans-g2g .candle .puddle {
+      animation: candle-warm linear both;
+      animation-timeline: view();
+      animation-range: cover 30% cover 80%;
+    }
+    .trans-g2g .candle .spark {
+      animation: spark-flash linear both;
+      animation-timeline: view();
+      animation-range: cover 30% cover 45%;
+    }
+    .trans-g2g .candle .flame {
+      animation: flame-grow linear both, candle-flicker 220ms ease-in-out infinite alternate;
+      animation-timeline: view(), auto;
+      animation-range: cover 35% cover 75%, auto;
+    }
+    .trans-g2g .candle .glow {
+      animation: glow-bloom linear both, candle-pulse 1.4s ease-in-out infinite alternate;
+      animation-timeline: view(), auto;
+      animation-range: cover 35% cover 85%, auto;
+    }
+    .trans-g2g .warm-wash {
+      animation: wash-bloom linear both;
+      animation-timeline: view();
+      animation-range: cover 40% cover 100%;
+    }
+    .trans-g2g .sigils {
+      animation: sigils-in linear both;
+      animation-timeline: view();
+      animation-range: cover 50% cover 95%;
+    }
+  }
+  @keyframes vellum-in { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes stars-out { from { opacity: 1; } to { opacity: 0; } }
+  @keyframes candle-warm {
+    from { opacity: 0.5; }
+    to   { opacity: 1; }
+  }
+  @keyframes spark-flash {
+    0%, 100% { opacity: 0; transform: scale(0.6); }
+    50%      { opacity: 1; transform: scale(1.6); }
+  }
+  @keyframes flame-grow {
+    0%   { transform: scale(0);   opacity: 0; }
+    10%  { transform: scale(1.4); opacity: 1; }
+    20%  { transform: scale(0.9); opacity: 1; }
+    100% { transform: scale(1);   opacity: 1; }
+  }
+  @keyframes glow-bloom {
+    from { opacity: 0; transform: scale(0.4); }
+    to   { opacity: 0.9; transform: scale(1); }
+  }
+  @keyframes wash-bloom {
+    0%   { opacity: 0; transform: scale(0.1); }
+    100% { opacity: 1; transform: scale(2.6); }
+  }
+  @keyframes sigils-in { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes candle-flicker {
+    0%   { transform: scale(0.93, 1.03) rotate(-2deg); }
+    50%  { transform: scale(1.05, 0.95) rotate(1deg);  }
+    100% { transform: scale(1.0, 1.09) rotate(2deg);   }
+  }
+  @keyframes candle-pulse {
+    from { opacity: 0.6; }
+    to   { opacity: 0.9; }
+  }
+
+  /* Time-based fallback */
+  @supports not (animation-timeline: view()) {
+    .trans-g2g .bg-vellum { animation: vellum-in 4s ease forwards 1.5s; }
+    .trans-g2g .stars     { animation: stars-out 3s ease forwards 1s; }
+    .trans-g2g .candle .body,
+    .trans-g2g .candle .puddle { animation: candle-warm 3s ease forwards 1s; }
+    .trans-g2g .candle .spark { animation: spark-flash 0.4s ease forwards 2s; }
+    .trans-g2g .candle .flame {
+      animation: flame-grow 1.2s ease forwards 2s, candle-flicker 220ms ease-in-out infinite alternate 3s;
+    }
+    .trans-g2g .candle .glow {
+      animation: glow-bloom 2s ease forwards 2.2s, candle-pulse 1.4s ease-in-out infinite alternate 4s;
+    }
+    .trans-g2g .warm-wash { animation: wash-bloom 5s ease forwards 2s; }
+    .trans-g2g .sigils    { animation: sigils-in 3s ease forwards 3.5s; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .trans-g2g .bg-vellum,
+    .trans-g2g .stars,
+    .trans-g2g .candle .body,
+    .trans-g2g .candle .puddle,
+    .trans-g2g .candle .flame,
+    .trans-g2g .candle .spark,
+    .trans-g2g .candle .glow,
+    .trans-g2g .warm-wash,
+    .trans-g2g .sigils,
+    .trans-g2g .sigil { animation: none; }
+    /* Reduced-motion users see the end state of the transition rather
+       than a frozen mid-frame : that way the candle is lit, the warm
+       wash is present, and the visual contract still holds. */
+    .trans-g2g .bg-vellum { opacity: 1; }
+    .trans-g2g .stars     { opacity: 0; }
+    .trans-g2g .candle .body,
+    .trans-g2g .candle .puddle { opacity: 1; }
+    .trans-g2g .candle .flame { opacity: 1; transform: scale(1); }
+    .trans-g2g .candle .glow { opacity: 0.7; transform: scale(1); }
+    .trans-g2g .warm-wash { opacity: 1; transform: scale(2.5); }
+    .trans-g2g .sigils    { opacity: 0.6; }
+  }
+</style>

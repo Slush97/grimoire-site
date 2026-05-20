@@ -1,0 +1,1062 @@
+---
+/*
+ * Stage 3 : WINDOWS 95 (1995–1999)
+ *
+ * The page is literally a Win95 desktop. Teal background, chunky chrome
+ * windows containing the product readout. A Notepad window with
+ * README.TXT, a Setup Wizard window with a real Next-Next-Finish flow,
+ * a taskbar at the bottom. Voice is README.TXT : terse, ALL-CAPS
+ * section headers, no marketing language.
+ */
+import type { DownloadUrls } from '../../data/content';
+import { features as coreFeatures, fmtBytes } from '../../data/content';
+const dl = Astro.props as DownloadUrls;
+
+const installerHref = dl.windowsInstaller?.browser_download_url ?? dl.releaseUrl;
+const portableHref = dl.windowsPortable?.browser_download_url ?? dl.releaseUrl;
+const appImageHref = dl.linuxAppImage?.browser_download_url ?? dl.releaseUrl;
+const debHref = dl.linuxDeb?.browser_download_url ?? dl.releaseUrl;
+---
+
+<section class="stage stage-win95" data-era="win95" aria-labelledby="win95-h1">
+  <h1 id="win95-h1" class="sr">Grimoire for Windows</h1>
+
+  <!-- Desktop icons: first three decorative, the rest are real download links -->
+  <ul class="desktop-icons">
+    <li aria-hidden="true">
+      <span class="ico">
+        <svg viewBox="0 0 32 32"><rect x="4" y="6" width="24" height="18" fill="#c0c0c0" stroke="#000" stroke-width="0.7" /><rect x="6" y="8" width="20" height="13" fill="#5599cc" /><rect x="4" y="24" width="24" height="3" fill="#909090" stroke="#000" stroke-width="0.7" /><path d="M 12 27 L 20 27 L 19 30 L 13 30 Z" fill="#c0c0c0" stroke="#000" stroke-width="0.7" /></svg>
+      </span>
+      <span class="label">My Computer</span>
+    </li>
+    <li aria-hidden="true">
+      <span class="ico">
+        <svg viewBox="0 0 32 32"><path d="M 8 8 L 24 8 L 22 28 L 10 28 Z" fill="#666" stroke="#000" stroke-width="0.7" /><path d="M 7 6 L 25 6 L 26 9 L 6 9 Z" fill="#888" stroke="#000" stroke-width="0.7" /></svg>
+      </span>
+      <span class="label">Recycle Bin</span>
+    </li>
+    <li aria-hidden="true">
+      <span class="ico">
+        <svg viewBox="0 0 32 32"><path d="M 7 5 L 22 5 L 26 9 L 26 28 L 7 28 Z" fill="#fffacc" stroke="#000" stroke-width="0.7" /><path d="M 22 5 L 22 9 L 26 9" fill="none" stroke="#000" stroke-width="0.7" /><text x="9" y="16" font-family="serif" font-size="3.5" fill="#000">README</text><text x="9" y="20" font-family="serif" font-size="3.5" fill="#000">.TXT</text></svg>
+      </span>
+      <span class="label">README.TXT</span>
+    </li>
+    <li>
+      <a href={installerHref} class="icon-link" title={dl.windowsInstaller ? `${dl.windowsInstaller.name} (${fmtBytes(dl.windowsInstaller.size)})` : 'Open releases'}>
+        <span class="ico">
+          <svg viewBox="0 0 32 32"><rect x="6" y="6" width="20" height="22" fill="#ccc" stroke="#000" stroke-width="0.7" /><rect x="8" y="8" width="16" height="3" fill="#f97316" /><text x="10" y="20" font-family="sans-serif" font-size="5" fill="#000" font-weight="700">SETUP</text></svg>
+        </span>
+        <span class="label">Setup.exe</span>
+      </a>
+    </li>
+    <li>
+      <a href={portableHref} class="icon-link" title={dl.windowsPortable ? `${dl.windowsPortable.name} (${fmtBytes(dl.windowsPortable.size)})` : 'Open releases'}>
+        <span class="ico">
+          <svg viewBox="0 0 32 32"><rect x="6" y="4" width="20" height="24" fill="#c0c0c0" stroke="#000" stroke-width="0.7" /><rect x="8" y="6" width="16" height="14" fill="#000080" /><text x="10" y="14" font-family="sans-serif" font-size="4" fill="#fff" font-weight="700">.EXE</text><text x="9" y="24" font-family="sans-serif" font-size="3.2" fill="#000" font-weight="700">PORTABLE</text></svg>
+        </span>
+        <span class="label">Portable.exe</span>
+      </a>
+    </li>
+    <li>
+      <a href={appImageHref} class="icon-link" title={dl.linuxAppImage ? `${dl.linuxAppImage.name} (${fmtBytes(dl.linuxAppImage.size)})` : 'Open releases'}>
+        <span class="ico">
+          <svg viewBox="0 0 32 32"><path d="M 16 4 L 28 16 L 16 28 L 4 16 Z" fill="#33b1ff" stroke="#000" stroke-width="0.7" /><circle cx="16" cy="13" r="3.5" fill="#fff" stroke="#000" stroke-width="0.5" /><path d="M 9 22 L 23 22 L 19 17 L 16 20 L 13 18 Z" fill="#fff" stroke="#000" stroke-width="0.5" /></svg>
+        </span>
+        <span class="label">AppImage</span>
+      </a>
+    </li>
+    <li>
+      <a href={debHref} class="icon-link" title={dl.linuxDeb ? `${dl.linuxDeb.name} (${fmtBytes(dl.linuxDeb.size)})` : 'Open releases'}>
+        <span class="ico">
+          <svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="11" fill="#fff" stroke="#000" stroke-width="0.7" /><path d="M 20 10 A 8 8 0 1 0 22 18" fill="none" stroke="#d70a53" stroke-width="2" stroke-linecap="round" /><circle cx="22.5" cy="13" r="1.6" fill="#d70a53" /></svg>
+        </span>
+        <span class="label">grimoire.deb</span>
+      </a>
+    </li>
+  </ul>
+
+  <!-- README.TXT window (Notepad) -->
+  <article class="win-window win-notepad">
+    <div class="titlebar">
+      <span class="ico-mini" aria-hidden="true">
+        <svg viewBox="0 0 16 16"><path d="M 3 2 L 11 2 L 13 4 L 13 14 L 3 14 Z" fill="#fffacc" stroke="#000" stroke-width="0.5" /></svg>
+      </span>
+      <span class="title">README.TXT - Notepad</span>
+      <span class="ctrls">
+        <button type="button" class="ctrl" aria-label="Minimize">_</button>
+        <button type="button" class="ctrl" aria-label="Maximize">▢</button>
+        <button type="button" class="ctrl ctrl-close" aria-label="Close">✕</button>
+      </span>
+    </div>
+    <div class="menubar">
+      <span><u>F</u>ile</span><span><u>E</u>dit</span><span><u>S</u>earch</span><span><u>H</u>elp</span>
+    </div>
+    <div class="paper">
+<pre>=======================================
+GRIMOIRE {dl.version ? `v${dl.version}` : 'v1.x'} README
+=======================================
+
+A MOD MANAGER FOR DEADLOCK.
+
+REQUIREMENTS:
+  WINDOWS 95 OR LATER
+  16 MB RAM (32 MB RECOMMENDED)
+  DEADLOCK INSTALLED VIA STEAM
+
+FEATURES:
+{coreFeatures.map((f) => `  - ${f.topic.toUpperCase()}`).join('\n')}
+
+INSTALL:
+  DOUBLE-CLICK SETUP.EXE
+  OR RUN A:\\GRIMOIRE\\SETUP.EXE FROM
+  THE COMMAND LINE.
+
+LICENSE: MIT
+NO TELEMETRY. NO ANALYTICS.
+
+SOURCE: GITHUB.COM/SLUSH97/GRIMOIRE</pre>
+    </div>
+  </article>
+
+  <!-- Setup Wizard window -->
+  <article class="win-window win-setup">
+    <div class="titlebar titlebar-blue">
+      <span class="ico-mini" aria-hidden="true">
+        <svg viewBox="0 0 16 16"><rect x="2" y="2" width="12" height="12" fill="#c0c0c0" stroke="#000" stroke-width="0.5" /><rect x="3" y="3" width="10" height="3" fill="#f97316" /></svg>
+      </span>
+      <span class="title">Grimoire Setup</span>
+      <span class="ctrls">
+        <button type="button" class="ctrl" aria-label="Minimize">_</button>
+        <button type="button" class="ctrl ctrl-close" aria-label="Close">✕</button>
+      </span>
+    </div>
+    <div class="setup-body">
+      <div class="setup-side" aria-hidden="true">
+        <div class="setup-banner">
+          <svg viewBox="0 0 80 100" preserveAspectRatio="xMidYMid meet">
+            <defs>
+              <linearGradient id="setup-bg" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="#000080" />
+                <stop offset="100%" stop-color="#5599cc" />
+              </linearGradient>
+            </defs>
+            <rect x="0" y="0" width="80" height="100" fill="url(#setup-bg)" />
+            <text x="6" y="18" font-family="serif" font-size="8" fill="#fff" font-style="italic">Grimoire</text>
+            <text x="6" y="26" font-family="serif" font-size="3.5" fill="#fff">setup</text>
+            <path d="M 30 50 L 50 50 M 40 40 L 40 60 M 33 43 L 47 57 M 47 43 L 33 57" stroke="#ffcc00" stroke-width="0.6" fill="none" opacity="0.5" />
+            <circle cx="40" cy="50" r="13" stroke="#ffcc00" stroke-width="0.4" fill="none" opacity="0.5" />
+          </svg>
+        </div>
+      </div>
+      <div class="setup-main">
+        <h2>Welcome to Grimoire Setup</h2>
+        <p>
+          This program will install <b>Grimoire {dl.version ? `v${dl.version}` : ''}</b>
+          on your computer.
+        </p>
+        <p>
+          It is strongly recommended that you exit Deadlock before
+          running this Setup program.
+        </p>
+        <p class="muted">
+          Click <b>Next</b> to continue, or <b>Cancel</b> to exit Setup.
+        </p>
+        <div class="setup-progress" aria-hidden="true">
+          <span class="dot is-active"></span>
+          <span class="dot"></span>
+          <span class="dot"></span>
+          <span class="dot"></span>
+          <span class="dot"></span>
+        </div>
+        <div class="setup-actions">
+          <button type="button" class="winbtn" disabled>&lt; Back</button>
+          <a class="winbtn winbtn-primary" href={dl.primaryHref}>Next &gt;</a>
+          <button type="button" class="winbtn winbtn-cancel">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </article>
+
+  <!-- Start menu (popup above the taskbar). Initially hidden; the Start
+       button toggles it. Items either link out, focus a window, or
+       "shut down" by scrolling into the next stage's BSOD transition. -->
+  <div class="start-menu" id="win95-start-menu" hidden>
+    <div class="start-banner" aria-hidden="true">
+      <span>Grimoire<sub>95</sub></span>
+    </div>
+    <ul class="start-items" role="menu">
+      <li role="none">
+        <a role="menuitem" class="start-item" href={installerHref}>
+          <span class="start-ico" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="14" fill="#c0c0c0" stroke="#000" stroke-width="0.5"/><rect x="5" y="6" width="14" height="9" fill="#5599cc"/><rect x="3" y="18" width="18" height="2" fill="#909090" stroke="#000" stroke-width="0.5"/></svg>
+          </span>
+          <span><u>P</u>rograms</span>
+        </a>
+      </li>
+      <li role="none">
+        <button type="button" role="menuitem" class="start-item" data-action="open-readme">
+          <span class="start-ico" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M 5 3 L 16 3 L 20 7 L 20 21 L 5 21 Z" fill="#fffacc" stroke="#000" stroke-width="0.5"/><path d="M 16 3 L 16 7 L 20 7" fill="none" stroke="#000" stroke-width="0.5"/></svg>
+          </span>
+          <span><u>D</u>ocuments</span>
+        </button>
+      </li>
+      <li role="none">
+        <a role="menuitem" class="start-item" href="https://github.com/Slush97/grimoire" target="_blank" rel="noopener">
+          <span class="start-ico" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="#fffacc" stroke="#000" stroke-width="0.5"/><text x="7" y="17" font-family="serif" font-size="14" fill="#000080" font-weight="700">?</text></svg>
+          </span>
+          <span><u>H</u>elp</span>
+        </a>
+      </li>
+      <li class="start-sep" role="separator"></li>
+      <li role="none">
+        <button type="button" role="menuitem" class="start-item start-shutdown" data-action="shutdown">
+          <span class="start-ico" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="13" r="7" fill="none" stroke="#cc0000" stroke-width="2"/><rect x="11" y="3" width="2" height="9" fill="#cc0000"/></svg>
+          </span>
+          <span>Sh<u>u</u>t Down...</span>
+        </button>
+      </li>
+    </ul>
+  </div>
+
+  <!-- Taskbar -->
+  <nav class="taskbar" aria-label="Win95 taskbar">
+    <button
+      type="button"
+      class="start-btn"
+      aria-haspopup="true"
+      aria-expanded="false"
+      aria-controls="win95-start-menu"
+    >
+      <span class="start-logo" aria-hidden="true">
+        <svg viewBox="0 0 16 16">
+          <rect x="1" y="1" width="6" height="6" fill="#ff3b1f" />
+          <rect x="9" y="1" width="6" height="6" fill="#00aa55" />
+          <rect x="1" y="9" width="6" height="6" fill="#0066cc" />
+          <rect x="9" y="9" width="6" height="6" fill="#ffcc00" />
+        </svg>
+      </span>
+      <b>Start</b>
+    </button>
+    <span class="tasks">
+      <button type="button" class="task is-active" data-window=".win-notepad">
+        <span class="task-ico" aria-hidden="true">
+          <svg viewBox="0 0 16 16"><path d="M 3 2 L 11 2 L 13 4 L 13 14 L 3 14 Z" fill="#fffacc" stroke="#000" stroke-width="0.5" /></svg>
+        </span>
+        README.TXT - Notepad
+      </button>
+      <button type="button" class="task" data-window=".win-setup">
+        <span class="task-ico" aria-hidden="true">
+          <svg viewBox="0 0 16 16"><rect x="2" y="2" width="12" height="12" fill="#c0c0c0" stroke="#000" stroke-width="0.5" /></svg>
+        </span>
+        Grimoire Setup
+      </button>
+    </span>
+    <span class="tray">
+      <span class="tray-ico" aria-hidden="true">
+        <svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="6" stroke="#000" stroke-width="0.6" fill="none" /><path d="M 8 4 L 8 8 L 11 10" stroke="#000" stroke-width="0.6" fill="none" /></svg>
+      </span>
+      <span class="clock" aria-live="off">3:14 AM</span>
+    </span>
+  </nav>
+</section>
+
+<style>
+  /* ─────────────────────────────────────────────────────────────────
+     WIN95: scoped 1995 desktop world. Teal background, chunky chrome
+     windows (Notepad README + Install Wizard), taskbar with Start menu,
+     desktop icons. Pixel-aligned bevels (#fff highlight top-left,
+     #808080 mid shadow, #000 deep shadow). MS Sans Serif type.
+     ───────────────────────────────────────────────────────────────── */
+  .stage-win95 {
+    background: #008080;
+    color: #000;
+    font-family: 'MS Sans Serif', 'Microsoft Sans Serif', Tahoma, 'Geneva', sans-serif;
+    font-size: 11px;
+    line-height: 1.15;
+    -webkit-font-smoothing: none;
+    -moz-osx-font-smoothing: unset;
+    min-height: 100vh;
+    overflow: hidden;
+    padding: 32px;
+    padding-bottom: 60px;
+    position: relative;
+    isolation: isolate;
+  }
+  .stage-win95 .sr {
+    position: absolute; width: 1px; height: 1px; overflow: hidden;
+    clip: rect(0,0,0,0); white-space: nowrap;
+  }
+
+  /* ─── Desktop icons ─── */
+  .stage-win95 .desktop-icons {
+    position: absolute;
+    top: 24px;
+    left: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    z-index: 1;
+  }
+  .stage-win95 .desktop-icons li {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 72px;
+    cursor: default;
+  }
+  .stage-win95 .desktop-icons .icon-link {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    text-decoration: none;
+    color: inherit;
+    padding: 2px;
+    border: 1px dotted transparent;
+  }
+  .stage-win95 .desktop-icons .icon-link:hover {
+    border-color: rgba(255, 255, 255, 0.7);
+    background: rgba(0, 0, 128, 0.12);
+  }
+  .stage-win95 .desktop-icons .icon-link:focus-visible {
+    outline: 1px dotted #fff;
+    outline-offset: 1px;
+  }
+  .stage-win95 .desktop-icons .icon-link:hover .label {
+    background: #000080;
+    color: #ffffff;
+    text-shadow: none;
+  }
+  .stage-win95 .desktop-icons .icon-link:active .ico { transform: translate(1px, 1px); }
+  .stage-win95 .ico {
+    width: 32px;
+    height: 32px;
+    display: inline-block;
+  }
+  .stage-win95 .ico svg { width: 100%; height: 100%; }
+  .stage-win95 .desktop-icons .label {
+    margin-top: 4px;
+    color: #ffffff;
+    text-shadow: 1px 1px 0 #000;
+    font-size: 11px;
+    text-align: center;
+    line-height: 1.2;
+    padding: 1px 3px;
+  }
+
+  /* ─── Window chrome ─── */
+  .stage-win95 .win-window {
+    position: absolute;
+    background: #c0c0c0;
+    border-top: 2px solid #ffffff;
+    border-left: 2px solid #ffffff;
+    border-right: 2px solid #000000;
+    border-bottom: 2px solid #000000;
+    box-shadow: 1px 1px 0 #808080;
+    z-index: 2;
+  }
+  .stage-win95 .win-window::before {
+    /* Inner bevel highlight for that authentic 1px-inside-the-outer-bevel feel */
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-top: 1px solid #dfdfdf;
+    border-left: 1px solid #dfdfdf;
+    border-right: 1px solid #808080;
+    border-bottom: 1px solid #808080;
+    pointer-events: none;
+  }
+  .stage-win95 .titlebar {
+    background: linear-gradient(90deg, #000080 0%, #1084d0 100%);
+    color: #ffffff;
+    padding: 3px 4px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 700;
+    font-size: 11px;
+    position: relative;
+    z-index: 1;
+    cursor: move;
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  .stage-win95 .titlebar.is-dragging { cursor: grabbing; }
+  /* Inactive window: classic Win95 grey gradient + dim text. */
+  .stage-win95 .win-window:not(.is-active) .titlebar {
+    background: linear-gradient(90deg, #7f7f7f 0%, #b5b5b5 100%);
+    color: #d4d0c8;
+  }
+  /* Closed window stays in DOM but disappears (the close button hides it
+     along with its matching taskbar entry). */
+  .stage-win95 .win-window.is-closed { display: none; }
+  .stage-win95 .titlebar .ico-mini {
+    width: 16px;
+    height: 16px;
+    display: inline-block;
+    flex-shrink: 0;
+  }
+  .stage-win95 .titlebar .ico-mini svg { width: 100%; height: 100%; }
+  .stage-win95 .titlebar .title { flex: 1; }
+  .stage-win95 .titlebar .ctrls { display: flex; gap: 2px; }
+  .stage-win95 .ctrl {
+    width: 18px;
+    height: 16px;
+    background: #c0c0c0;
+    color: #000;
+    border: none;
+    border-top: 1px solid #ffffff;
+    border-left: 1px solid #ffffff;
+    border-right: 1px solid #000000;
+    border-bottom: 1px solid #000000;
+    font-size: 10px;
+    line-height: 1;
+    font-family: inherit;
+    cursor: pointer;
+    padding: 0;
+    text-align: center;
+  }
+  .stage-win95 .ctrl:active {
+    border-top-color: #000;
+    border-left-color: #000;
+    border-right-color: #fff;
+    border-bottom-color: #fff;
+  }
+  .stage-win95 .ctrl-close { font-weight: 700; }
+  .stage-win95 .menubar {
+    padding: 2px 6px;
+    background: #c0c0c0;
+    display: flex;
+    gap: 12px;
+    border-bottom: 1px solid #808080;
+    position: relative;
+    z-index: 1;
+  }
+  .stage-win95 .menubar span { cursor: default; }
+  .stage-win95 .menubar u { text-decoration: underline; }
+
+  /* ─── Notepad ─── */
+  .stage-win95 .win-notepad {
+    width: 480px;
+    max-width: calc(100vw - 64px);
+    top: 50px;
+    right: 32px;
+  }
+  .stage-win95 .paper {
+    background: #ffffff;
+    border: 1px solid #808080;
+    border-bottom-color: #c0c0c0;
+    border-right-color: #c0c0c0;
+    margin: 2px 2px 2px 2px;
+    padding: 12px 14px;
+    height: 380px;
+    overflow-y: auto;
+    position: relative;
+    z-index: 1;
+  }
+  .stage-win95 .paper pre {
+    margin: 0;
+    font-family: 'MS Sans Serif', 'Microsoft Sans Serif', Tahoma, sans-serif;
+    font-size: 11px;
+    line-height: 1.45;
+    color: #000;
+    white-space: pre-wrap;
+  }
+
+  /* ─── Setup Wizard ─── */
+  .stage-win95 .win-setup {
+    width: 460px;
+    max-width: calc(100vw - 64px);
+    top: 220px;
+    left: 32px;
+  }
+  .stage-win95 .titlebar-blue {
+    background: linear-gradient(90deg, #000080 0%, #1084d0 100%);
+  }
+  .stage-win95 .setup-body {
+    display: flex;
+    position: relative;
+    z-index: 1;
+    margin: 2px;
+    background: #ffffff;
+    border: 1px solid #808080;
+    border-bottom-color: #c0c0c0;
+    border-right-color: #c0c0c0;
+  }
+  .stage-win95 .setup-side { width: 120px; flex-shrink: 0; }
+  .stage-win95 .setup-banner svg {
+    width: 100%;
+    height: 100%;
+    min-height: 280px;
+    display: block;
+  }
+  .stage-win95 .setup-main {
+    flex: 1;
+    padding: 18px 18px 14px;
+    display: flex;
+    flex-direction: column;
+  }
+  .stage-win95 .setup-main h2 {
+    font-size: 14px;
+    font-weight: 700;
+    margin: 0 0 12px;
+    color: #000;
+  }
+  .stage-win95 .setup-main p {
+    margin: 0 0 12px;
+    font-size: 11px;
+    line-height: 1.4;
+  }
+  .stage-win95 .setup-main p.muted { color: #555; }
+  .stage-win95 .setup-progress {
+    margin: auto 0 14px;
+    display: flex;
+    gap: 6px;
+    justify-content: center;
+  }
+  .stage-win95 .setup-progress .dot {
+    width: 8px;
+    height: 8px;
+    border: 1px solid #000;
+    background: #c0c0c0;
+    border-top-color: #fff;
+    border-left-color: #fff;
+  }
+  .stage-win95 .setup-progress .dot.is-active {
+    background: #000080;
+  }
+  .stage-win95 .setup-actions {
+    display: flex;
+    gap: 6px;
+    justify-content: flex-end;
+    border-top: 1px solid #808080;
+    padding-top: 12px;
+  }
+  .stage-win95 .winbtn {
+    background: #c0c0c0;
+    border: none;
+    border-top: 1px solid #ffffff;
+    border-left: 1px solid #ffffff;
+    border-right: 1px solid #000000;
+    border-bottom: 1px solid #000000;
+    box-shadow: 1px 1px 0 #808080;
+    color: #000;
+    padding: 4px 14px;
+    font-family: inherit;
+    font-size: 11px;
+    cursor: pointer;
+    min-width: 64px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+  }
+  .stage-win95 .winbtn:hover { background: #d0d0d0; }
+  .stage-win95 .winbtn:active {
+    border-top-color: #000;
+    border-left-color: #000;
+    border-right-color: #fff;
+    border-bottom-color: #fff;
+    box-shadow: none;
+    transform: translate(1px, 1px);
+  }
+  .stage-win95 .winbtn:disabled {
+    color: #808080;
+    text-shadow: 1px 1px 0 #fff;
+    cursor: not-allowed;
+  }
+  .stage-win95 .winbtn-primary {
+    font-weight: 700;
+  }
+  .stage-win95 .winbtn-primary::after {
+    content: "";
+    position: absolute;
+  }
+  .stage-win95 .winbtn-cancel { margin-left: 6px; }
+
+  /* ─── Taskbar ─── */
+  .stage-win95 .taskbar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 30px;
+    background: #c0c0c0;
+    border-top: 2px solid #ffffff;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    padding: 2px;
+    z-index: 10;
+  }
+  .stage-win95 .start-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: #c0c0c0;
+    border: none;
+    border-top: 1px solid #ffffff;
+    border-left: 1px solid #ffffff;
+    border-right: 1px solid #000000;
+    border-bottom: 1px solid #000000;
+    box-shadow: 1px 1px 0 #808080;
+    padding: 2px 8px 2px 4px;
+    font: inherit;
+    font-weight: 700;
+    cursor: pointer;
+    height: 22px;
+  }
+  .stage-win95 .start-btn:active,
+  .stage-win95 .start-btn.is-pressed {
+    border-top-color: #000;
+    border-left-color: #000;
+    border-right-color: #fff;
+    border-bottom-color: #fff;
+    box-shadow: none;
+  }
+  .stage-win95 .start-btn.is-pressed b {
+    transform: translate(1px, 1px);
+  }
+  .stage-win95 .start-logo {
+    width: 16px;
+    height: 16px;
+    display: inline-block;
+  }
+  .stage-win95 .start-logo svg { width: 100%; height: 100%; }
+  .stage-win95 .tasks {
+    flex: 1;
+    display: flex;
+    gap: 3px;
+    overflow: hidden;
+  }
+  .stage-win95 .task {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: #c0c0c0;
+    border-top: 1px solid #fff;
+    border-left: 1px solid #fff;
+    border-right: 1px solid #000;
+    border-bottom: 1px solid #000;
+    padding: 2px 8px;
+    height: 22px;
+    min-width: 140px;
+    max-width: 180px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font: inherit;
+    font-size: 11px;
+    color: inherit;
+    cursor: pointer;
+    text-align: left;
+  }
+  .stage-win95 .task.is-hidden { display: none; }
+  .stage-win95 .task.is-active {
+    border-top-color: #000;
+    border-left-color: #000;
+    border-right-color: #fff;
+    border-bottom-color: #fff;
+    background-image:
+      repeating-linear-gradient(45deg, transparent, transparent 1px, rgba(255,255,255,0.18) 1px, rgba(255,255,255,0.18) 2px);
+  }
+  .stage-win95 .task-ico {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+  }
+  .stage-win95 .task-ico svg { width: 100%; height: 100%; }
+  .stage-win95 .tray {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    height: 22px;
+    padding: 0 8px;
+    border-top: 1px solid #808080;
+    border-left: 1px solid #808080;
+    border-right: 1px solid #fff;
+    border-bottom: 1px solid #fff;
+  }
+  .stage-win95 .tray-ico { width: 16px; height: 16px; display: inline-block; flex-shrink: 0; }
+  .stage-win95 .tray-ico svg { width: 100%; height: 100%; }
+  .stage-win95 .clock {
+    font-size: 11px;
+    color: #000;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Selected desktop icon (single click selects; double click activates,
+     mirroring real Win95). Same look as :hover so the affordance is
+     consistent. */
+  .stage-win95 .desktop-icons .icon-link.is-selected {
+    border-color: rgba(255, 255, 255, 0.7);
+    background: rgba(0, 0, 128, 0.12);
+  }
+  .stage-win95 .desktop-icons .icon-link.is-selected .label {
+    background: #000080;
+    color: #ffffff;
+    text-shadow: none;
+  }
+
+  /* ─── Start menu ─── */
+  .stage-win95 .start-menu {
+    position: absolute;
+    bottom: 30px;
+    left: 2px;
+    display: flex;
+    width: 200px;
+    background: #c0c0c0;
+    border-top: 2px solid #ffffff;
+    border-left: 2px solid #ffffff;
+    border-right: 2px solid #000000;
+    border-bottom: 2px solid #000000;
+    box-shadow: 2px 2px 0 #808080;
+    z-index: 60;
+  }
+  .stage-win95 .start-menu[hidden] { display: none; }
+  .stage-win95 .start-banner {
+    width: 26px;
+    background: linear-gradient(180deg, #808080 0%, #4a4a4a 100%);
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding: 8px 0;
+    flex-shrink: 0;
+  }
+  .stage-win95 .start-banner span {
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    color: #c0c0c0;
+    font-weight: 700;
+    font-size: 15px;
+    letter-spacing: 1px;
+    text-shadow: 1px 1px 0 #000;
+  }
+  .stage-win95 .start-banner sub {
+    color: #ffffff;
+    font-size: 0.55em;
+    vertical-align: baseline;
+  }
+  .stage-win95 .start-items {
+    flex: 1;
+    list-style: none;
+    margin: 0;
+    padding: 2px;
+  }
+  .stage-win95 .start-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 6px 8px;
+    background: transparent;
+    border: none;
+    color: #000;
+    font: inherit;
+    font-size: 12px;
+    cursor: pointer;
+    text-decoration: none;
+    text-align: left;
+  }
+  .stage-win95 .start-item:hover,
+  .stage-win95 .start-item:focus-visible {
+    background: #000080;
+    color: #ffffff;
+    outline: none;
+  }
+  .stage-win95 .start-ico {
+    width: 22px;
+    height: 22px;
+    display: inline-block;
+    flex-shrink: 0;
+  }
+  .stage-win95 .start-ico svg { width: 100%; height: 100%; }
+  .stage-win95 .start-sep {
+    list-style: none;
+    height: 0;
+    margin: 4px 2px;
+    border-top: 1px solid #808080;
+    border-bottom: 1px solid #ffffff;
+  }
+
+  /* ─── Responsive ─── */
+  @media (max-width: 720px) {
+    .stage-win95 { padding: 16px 12px 60px; }
+    .stage-win95 .desktop-icons { display: none; }
+    .stage-win95 .win-notepad {
+      width: calc(100% - 24px);
+      right: 12px;
+      left: 12px;
+      top: 16px;
+    }
+    .stage-win95 .win-setup {
+      width: calc(100% - 24px);
+      right: 12px;
+      left: 12px;
+      top: auto;
+      bottom: 50px;
+    }
+    .stage-win95 .paper { height: 240px; }
+    .stage-win95 .setup-side { display: none; }
+    .stage-win95 .task { min-width: 100px; max-width: 130px; font-size: 10px; }
+    .stage-win95 .start-menu { width: 180px; }
+  }
+</style>
+
+<script>
+  /*
+   * WIN95 interactivity, scoped to .stage-win95. Vanilla DOM, runs once
+   * on hydration. No framework, no state lib. Keeps the per-feature
+   * cost low and the script tree-shakable to almost nothing.
+   *
+   * Capabilities:
+   *   - live clock in the tray
+   *   - draggable windows (pointer events, clamped inside the stage)
+   *   - click-to-focus with active/inactive titlebar styling
+   *   - working close button (hides window + its taskbar entry)
+   *   - taskbar buttons focus / re-open their window
+   *   - Start menu (toggle, click-outside-to-close, Esc, focus return)
+   *   - "Shut Down..." scrolls into the BSOD transition
+   *   - desktop icons: single click selects, double click activates
+   */
+  (() => {
+    const stage = document.querySelector<HTMLElement>('.stage-win95');
+    if (!stage) return;
+
+    const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const isNarrow = () => matchMedia('(max-width: 720px)').matches;
+
+    /* ─── Live clock ──────────────────────────────────────────── */
+    const clockEl = stage.querySelector<HTMLElement>('.clock');
+    if (clockEl) {
+      const tick = () => {
+        const d = new Date();
+        let h = d.getHours();
+        const m = d.getMinutes();
+        const ampm = h >= 12 ? 'PM' : 'AM';
+        h = h % 12 || 12;
+        clockEl.textContent = `${h}:${String(m).padStart(2, '0')} ${ampm}`;
+      };
+      tick();
+      setInterval(tick, 30_000);
+    }
+
+    /* ─── Window focus (z-index + active titlebar) ───────────── */
+    const windows = Array.from(
+      stage.querySelectorAll<HTMLElement>('.win-window'),
+    );
+    let zCounter = 3;
+    const focusWindow = (w: HTMLElement) => {
+      windows.forEach((x) => x.classList.toggle('is-active', x === w));
+      zCounter = Math.min(zCounter + 1, 45);
+      w.style.zIndex = String(zCounter);
+      // mirror in the taskbar
+      stage.querySelectorAll<HTMLElement>('.task').forEach((t) => {
+        const sel = t.dataset.window;
+        t.classList.toggle('is-active', !!sel && w.matches(sel));
+      });
+    };
+    windows.forEach((w) => {
+      w.addEventListener('pointerdown', () => focusWindow(w));
+    });
+    if (windows[0]) focusWindow(windows[0]);
+
+    /* ─── Close button ───────────────────────────────────────── */
+    stage.querySelectorAll<HTMLButtonElement>('.ctrl-close').forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const w = btn.closest<HTMLElement>('.win-window');
+        if (!w) return;
+        w.classList.add('is-closed');
+        // hide the matching taskbar entry
+        stage
+          .querySelectorAll<HTMLElement>('.task')
+          .forEach((t) => {
+            const sel = t.dataset.window;
+            if (sel && w.matches(sel)) t.classList.add('is-hidden');
+          });
+      });
+    });
+
+    /* ─── Drag windows by titlebar ───────────────────────────── */
+    windows.forEach((w) => {
+      const tb = w.querySelector<HTMLElement>('.titlebar');
+      if (!tb) return;
+      let dragging = false;
+      let startX = 0;
+      let startY = 0;
+      let startLeft = 0;
+      let startTop = 0;
+
+      tb.addEventListener('pointerdown', (e) => {
+        // Skip when grabbing a titlebar button (minimize/maximize/close).
+        if ((e.target as HTMLElement).closest('.ctrl')) return;
+        // Mobile: drag is meaningless when windows span the viewport.
+        if (isNarrow()) return;
+        focusWindow(w);
+        // Normalize: switch from top/right (or top/left) anchoring to
+        // explicit top/left in stage-relative coordinates, so the math
+        // is uniform from this drag onward.
+        const wRect = w.getBoundingClientRect();
+        const sRect = stage.getBoundingClientRect();
+        startLeft = wRect.left - sRect.left;
+        startTop = wRect.top - sRect.top;
+        w.style.left = `${startLeft}px`;
+        w.style.top = `${startTop}px`;
+        w.style.right = 'auto';
+        w.style.bottom = 'auto';
+        startX = e.clientX;
+        startY = e.clientY;
+        dragging = true;
+        tb.setPointerCapture(e.pointerId);
+        tb.classList.add('is-dragging');
+        e.preventDefault();
+      });
+
+      tb.addEventListener('pointermove', (e) => {
+        if (!dragging) return;
+        const sRect = stage.getBoundingClientRect();
+        const wRect = w.getBoundingClientRect();
+        let nx = startLeft + (e.clientX - startX);
+        let ny = startTop + (e.clientY - startY);
+        // Keep at least 80px of titlebar inside the stage on every side,
+        // and never tuck the titlebar under the 30px taskbar.
+        const minLeft = -wRect.width + 80;
+        const maxLeft = sRect.width - 80;
+        const minTop = 0;
+        const maxTop = sRect.height - 30 - 24;
+        nx = Math.max(minLeft, Math.min(maxLeft, nx));
+        ny = Math.max(minTop, Math.min(maxTop, ny));
+        w.style.left = `${nx}px`;
+        w.style.top = `${ny}px`;
+      });
+
+      const endDrag = (e: PointerEvent) => {
+        if (!dragging) return;
+        dragging = false;
+        try {
+          tb.releasePointerCapture(e.pointerId);
+        } catch {}
+        tb.classList.remove('is-dragging');
+      };
+      tb.addEventListener('pointerup', endDrag);
+      tb.addEventListener('pointercancel', endDrag);
+    });
+
+    /* ─── Taskbar buttons: focus / re-open ───────────────────── */
+    stage.querySelectorAll<HTMLButtonElement>('.task').forEach((t) => {
+      t.addEventListener('click', () => {
+        const sel = t.dataset.window;
+        if (!sel) return;
+        const target = stage.querySelector<HTMLElement>(sel);
+        if (!target) return;
+        target.classList.remove('is-closed');
+        t.classList.remove('is-hidden');
+        focusWindow(target);
+      });
+    });
+
+    /* ─── Start menu ─────────────────────────────────────────── */
+    const startBtn = stage.querySelector<HTMLButtonElement>('.start-btn');
+    const startMenu = stage.querySelector<HTMLElement>('.start-menu');
+    const setStart = (open: boolean) => {
+      if (!startBtn || !startMenu) return;
+      startMenu.hidden = !open;
+      startBtn.classList.toggle('is-pressed', open);
+      startBtn.setAttribute('aria-expanded', String(open));
+    };
+    startBtn?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      setStart(!!startMenu?.hidden);
+    });
+    document.addEventListener('click', (e) => {
+      if (!startMenu || startMenu.hidden) return;
+      const t = e.target as Node;
+      if (startMenu.contains(t) || startBtn?.contains(t)) return;
+      setStart(false);
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && startMenu && !startMenu.hidden) {
+        setStart(false);
+        startBtn?.focus();
+      }
+    });
+
+    /* Documents → focus the Notepad window. */
+    stage
+      .querySelector<HTMLButtonElement>('[data-action="open-readme"]')
+      ?.addEventListener('click', () => {
+        setStart(false);
+        const notepad = stage.querySelector<HTMLElement>('.win-notepad');
+        if (!notepad) return;
+        notepad.classList.remove('is-closed');
+        stage
+          .querySelector<HTMLElement>('.task[data-window=".win-notepad"]')
+          ?.classList.remove('is-hidden');
+        focusWindow(notepad);
+      });
+
+    /* Shut Down... → scroll into the next stage's BSOD transition.
+       The crash effect there is scroll-linked, so just arriving at it
+       triggers the show. */
+    stage
+      .querySelector<HTMLButtonElement>('[data-action="shutdown"]')
+      ?.addEventListener('click', () => {
+        setStart(false);
+        const next = stage.nextElementSibling as HTMLElement | null;
+        if (!next) return;
+        next.scrollIntoView({
+          behavior: reduceMotion ? 'auto' : 'smooth',
+          block: 'start',
+        });
+      });
+
+    /* ─── Desktop icons: single-click selects, double activates ─ */
+    const icons = Array.from(
+      stage.querySelectorAll<HTMLAnchorElement>('.desktop-icons .icon-link'),
+    );
+    const lastTap = { el: null as HTMLAnchorElement | null, t: 0 };
+    const selectIcon = (icon: HTMLAnchorElement | null) => {
+      icons.forEach((i) => i.classList.toggle('is-selected', i === icon));
+    };
+    icons.forEach((icon) => {
+      icon.addEventListener('click', (e) => {
+        // Preserve native shortcuts (middle-click, ctrl-click, etc).
+        if (
+          e.button !== 0 ||
+          e.metaKey ||
+          e.ctrlKey ||
+          e.shiftKey ||
+          e.altKey
+        )
+          return;
+        // On narrow screens icons are hidden anyway; keep single-tap
+        // semantics there in case overrides expose them.
+        if (isNarrow()) return;
+        const now = performance.now();
+        if (lastTap.el === icon && now - lastTap.t < 500) {
+          // Second click within 500ms: let navigation happen.
+          lastTap.el = null;
+          return;
+        }
+        e.preventDefault();
+        selectIcon(icon);
+        lastTap.el = icon;
+        lastTap.t = now;
+      });
+    });
+    // Click on empty desktop area deselects.
+    stage.addEventListener('click', (e) => {
+      const t = e.target as HTMLElement;
+      if (t.closest('.icon-link') || t.closest('.win-window') || t.closest('.taskbar') || t.closest('.start-menu'))
+        return;
+      selectIcon(null);
+    });
+  })();
+</script>

@@ -1,0 +1,415 @@
+---
+/*
+ * Stage 6 : TERMINAL (the final form)
+ *
+ * The end of the descent. Black bg, phosphor green, monospace.
+ * Man-page-style formatting. Real install commands. A neofetch
+ * readout for grimoire@codex with the ASCII chaos-star.
+ *
+ * Voice: facts and links. Zero marketing. The truth, after the costumes.
+ */
+import type { DownloadUrls } from '../../data/content';
+import { brand } from '../../data/content';
+const dl = Astro.props as DownloadUrls;
+
+const sumSize = (dl.windowsInstaller?.size ?? 0) / 1024 / 1024;
+const sizeStr = sumSize > 0 ? `${sumSize.toFixed(1)} MiB` : 'unknown';
+
+/*
+ * `ls -lh` style listing. Padding is hand-tuned so the columns align in
+ * monospace without needing a real table. Missing assets fall through
+ * to a dim em-dash placeholder instead of the releases page so the
+ * listing stays factual.
+ */
+function mib(size: number | undefined | null): string {
+  if (!size) return '       ';
+  const mb = size / 1024 / 1024;
+  return `${mb.toFixed(1).padStart(6, ' ')}M`;
+}
+function pad(s: string, w: number): string {
+  if (s.length >= w) return s;
+  return s + ' '.repeat(w - s.length);
+}
+const lsRows = [
+  { perms: '-rw-r--r--', size: mib(dl.windowsInstaller?.size), name: dl.windowsInstaller?.name ?? '(missing setup.exe)',  href: dl.windowsInstaller?.browser_download_url },
+  { perms: '-rw-r--r--', size: mib(dl.windowsPortable?.size),  name: dl.windowsPortable?.name  ?? '(missing portable.exe)', href: dl.windowsPortable?.browser_download_url  },
+  { perms: '-rw-r--r--', size: mib(dl.linuxAppImage?.size),    name: dl.linuxAppImage?.name    ?? '(missing .AppImage)',    href: dl.linuxAppImage?.browser_download_url    },
+  { perms: '-rw-r--r--', size: mib(dl.linuxDeb?.size),         name: dl.linuxDeb?.name         ?? '(missing .deb)',         href: dl.linuxDeb?.browser_download_url         },
+  { perms: '-rw-r--r--', size: '   1.2K', name: dl.sha256Sums?.name ?? 'SHA256SUMS', href: dl.sha256Sums?.browser_download_url },
+];
+---
+
+<section class="stage stage-terminal" data-era="terminal" aria-labelledby="term-h1">
+  <h1 id="term-h1" class="sr">Grimoire: terminal</h1>
+
+  <div class="scanlines" aria-hidden="true"></div>
+  <div class="phosphor" aria-hidden="true"></div>
+
+  <div class="terminal-wrap">
+
+    <!-- MOTD -->
+    <pre class="motd" aria-label="Message of the day">grimoire@codex 5.2 (bash-incantations 5.2)
+Last login: tonight, by candlelight
+Type 'less /usr/share/doc/grimoire/README' for the manual.
+</pre>
+
+    <!-- ls -lh ./dist/ : every shipped artifact, clickable -->
+    <div class="ls" aria-label="Release artifacts">
+      <div class="ls-line"><span class="cmd">$ ls -lh ./dist/{dl.version ? `v${dl.version}` : 'latest'}/</span></div>
+      <div class="ls-line">total 5</div>
+      {lsRows.map((row) => (
+        <div class="ls-line ls-row">
+          <span class="dim">{row.perms} 1 ci ci</span>
+          <span class="size">{row.size}</span>
+          {row.href
+            ? <a class="cmd-link" href={row.href}>{row.name}</a>
+            : <span class="dim">{row.name}</span>
+          }
+        </div>
+      ))}
+      {dl.releaseUrl && (
+        <>
+          <div class="ls-line"><span class="dim">───────────────────────────────────────────────────────</span></div>
+          <div class="ls-line"><span class="cmd">$ open </span><a class="cmd-link" href={dl.releaseUrl}>{dl.releaseUrl}</a></div>
+        </>
+      )}
+    </div>
+
+    <!-- man page -->
+    <pre class="man" aria-label="man page">
+<span class="cmd">$ man grimoire</span>
+
+GRIMOIRE(1)                      User Commands                      GRIMOIRE(1)
+
+<span class="hd">NAME</span>
+       grimoire - mod manager for Deadlock
+
+<span class="hd">SYNOPSIS</span>
+       grimoire
+
+<span class="hd">DESCRIPTION</span>
+       Browse and install mods from GameBanana, manage your local mod
+       library, swap full profiles in a click, and pin per-hero skin
+       variants.
+
+       Offline-first. Two-process desktop app. The renderer never sees
+       your session token. No telemetry, no analytics, no accounts.
+
+<span class="hd">FEATURES</span>
+       <span class="li">browse</span>     local GameBanana mirror, sub-ms search
+       <span class="li">library</span>    toggle, reorder, conflict detection at the VPK layer
+       <span class="li">locker</span>     one active skin per hero, switch in one click
+       <span class="li">profiles</span>   loadouts as short mp1: codes or .modprofile.json files
+
+<span class="hd">INSTALL</span>
+       Windows (recommended):
+         <a class="cmd-link" href={dl.windowsInstaller?.browser_download_url ?? dl.releaseUrl}>{dl.windowsInstaller?.name ?? 'grimoire-setup.exe'}</a>
+         ({sizeStr}, signed by GitHub Actions build attestation)
+
+       Windows (portable, no install):
+         <a class="cmd-link" href={dl.windowsPortable?.browser_download_url ?? dl.releaseUrl}>{dl.windowsPortable?.name ?? 'grimoire-portable.exe'}</a>
+
+       Arch / Manjaro:
+         <span class="cmd">$ yay -S grimoire-bin</span>
+
+       Debian / Ubuntu:
+         <a class="cmd-link" href={dl.linuxDeb?.browser_download_url ?? dl.releaseUrl}>{dl.linuxDeb?.name ?? 'grimoire.deb'}</a>
+         <span class="cmd">$ sudo apt install ./{dl.linuxDeb?.name ?? 'grimoire.deb'}</span>
+
+       AppImage (universal):
+         <a class="cmd-link" href={dl.linuxAppImage?.browser_download_url ?? dl.releaseUrl}>{dl.linuxAppImage?.name ?? 'grimoire.AppImage'}</a>
+         <span class="cmd">$ chmod +x {dl.linuxAppImage?.name ?? 'grimoire.AppImage'} &amp;&amp; ./{dl.linuxAppImage?.name ?? 'grimoire.AppImage'}</span>
+
+       From source:
+         <span class="cmd">$ git clone <a class="cmd-link" href={brand.github}>{brand.github}</a></span>
+         <span class="cmd">$ cd grimoire &amp;&amp; pnpm install &amp;&amp; pnpm dev</span>
+
+<span class="hd">VERIFY</span>
+       <span class="cmd">$ sha256sum -c SHA256SUMS</span>
+       <span class="cmd">$ gh attestation verify &lt;file&gt; --owner Slush97</span>
+
+<span class="hd">VERSION</span>
+       {dl.version ? `v${dl.version}` : '1.x (unreleased)'}{dl.releaseDate ? ` released ${dl.releaseDate}` : ''}
+
+<span class="hd">LICENSE</span>
+       MIT
+
+<span class="hd">AUTHOR</span>
+       slusheliott@gmail.com  &lt;GitHub: <a class="cmd-link" href={brand.github}>Slush97</a>&gt;
+
+<span class="hd">SEE ALSO</span>
+       deadlock(6), gamebanana(7), vpk(5)
+
+GRIMOIRE                        {brand.year}                         GRIMOIRE(1)
+</pre>
+
+    {/*
+      neofetch : two-column layout (ASCII chaos-star art + info column).
+      Grid alignment avoids hand-counting whitespace between columns;
+      JetBrains Mono renders ✦ (U+2726) close to one cell wide but not
+      exactly, which used to drift the labels by 1-2 columns per row.
+    */}
+    <div class="neofetch" aria-label="neofetch grimoire@codex">
+      <pre class="nf-prompt"><span class="cmd">$ neofetch</span></pre>
+
+      <div class="nf-body">
+        <pre class="nf-art" aria-hidden="true"><span class="ax">      ↑
+   ↖  │  ↗
+    ╲ │ ╱
+     ╲│╱
+←─────✸─────→
+     ╱│╲
+    ╱ │ ╲
+   ↙  │  ↘
+      ↓</span></pre>
+
+        <div class="nf-info">
+          <div class="nf-head">
+            <span class="user">grimoire</span><span class="dim">@</span><span class="user">codex</span>
+          </div>
+          <div class="nf-rule dim">─────────────────────────────────</div>
+          <div class="nf-row"><span class="hd">ENGINE</span><span>chaos.magick 6.6.6-arch1-1</span></div>
+          <div class="nf-row"><span class="hd">BOUND ON</span><span>Windows · Linux · Arch</span></div>
+          <div class="nf-row"><span class="hd">UPTIME</span><span>since the autumn equinox</span></div>
+          <div class="nf-row"><span class="hd">SHELL</span><span>bash-incantations 5.2</span></div>
+          <div class="nf-row"><span class="hd">FONT</span><span>IM Fell English (irregular)</span></div>
+          <div class="nf-row"><span class="hd">TELEMETRY</span><span class="ok">∅ no signals leave this terminal</span></div>
+          <div class="nf-row"><span class="hd">LICENSE</span><span>MIT · blessed mmxxvi</span></div>
+          <div class="nf-row"><span class="hd">SOURCE</span><a class="cmd-link" href={brand.github}>github.com/Slush97/grimoire</a></div>
+        </div>
+      </div>
+
+      <div class="palette" aria-hidden="true">
+        <span style="background:#000"></span>
+        <span style="background:#ff3b1f"></span>
+        <span style="background:#00ff66"></span>
+        <span style="background:#ffe047"></span>
+        <span style="background:#3b82f6"></span>
+        <span style="background:#a78bfa"></span>
+        <span style="background:#f97316"></span>
+        <span style="background:#e7d2a3"></span>
+      </div>
+    </div>
+
+    <!-- closing prompt -->
+    <pre class="closing">
+<span class="cmd">$ </span><span class="user-cmd">grimoire</span>
+<span class="dim">[ launching grimoire... press CTRL+C to abort ]</span>
+
+<span class="cmd">$ </span><span class="cursor-blink">_</span>
+</pre>
+  </div>
+</section>
+
+<style>
+  /* ─────────────────────────────────────────────────────────────────
+     TERMINAL: scoped CRT terminal world. Black bg, phosphor green text,
+     scanline overlay, monospace. The descent ends here : facts, links,
+     and the real install line. No marketing.
+     ───────────────────────────────────────────────────────────────── */
+  .stage-terminal {
+    background: #000;
+    color: #00ff66;
+    font-family: 'JetBrains Mono', 'IBM Plex Mono', 'SFMono-Regular', ui-monospace, monospace;
+    font-size: 14px;
+    line-height: 1.5;
+    /*
+     * Top padding deliberately tight: the upstream GrimoireToTerminal
+     * transition ends with `$ _` mid-viewport, and any large gap here
+     * reads as dead space between the CRT powering on and the MOTD
+     * actually arriving. 16px lands the MOTD just under the transition's
+     * cursor when you scroll across the boundary.
+     */
+    padding: 16px 0 96px;
+    min-height: 100vh;
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    text-shadow: 0 0 4px rgba(0, 255, 102, 0.3);
+  }
+  .stage-terminal .sr {
+    position: absolute; width: 1px; height: 1px; overflow: hidden;
+    clip: rect(0,0,0,0); white-space: nowrap;
+  }
+  .stage-terminal .terminal-wrap {
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 0 24px;
+    position: relative;
+    z-index: 2;
+  }
+  .stage-terminal pre {
+    margin: 0 0 28px;
+    color: #00ff66;
+    font-family: inherit;
+    font-size: inherit;
+    line-height: inherit;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+  }
+  .stage-terminal a {
+    color: #66ffaa;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  .stage-terminal a:hover { color: #ffe047; }
+
+  /* Headings & emphasis */
+  .stage-terminal .hd {
+    color: #ffe047;
+    font-weight: 700;
+    text-shadow: 0 0 4px rgba(255, 224, 71, 0.35);
+  }
+  .stage-terminal .li { color: #66ffaa; font-weight: 700; }
+  .stage-terminal .ok { color: #66ffaa; }
+  .stage-terminal .dim { color: rgba(0, 255, 102, 0.45); }
+  .stage-terminal .user { color: #ffe047; font-weight: 700; }
+  .stage-terminal .cmd { color: #66ffaa; }
+  .stage-terminal .cmd-link { color: #66ffaa; text-decoration: underline; }
+  .stage-terminal .cmd-link:hover { color: #ffe047; }
+  .stage-terminal .user-cmd { color: #ffe047; font-weight: 700; }
+  .stage-terminal .ax {
+    color: #f97316;
+    text-shadow: 0 0 6px rgba(249, 115, 22, 0.5);
+  }
+
+  /* MOTD */
+  .stage-terminal .motd {
+    color: rgba(0, 255, 102, 0.7);
+    border-left: 2px solid rgba(0, 255, 102, 0.3);
+    padding-left: 12px;
+    margin-bottom: 28px;
+  }
+
+  /* ls -lh listing */
+  .stage-terminal .ls {
+    margin: 0 0 28px;
+    font-family: inherit;
+    font-size: inherit;
+    line-height: inherit;
+  }
+  .stage-terminal .ls-line {
+    white-space: pre;
+    word-break: keep-all;
+  }
+  .stage-terminal .ls-row {
+    display: grid;
+    grid-template-columns: minmax(150px, auto) minmax(70px, auto) 1fr;
+    gap: 12px;
+    align-items: baseline;
+  }
+  .stage-terminal .ls-row .size {
+    color: #ffe047;
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+  }
+  @media (max-width: 720px) {
+    .stage-terminal .ls-row {
+      grid-template-columns: auto 1fr;
+      gap: 8px;
+    }
+    .stage-terminal .ls-row .dim:first-child { display: none; }
+  }
+
+  /* ─── Neofetch ───
+     Two-column grid (art + info) avoids whitespace-counting between the
+     chaos-star ASCII and the label column. The info side is itself a
+     two-column grid so labels and values align across all rows. */
+  .stage-terminal .neofetch {
+    margin: 0 0 28px;
+    color: #00ff66;
+  }
+  .stage-terminal .nf-prompt {
+    margin: 0 0 12px;
+  }
+  .stage-terminal .nf-body {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: 32px;
+    align-items: start;
+  }
+  .stage-terminal .nf-art {
+    margin: 0;
+    white-space: pre;
+    line-height: 1.25;
+    text-shadow: 0 0 6px rgba(249, 115, 22, 0.45);
+  }
+  .stage-terminal .nf-info {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    column-gap: 16px;
+    row-gap: 2px;
+    align-items: baseline;
+  }
+  .stage-terminal .nf-head,
+  .stage-terminal .nf-rule {
+    grid-column: 1 / -1;
+  }
+  .stage-terminal .nf-rule {
+    margin: 2px 0 8px;
+  }
+  .stage-terminal .nf-row {
+    display: contents;
+  }
+  .stage-terminal .nf-row .hd::after {
+    content: ":";
+  }
+
+  /* Palette swatches */
+  .stage-terminal .palette {
+    display: inline-flex;
+    gap: 2px;
+    margin-top: 18px;
+  }
+  .stage-terminal .palette span {
+    display: inline-block;
+    width: 18px;
+    height: 12px;
+  }
+  @media (max-width: 720px) {
+    .stage-terminal .nf-body {
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+    .stage-terminal .nf-art { text-align: center; }
+  }
+
+  /* Closing cursor */
+  .stage-terminal .cursor-blink {
+    color: #00ff66;
+    animation: term-blink 1s steps(2, end) infinite;
+  }
+  @keyframes term-blink { 50% { opacity: 0; } }
+
+  /* Scanlines + phosphor glow */
+  .stage-terminal .scanlines {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-image: repeating-linear-gradient(
+      180deg,
+      transparent 0,
+      transparent 1px,
+      rgba(0, 255, 100, 0.04) 1px,
+      rgba(0, 255, 100, 0.04) 2px
+    );
+    z-index: 1;
+    mix-blend-mode: screen;
+  }
+  .stage-terminal .phosphor {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: radial-gradient(ellipse 80% 60% at 50% 50%, rgba(0, 255, 102, 0.04), transparent 70%);
+    z-index: 1;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .stage-terminal .cursor-blink { animation: none; }
+  }
+
+  @media (max-width: 720px) {
+    .stage-terminal { font-size: 12px; padding: 12px 0 64px; }
+    .stage-terminal .terminal-wrap { padding: 0 12px; }
+  }
+</style>

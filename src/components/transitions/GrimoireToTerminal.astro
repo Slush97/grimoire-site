@@ -1,0 +1,345 @@
+---
+/*
+ * Transition: GRIMOIRE → TERMINAL
+ *
+ * Reworked for motion. The parchment darkens, embers detach and drift
+ * down scroll-linked. Mid-way through, a single ember settles into a
+ * green pixel of light. The CRT powers on around it: scanlines fade
+ * in, phosphor blooms, and the terminal prompt resolves at the bottom.
+ *
+ * Ash → phosphor. The candle that lit the Grimoire is the same point of
+ * light that becomes the cursor at the end.
+ *
+ * 100vh of vertical scroll. Scroll-linked where supported. Decorative;
+ * aria-hidden.
+ */
+
+const embers = Array.from({ length: 18 }, (_, i) => ({
+  left: 6 + (i * 11) % 88,
+  size: 1 + (i % 4) * 0.7,
+  delay: -(i * 0.6) % 10,
+  dur: 6 + (i % 5) * 2,
+  hue: i % 3 === 0 ? '#ff8800' : i % 3 === 1 ? '#ff6a00' : '#ffcc55',
+}));
+---
+
+<section class="trans-gt" aria-hidden="true">
+  <div class="bg"></div>
+
+  <!-- Top: parchment glow + char fringe -->
+  <div class="char" aria-hidden="true"></div>
+
+  <!-- Travelling embers -->
+  <div class="ember-field" aria-hidden="true">
+    {embers.map((e) => (
+      <span
+        class="ember"
+        style={`--left: ${e.left}%; --size: ${e.size}px; --delay: ${e.delay}s; --dur: ${e.dur}s; --hue: ${e.hue};`}
+      />
+    ))}
+  </div>
+
+  <!-- Mid-stage: the settling pixel of light (ember → phosphor) -->
+  <div class="settling" aria-hidden="true">
+    <span class="settle-dot"></span>
+    <span class="settle-halo"></span>
+  </div>
+
+  <!-- Bottom: CRT powering on -->
+  <div class="crt" aria-hidden="true">
+    <div class="scanlines"></div>
+    <div class="phosphor"></div>
+    <pre class="prompt">$ <span class="cursor">_</span></pre>
+  </div>
+</section>
+
+<style>
+  .trans-gt {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+    isolation: isolate;
+  }
+
+  /*
+   * Edge bleeds: Grimoire #0a0907 above, Terminal #000 below. Same
+   * insulation as the other transitions : kills any chance of a seam
+   * at the deep-black handoff into Terminal.
+   */
+  .trans-gt::before,
+  .trans-gt::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 3vh;
+    pointer-events: none;
+    z-index: 3;
+  }
+  .trans-gt::before {
+    top: 0;
+    background: linear-gradient(180deg, #0a0907 0%, rgba(10,9,7,0) 100%);
+  }
+  .trans-gt::after {
+    bottom: 0;
+    background: linear-gradient(0deg, #000000 0%, rgba(0,0,0,0) 100%);
+  }
+
+  /*
+   * Top stop matches Grimoire's stage bg (#0a0907) exactly so the
+   * stage→transition handoff has no color step. The warmth at the top
+   * of the transition is supplied by the .char overlay below, layered
+   * via mix-blend-mode so it can fade smoothly from full to zero.
+   */
+  /*
+   * Two-stop gradient interpolated in oklab. Five near-black stops in
+   * the previous version produced perceptible horizontal bands on
+   * 8-bit displays (the eye reads tiny RGB steps in deep black as
+   * lines). Perceptual interpolation makes a single smooth ramp.
+   */
+  .trans-gt .bg {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg in oklab, #0a0907 0%, #000000 100%);
+  }
+
+  /*
+   * Char fringe + ember warmth. Soft-light blending, full-frame, with a
+   * vertical mask that fades the warmth out from top to bottom. No
+   * bounded radials = no sharp edges to read as a seam.
+   */
+  .trans-gt .char {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 70% 40% at 50% 0%, rgba(249, 115, 22, 0.22), transparent 80%),
+      radial-gradient(ellipse 80% 60% at 50% 25%, rgba(180, 90, 30, 0.28), transparent 75%);
+    mix-blend-mode: screen;
+    mask-image: linear-gradient(180deg, #000 0%, #000 25%, rgba(0,0,0,0.6) 45%, transparent 70%);
+    -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 25%, rgba(0,0,0,0.6) 45%, transparent 70%);
+  }
+
+  /*
+   * Ember field: warm pixels drifting downward. Each ember rides its
+   * own time-loop fall; the field as a whole reveals scroll-linked.
+   */
+  .trans-gt .ember-field {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0;
+  }
+  .trans-gt .ember {
+    position: absolute;
+    top: -10px;
+    left: var(--left);
+    width: var(--size);
+    height: var(--size);
+    border-radius: 50%;
+    background: var(--hue);
+    box-shadow: 0 0 6px var(--hue);
+    animation: ember-fall var(--dur) linear infinite;
+    animation-delay: var(--delay);
+  }
+  @keyframes ember-fall {
+    0%   { transform: translateY(0)      scale(1.2); opacity: 0; }
+    10%  { opacity: 0.9; }
+    70%  { opacity: 0.6; }
+    100% { transform: translateY(110vh)  scale(0.4); opacity: 0; }
+  }
+
+  /* Settling dot at mid-frame: the ember that becomes the cursor */
+  .trans-gt .settling {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 1px;
+    height: 1px;
+    transform: translate(-50%, -50%);
+  }
+  .trans-gt .settle-dot {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 4px;
+    margin: -2px 0 0 -2px;
+    background: #ff8800;
+    border-radius: 50%;
+    box-shadow: 0 0 14px #ff6a00;
+    opacity: 0;
+  }
+  .trans-gt .settle-halo {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 120px;
+    height: 120px;
+    margin: -60px 0 0 -60px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255, 140, 50, 0.4) 0%, transparent 70%);
+    opacity: 0;
+  }
+
+  /* CRT zone occupies the lower portion of the transition */
+  .trans-gt .crt {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 50vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    opacity: 0;
+  }
+  .trans-gt .scanlines {
+    position: absolute;
+    inset: 0;
+    background-image: repeating-linear-gradient(
+      180deg,
+      transparent 0,
+      transparent 1px,
+      rgba(0, 255, 100, 0.05) 1px,
+      rgba(0, 255, 100, 0.05) 2px
+    );
+    pointer-events: none;
+    animation: scan-flicker 0.18s steps(2, end) infinite;
+    opacity: 0;
+  }
+  @keyframes scan-flicker { 50% { opacity: 0.85; } }
+  .trans-gt .phosphor {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 80% 60% at 50% 50%, rgba(0, 255, 102, 0.08), transparent 70%);
+    pointer-events: none;
+    opacity: 0;
+  }
+  .trans-gt .prompt {
+    margin: 0;
+    color: #00ff66;
+    font-family: 'JetBrains Mono', 'IBM Plex Mono', ui-monospace, monospace;
+    font-size: 22px;
+    text-shadow: 0 0 6px rgba(0, 255, 102, 0.5);
+    position: relative;
+    z-index: 2;
+    opacity: 0;
+    transform: scale(0.7);
+  }
+  .trans-gt .cursor {
+    animation: term-blink 1s steps(2, end) infinite;
+  }
+  @keyframes term-blink { 50% { opacity: 0; } }
+
+  /*
+   * Scroll-linked sequence. The char fringe burns away, the ember
+   * field reveals, the settling dot blooms at midpoint and becomes
+   * green (ember-orange → phosphor-green via color animation),
+   * scanlines + phosphor + prompt come up together at the end.
+   */
+  @supports (animation-timeline: view()) {
+    .trans-gt .char {
+      animation: char-out linear both;
+      animation-timeline: view();
+      animation-range: cover 0% cover 40%;
+    }
+    .trans-gt .ember-field {
+      animation: field-reveal linear both;
+      animation-timeline: view();
+      animation-range: cover 5% cover 70%;
+    }
+    .trans-gt .settle-dot {
+      animation: settle-dot linear both;
+      animation-timeline: view();
+      animation-range: cover 35% cover 75%;
+    }
+    .trans-gt .settle-halo {
+      animation: settle-halo linear both;
+      animation-timeline: view();
+      animation-range: cover 40% cover 80%;
+    }
+    .trans-gt .crt {
+      animation: crt-on linear both;
+      animation-timeline: view();
+      animation-range: cover 55% cover 90%;
+    }
+    .trans-gt .scanlines {
+      animation: scan-flicker 0.18s steps(2, end) infinite, scanlines-in linear both;
+      animation-timeline: auto, view();
+      animation-range: auto, cover 65% cover 95%;
+    }
+    .trans-gt .phosphor {
+      animation: phosphor-in linear both;
+      animation-timeline: view();
+      animation-range: cover 65% cover 95%;
+    }
+    .trans-gt .prompt {
+      animation: prompt-in linear both;
+      animation-timeline: view();
+      animation-range: cover 75% cover 100%;
+    }
+  }
+  @keyframes char-out { to { opacity: 0; } }
+  @keyframes field-reveal {
+    0%   { opacity: 0; }
+    20%  { opacity: 1; }
+    80%  { opacity: 1; }
+    100% { opacity: 0.4; }
+  }
+  @keyframes settle-dot {
+    0%   { opacity: 0; background: #ff8800; box-shadow: 0 0 6px #ff6a00; transform: scale(0.6); }
+    30%  { opacity: 1; }
+    60%  { background: #ffcc55; box-shadow: 0 0 18px #ffe082; transform: scale(1.4); }
+    100% { opacity: 1; background: #00ff66; box-shadow: 0 0 18px #00ff66; transform: scale(1); }
+  }
+  @keyframes settle-halo {
+    0%   { opacity: 0; transform: scale(0.3); background: radial-gradient(circle, rgba(255, 140, 50, 0.4) 0%, transparent 70%); }
+    60%  { opacity: 0.8; transform: scale(1.1); background: radial-gradient(circle, rgba(255, 220, 120, 0.4) 0%, transparent 70%); }
+    100% { opacity: 0.7; transform: scale(2); background: radial-gradient(circle, rgba(0, 255, 102, 0.3) 0%, transparent 70%); }
+  }
+  @keyframes crt-on { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes scanlines-in { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes phosphor-in { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes prompt-in {
+    from { opacity: 0; transform: scale(0.7); filter: blur(8px); }
+    to   { opacity: 1; transform: scale(1);   filter: blur(0); }
+  }
+
+  /* Time-based fallback */
+  @supports not (animation-timeline: view()) {
+    .trans-gt .char        { animation: char-out 3s ease forwards 0.5s; }
+    .trans-gt .ember-field { animation: field-reveal 6s ease forwards 0.5s; }
+    .trans-gt .settle-dot  { animation: settle-dot 3s ease forwards 2s; }
+    .trans-gt .settle-halo { animation: settle-halo 3s ease forwards 2.2s; }
+    .trans-gt .crt         { animation: crt-on 2s ease forwards 4s; }
+    .trans-gt .scanlines   {
+      animation: scan-flicker 0.18s steps(2, end) infinite, scanlines-in 2s ease forwards 4.5s;
+    }
+    .trans-gt .phosphor    { animation: phosphor-in 2s ease forwards 4.5s; }
+    .trans-gt .prompt      { animation: prompt-in 1.5s ease forwards 5s; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .trans-gt .char,
+    .trans-gt .ember-field,
+    .trans-gt .ember,
+    .trans-gt .settle-dot,
+    .trans-gt .settle-halo,
+    .trans-gt .crt,
+    .trans-gt .scanlines,
+    .trans-gt .phosphor,
+    .trans-gt .prompt,
+    .trans-gt .cursor { animation: none; }
+    /* End-state on reduce: parchment is gone, the terminal is on. */
+    .trans-gt .char { opacity: 0; }
+    .trans-gt .ember-field { opacity: 0; }
+    .trans-gt .settle-dot { opacity: 1; background: #00ff66; box-shadow: 0 0 18px #00ff66; transform: scale(1); }
+    .trans-gt .settle-halo { opacity: 0.6; transform: scale(2); background: radial-gradient(circle, rgba(0, 255, 102, 0.3) 0%, transparent 70%); }
+    .trans-gt .crt { opacity: 1; }
+    .trans-gt .scanlines { opacity: 1; }
+    .trans-gt .phosphor { opacity: 1; }
+    .trans-gt .prompt { opacity: 1; transform: none; filter: none; }
+  }
+</style>
