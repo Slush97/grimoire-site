@@ -218,24 +218,48 @@ const awards = [
           <a class="mail-link" href="mailto:slusheliott@gmail.com">CHECK INBOX →</a>
         </div>
 
-        <!-- MIDI player widget -->
-        <div class="widget widget-midi">
-          <h3 class="widget-h">♫ NOW PLAYING ♫</h3>
+        <!--
+          Real vaporwave radio. Replaces the fake THE.HERMIT.MID widget
+          with an HTML5 audio player wired to two open-source streams:
+            - Plaza One (plaza.one)        : canonical vaporwave radio
+            - Nightride.fm                 : synthwave/vaporwave family
+          User picks a station, clicks PLAY, audio starts. Now-playing
+          metadata is polled from Plaza's public JSON endpoint; the
+          Nightride stations fall back to a "● LIVE" label. Bars only
+          animate while the audio is actually playing.
+        -->
+        <div class="widget widget-midi widget-radio" data-radio>
+          <h3 class="widget-h">♫ TUNE IN ♫</h3>
           <div class="midi-player">
+            <ul class="station-tabs" aria-label="Pick a station">
+              <li><button type="button" class="station-tab is-on" data-station="plaza">PLAZA</button></li>
+              <li><button type="button" class="station-tab" data-station="nightride">NITERIDE</button></li>
+              <li><button type="button" class="station-tab" data-station="chillsynth">CHILL</button></li>
+              <li><button type="button" class="station-tab" data-station="spacesynth">SPACE</button></li>
+            </ul>
             <div class="midi-screen">
-              <div class="midi-title">THE.HERMIT.MID</div>
+              <div class="midi-title" data-role="track">▶ PLAZA.ONE ▶</div>
               <div class="midi-bars" aria-hidden="true">
                 <span></span><span></span><span></span><span></span><span></span>
                 <span></span><span></span><span></span><span></span><span></span>
               </div>
             </div>
-            <div class="midi-controls" aria-hidden="true">
-              <button type="button" class="midi-btn" title="play">▶</button>
-              <button type="button" class="midi-btn" title="stop">■</button>
-              <button type="button" class="midi-btn" title="next">▶▶</button>
+            <div class="midi-controls">
+              <button type="button" class="midi-btn" data-role="play" title="play / pause">▶</button>
+              <button type="button" class="midi-btn" data-role="stop" title="stop">■</button>
+              <button type="button" class="midi-btn" data-role="vol" title="volume" aria-label="cycle volume">♪</button>
             </div>
           </div>
-          <p class="midi-note">turn ur speakers UP!!1!</p>
+          <p class="midi-note" data-role="status">click ▶ to tune in!!1!</p>
+          <!--
+            No crossorigin attribute on purpose. Plaza One's stream
+            returns CORS only for the production origin, so declaring
+            crossorigin breaks playback in dev and on any non-prod
+            host. Bare <audio> can play cross-origin without CORS; the
+            crossorigin attribute is only needed if you want to feed
+            the stream through Web Audio for analysis.
+          -->
+          <audio data-role="audio" preload="none"></audio>
         </div>
 
         <!-- Site stats -->
@@ -343,24 +367,111 @@ const awards = [
         <!-- Lightning-bar separator -->
         <div class="sep sep-lightning" aria-hidden="true"></div>
 
-        <!-- Webring -->
+        <!--
+          Webring : tricked-out version with a featured MIT LICENSE
+          medallion centerpiece, redesigned 88x31 badges, and a chained
+          brass frame. The medallion links to the OSI MIT license text;
+          badges are pure CSS gradients with sigil-style accents.
+        -->
         <section id="geo-webring" class="webring">
-          <h3>★ THE DARK CODEX WEBRING ★</h3>
-          <div class="ring-links">
-            <a href={brand.github} target="_blank" rel="noopener">[« prev]</a>
-            <span>·</span>
-            <a href={brand.gamebanana} target="_blank" rel="noopener">[?random?]</a>
-            <span>·</span>
-            <a href={brand.discord} target="_blank" rel="noopener">[next »]</a>
+          <div class="webring-frame">
+            <div class="webring-corner webring-corner-tl">✦</div>
+            <div class="webring-corner webring-corner-tr">✦</div>
+            <div class="webring-corner webring-corner-bl">✦</div>
+            <div class="webring-corner webring-corner-br">✦</div>
+
+            <h3 class="webring-h">
+              <span class="webring-h-star blink">★</span>
+              THE DARK CODEX WEBRING
+              <span class="webring-h-star blink">★</span>
+            </h3>
+
+            <!-- Boss MIT license medallion : centerpiece -->
+            <a class="mit-medallion" href="https://opensource.org/license/mit/" target="_blank" rel="noopener" aria-label="MIT License">
+              <svg class="mit-medal" viewBox="0 0 220 220" aria-hidden="true">
+                <defs>
+                  <radialGradient id="mit-brass" cx="40%" cy="35%" r="80%">
+                    <stop offset="0%"   stop-color="#fff8d4"/>
+                    <stop offset="22%"  stop-color="#ffd96a"/>
+                    <stop offset="55%"  stop-color="#e8b840"/>
+                    <stop offset="85%"  stop-color="#a87018"/>
+                    <stop offset="100%" stop-color="#4a2a08"/>
+                  </radialGradient>
+                  <linearGradient id="mit-ribbon" x1="0%" x2="0%" y1="0%" y2="100%">
+                    <stop offset="0%"   stop-color="#c8243d"/>
+                    <stop offset="55%"  stop-color="#8a0a18"/>
+                    <stop offset="100%" stop-color="#4a050c"/>
+                  </linearGradient>
+                  <path id="mit-arc-top" d="M 32,110 A 78,78 0 0 1 188,110"/>
+                  <path id="mit-arc-bot" d="M 32,114 A 78,78 0 0 0 188,114"/>
+                </defs>
+
+                <!-- Outer brass rim with ridged edge -->
+                <circle cx="110" cy="110" r="98" fill="url(#mit-brass)" stroke="#1a0a08" stroke-width="2"/>
+                <g class="mit-rim-ticks" stroke="#1a0a08" stroke-width="1.4">
+                  <line x1="110" y1="14"  x2="110" y2="22"/>
+                  <line x1="110" y1="198" x2="110" y2="206"/>
+                  <line x1="14"  y1="110" x2="22"  y2="110"/>
+                  <line x1="198" y1="110" x2="206" y2="110"/>
+                  <line x1="42"  y1="42"  x2="48"  y2="48"/>
+                  <line x1="172" y1="42"  x2="178" y2="48"/>
+                  <line x1="42"  y1="172" x2="48"  y2="178"/>
+                  <line x1="172" y1="172" x2="178" y2="178"/>
+                </g>
+                <circle cx="110" cy="110" r="82" fill="none" stroke="rgba(74, 42, 8, 0.55)" stroke-width="1.2"/>
+                <circle cx="110" cy="110" r="78" fill="none" stroke="rgba(255, 248, 212, 0.6)" stroke-width="0.6"/>
+
+                <!-- Arc text -->
+                <g class="mit-arc-text" fill="#1a0a08" font-family="'Times New Roman', Times, serif" font-weight="700" font-size="11" letter-spacing="2.4">
+                  <text text-anchor="middle"><textPath href="#mit-arc-top" startOffset="50%">✦ OPEN ✦ SOURCE ✦ FOREVER ✦</textPath></text>
+                  <text text-anchor="middle"><textPath href="#mit-arc-bot" startOffset="50%">✦ NO ✦ TELEMETRY ✦ NO ✦ CATCH ✦</textPath></text>
+                </g>
+
+                <!-- "MIT" wordmark, central -->
+                <text x="110" y="118" text-anchor="middle" font-family="'Impact', 'Comic Neue', sans-serif" font-size="58" font-weight="900" fill="#1a0a08" letter-spacing="2">MIT</text>
+                <text x="110" y="138" text-anchor="middle" font-family="'Comic Neue', 'Comic Sans MS', cursive" font-size="11" font-weight="700" fill="#4a2a08" letter-spacing="3">LICENSED</text>
+
+                <!-- Small star above wordmark -->
+                <text x="110" y="62" text-anchor="middle" font-size="20" fill="#5a0a18">★</text>
+
+                <!-- Ribbon tail bottom-left -->
+                <g class="mit-ribbon">
+                  <polygon points="62,180 92,180 92,212 78,206 62,212" fill="url(#mit-ribbon)" stroke="#1a0a08" stroke-width="1"/>
+                  <polygon points="128,180 158,180 158,212 142,206 128,212" fill="url(#mit-ribbon)" stroke="#1a0a08" stroke-width="1"/>
+                  <text x="77" y="200" text-anchor="middle" font-family="'Courier New', monospace" font-size="8" font-weight="700" fill="#fff8d4" letter-spacing="0.5">FREE</text>
+                  <text x="143" y="200" text-anchor="middle" font-family="'Courier New', monospace" font-size="8" font-weight="700" fill="#fff8d4" letter-spacing="0.5">REAL</text>
+                </g>
+              </svg>
+              <div class="mit-spark mit-spark-1">✦</div>
+              <div class="mit-spark mit-spark-2">✦</div>
+              <div class="mit-spark mit-spark-3">✦</div>
+              <div class="mit-spark mit-spark-4">✦</div>
+            </a>
+            <p class="mit-blurb">
+              CERTIFIED <strong>OPEN SOURCE</strong>!!1!
+              fork it!!! ship it!!! claim it as your own dark gospel!!!
+              <em>(but maybe leave the copyright notice in there)</em>
+            </p>
+
+            <div class="ring-links">
+              <a href={brand.github} target="_blank" rel="noopener">[« prev]</a>
+              <span>·</span>
+              <a href={brand.gamebanana} target="_blank" rel="noopener">[?random?]</a>
+              <span>·</span>
+              <a href={brand.discord} target="_blank" rel="noopener">[next »]</a>
+            </div>
+
+            <ul class="badges">
+              <li class="b88 b-netscape">NETSCAPE NOW!</li>
+              <li class="b88 b-blink">BEST VIEWED IN HELLFIRE</li>
+              <li class="b88 b-1024">1024x768 OR BUST</li>
+              <li class="b88 b-mit"><span class="b-mit-icon">⚖</span>MIT LICENSED!!</li>
+              <li class="b88 b-ie">GET INTERNET EXPLORER 4</li>
+              <li class="b88 b-vim">EDITED IN VIM!!</li>
+              <li class="b88 b-arch">ARCH BTW</li>
+              <li class="b88 b-no-cookies">NO COOKIES!!</li>
+            </ul>
           </div>
-          <ul class="badges">
-            <li class="b88 b-netscape">NETSCAPE NOW!</li>
-            <li class="b88 b-blink">BEST VIEWED IN HELLFIRE</li>
-            <li class="b88 b-1024">1024x768 OR BUST</li>
-            <li class="b88 b-mit">MIT LICENSED!!</li>
-            <li class="b88 b-ie">GET INTERNET EXPLORER 4</li>
-            <li class="b88 b-vim">EDITED IN VIM!!</li>
-          </ul>
         </section>
 
         <!-- Guestbook + Email -->
@@ -575,6 +686,137 @@ const awards = [
       }, { passive: true });
     }
   }
+
+  /*
+   * Vaporwave radio. Two open-source stream families:
+   *   - Plaza One (plaza.one)  : pure vaporwave, public JSON now-playing
+   *   - Nightride.fm           : synthwave/vaporwave, multi-station
+   * Click-to-start: audio is paused by default to respect browser
+   * autoplay policy. While playing, the now-playing label cycles
+   * Plaza's JSON; Nightride stations show a static LIVE label.
+   * Volume button cycles 4 quiet/medium/loud levels.
+   */
+  (function radio() {
+    const widget = document.querySelector('[data-radio]');
+    if (!widget) return;
+
+    type StationId = 'plaza' | 'nightride' | 'chillsynth' | 'spacesynth';
+    interface Station { url: string; label: string; }
+
+    /*
+     * Direct stream URLs. Plaza One redirects plaza.one/mp3 ->
+     * radio.plaza.one/mp3 and may lose CORS on the redirect, so we
+     * use the final URL. Nightride exposes both .m4a (HLS-ish AAC)
+     * and .mp3; the .mp3 versions have wider browser support.
+     */
+    const stations: Record<StationId, Station> = {
+      plaza:      { url: 'https://radio.plaza.one/mp3',                 label: 'PLAZA.ONE'  },
+      nightride:  { url: 'https://stream.nightride.fm/nightride.mp3',   label: 'NIGHTRIDE'  },
+      chillsynth: { url: 'https://stream.nightride.fm/chillsynth.mp3',  label: 'CHILLSYNTH' },
+      spacesynth: { url: 'https://stream.nightride.fm/spacesynth.mp3',  label: 'SPACESYNTH' },
+    };
+
+    const audio   = widget.querySelector('audio') as HTMLAudioElement;
+    const track   = widget.querySelector('[data-role="track"]') as HTMLElement;
+    const status  = widget.querySelector('[data-role="status"]') as HTMLElement;
+    const playBtn = widget.querySelector('[data-role="play"]')  as HTMLButtonElement;
+    const stopBtn = widget.querySelector('[data-role="stop"]')  as HTMLButtonElement;
+    const volBtn  = widget.querySelector('[data-role="vol"]')   as HTMLButtonElement;
+    const tabs    = widget.querySelectorAll<HTMLButtonElement>('.station-tab');
+
+    let current: StationId = 'plaza';
+    let pollTimer: number | null = null;
+    let volStep = 2;
+    const volLevels = [0.25, 0.5, 0.75, 1.0];
+
+    audio.volume = volLevels[volStep];
+
+    function setStation(id: StationId, restart: boolean) {
+      current = id;
+      tabs.forEach((t) => t.classList.toggle('is-on', t.dataset.station === id));
+      if (restart) {
+        audio.src = stations[id].url;
+        audio.play().catch(() => { status.textContent = 'could not tune in 😵'; });
+      }
+      if (audio.paused) track.textContent = `▶ ${stations[id].label} ▶`;
+      updateTrack();
+    }
+
+    async function updateTrack() {
+      if (current === 'plaza' && !audio.paused) {
+        try {
+          /* Plaza One status JSON: { song: { artist, title, ... }, listeners, ... }. */
+          const r = await fetch('https://api.plaza.one/status', { cache: 'no-store' });
+          const d = await r.json();
+          const artist = d?.song?.artist || '';
+          const title  = d?.song?.title  || 'live stream';
+          track.textContent = artist ? `${artist} : ${title}` : title;
+        } catch {
+          track.textContent = `${stations.plaza.label} : LIVE`;
+        }
+      } else if (!audio.paused) {
+        track.textContent = `${stations[current].label} : LIVE`;
+      }
+    }
+
+    function play() {
+      if (!audio.src) audio.src = stations[current].url;
+      audio.play().then(() => {
+        widget.classList.add('is-playing');
+        playBtn.textContent = '❚❚';
+        status.textContent = 'tuned in!!! turn ur speakers UP!!1!';
+        updateTrack();
+        if (pollTimer) clearInterval(pollTimer);
+        pollTimer = window.setInterval(updateTrack, 15000);
+      }).catch((err) => {
+        /* Surface the real error to console so future failures are
+         * diagnosable. Common causes: browser autoplay block (first
+         * gesture not yet registered), network/CORS rejection on the
+         * stream URL, or the stream being down. */
+        console.warn('[radio] play() failed', err);
+        status.textContent = err && err.name === 'NotAllowedError'
+          ? 'browser blocked autoplay : click ▶ again'
+          : 'stream failed to start : try another station';
+      });
+    }
+    function pause() {
+      audio.pause();
+      widget.classList.remove('is-playing');
+      playBtn.textContent = '▶';
+      track.textContent = `▶ ${stations[current].label} ▶`;
+      status.textContent = 'paused';
+      if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+    }
+    function stop() {
+      audio.pause();
+      audio.removeAttribute('src');
+      audio.load();
+      widget.classList.remove('is-playing');
+      playBtn.textContent = '▶';
+      track.textContent = `▶ ${stations[current].label} ▶`;
+      status.textContent = 'click ▶ to tune in!!1!';
+      if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+    }
+
+    playBtn.addEventListener('click', () => { audio.paused ? play() : pause(); });
+    stopBtn.addEventListener('click', stop);
+    volBtn.addEventListener('click', () => {
+      volStep = (volStep + 1) % volLevels.length;
+      audio.volume = volLevels[volStep];
+      status.textContent = `volume : ${'▮'.repeat(volStep + 1)}${'▯'.repeat(volLevels.length - volStep - 1)}`;
+    });
+    tabs.forEach((t) => t.addEventListener('click', () => {
+      const id = t.dataset.station as StationId;
+      setStation(id, !audio.paused);
+    }));
+
+    audio.addEventListener('error', () => {
+      const e = audio.error;
+      console.warn('[radio] audio error', e && { code: e.code, message: e.message }, 'src=', audio.currentSrc);
+      status.textContent = 'stream error : try another station';
+    });
+    audio.addEventListener('stalled', () => console.warn('[radio] stalled', audio.currentSrc));
+  })();
 </script>
 
 <style>
@@ -1026,6 +1268,65 @@ const awards = [
     text-shadow: 1px 1px 0 #000;
     font-style: italic;
   }
+
+  /* ─── Radio widget : station tabs + playing state ─── */
+  .stage-geocities .widget-radio audio { display: none; }
+  .stage-geocities .station-tabs {
+    list-style: none;
+    margin: 0 0 4px;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2px;
+  }
+  .stage-geocities .station-tab {
+    width: 100%;
+    padding: 3px 2px;
+    background: linear-gradient(180deg, #c0c0c0 0%, #808080 100%);
+    border-top: 2px solid #fff;
+    border-left: 2px solid #fff;
+    border-right: 2px solid #404040;
+    border-bottom: 2px solid #404040;
+    color: #1a0a08;
+    font-family: 'Comic Neue', 'Comic Sans MS', cursive;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    text-shadow: none;
+  }
+  .stage-geocities .station-tab:hover {
+    background: linear-gradient(180deg, #fff8d4 0%, #e8b840 100%);
+    color: #1a0a08;
+  }
+  .stage-geocities .station-tab.is-on {
+    background: linear-gradient(180deg, #ffd96a 0%, #a87018 100%);
+    color: #1a0a08;
+    border-top-color: #404040;
+    border-left-color: #404040;
+    border-right-color: #fff8d4;
+    border-bottom-color: #fff8d4;
+    text-shadow: 1px 1px 0 rgba(255, 248, 212, 0.5);
+  }
+  /* Bars are static while stopped, run their stagger while playing. */
+  .stage-geocities .widget-radio:not(.is-playing) .midi-bars span {
+    animation: none;
+    transform: scaleY(0.15);
+  }
+  .stage-geocities .widget-radio.is-playing .midi-title::before {
+    content: "● ";
+    color: #ff4a3a;
+    text-shadow: 0 0 6px rgba(255, 74, 58, 0.9);
+    animation: geo-blink 1.2s steps(2, end) infinite;
+  }
+  .stage-geocities .widget-radio .midi-title {
+    /* Track name + scrolling */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 100%;
+  }
+  .stage-geocities .midi-btn[data-role="play"].is-playing { color: #c8243d; }
 
   /* ─── STATS widget ─── */
   .stage-geocities .stats {
@@ -2169,25 +2470,135 @@ const awards = [
   }
   .stage-geocities .cta-sub .blink { color: #c44a2a; }
 
-  /* ─── Webring ─── */
+  /* ─── Webring : framed centerpiece with MIT medallion ─── */
   .stage-geocities .webring {
     margin: 36px auto;
-    padding: 14px;
-    border: 3px ridge #a83247;
-    background: rgba(0,0,0,0.6);
+    padding: 0;
   }
-  .stage-geocities .webring h3 {
-    margin: 0 0 10px;
+  .stage-geocities .webring-frame {
+    position: relative;
+    padding: 28px 18px 18px;
+    background:
+      radial-gradient(ellipse 80% 60% at 50% 0%, rgba(168, 32, 100, 0.18) 0%, transparent 70%),
+      linear-gradient(180deg, rgba(30, 10, 70, 0.55) 0%, rgba(8, 4, 26, 0.85) 100%);
+    border: 3px ridge #c8243d;
+    box-shadow:
+      inset 0 0 0 1px rgba(255, 217, 106, 0.35),
+      inset 0 0 30px rgba(120, 30, 60, 0.35),
+      0 4px 0 #000;
+  }
+  .stage-geocities .webring-corner {
+    position: absolute;
+    width: 22px;
+    height: 22px;
+    display: grid;
+    place-items: center;
+    color: #ffd96a;
+    font-size: 18px;
+    line-height: 1;
+    background: #07041a;
+    border: 2px ridge #c8243d;
+    text-shadow: 0 0 6px rgba(255, 217, 106, 0.9);
+    z-index: 2;
+    animation: corner-pulse 2.4s ease-in-out infinite;
+  }
+  .stage-geocities .webring-corner-tl { top: -12px; left:  -12px; }
+  .stage-geocities .webring-corner-tr { top: -12px; right: -12px; animation-delay: 0.6s; }
+  .stage-geocities .webring-corner-bl { bottom: -12px; left:  -12px; animation-delay: 1.2s; }
+  .stage-geocities .webring-corner-br { bottom: -12px; right: -12px; animation-delay: 1.8s; }
+  @keyframes corner-pulse {
+    0%, 100% { transform: rotate(0deg);   text-shadow: 0 0 4px rgba(255, 217, 106, 0.7); }
+    50%      { transform: rotate(180deg); text-shadow: 0 0 12px rgba(255, 217, 106, 1); }
+  }
+  .stage-geocities .webring-h {
+    margin: 0 0 14px;
     font-family: 'Comic Neue', 'Comic Sans MS', cursive;
-    color: #d4af5a;
-    font-size: 16px;
-    text-shadow: 1px 1px 0 #000;
+    color: #ffd96a;
+    font-size: 18px;
+    text-align: center;
+    text-shadow: 1px 1px 0 #000, 0 0 10px rgba(255, 217, 106, 0.55);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
   }
+  .stage-geocities .webring-h-star {
+    color: #c8243d;
+    margin: 0 6px;
+  }
+
+  /* ─── MIT license medallion ─── */
+  .stage-geocities .mit-medallion {
+    display: block;
+    position: relative;
+    width: 220px;
+    margin: 4px auto 12px;
+    text-decoration: none;
+    filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.6));
+    transition: transform 200ms ease;
+  }
+  .stage-geocities .mit-medallion:hover {
+    transform: translateY(-2px) scale(1.02);
+  }
+  .stage-geocities .mit-medal {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+  /* Subtle slow gleam across the brass — a thin highlight rotates */
+  .stage-geocities .mit-medal {
+    animation: medal-gleam 9s linear infinite;
+  }
+  @keyframes medal-gleam {
+    0%   { filter: hue-rotate(0deg)  brightness(1)    saturate(1); }
+    50%  { filter: hue-rotate(-6deg) brightness(1.07) saturate(1.1); }
+    100% { filter: hue-rotate(0deg)  brightness(1)    saturate(1); }
+  }
+  .stage-geocities .mit-spark {
+    position: absolute;
+    font-size: 14px;
+    line-height: 1;
+    color: #fff8d4;
+    text-shadow: 0 0 6px #ffd96a, 0 0 12px rgba(255, 217, 106, 0.7);
+    pointer-events: none;
+    opacity: 0;
+    animation: mit-spark-pop 3.6s ease-in-out infinite;
+  }
+  .stage-geocities .mit-spark-1 { top: 10%;  left: 14%;  animation-delay: 0s;   }
+  .stage-geocities .mit-spark-2 { top: 18%;  right: 12%; animation-delay: 0.9s; }
+  .stage-geocities .mit-spark-3 { bottom: 28%; left: 8%;  animation-delay: 1.8s; }
+  .stage-geocities .mit-spark-4 { bottom: 36%; right: 6%;  animation-delay: 2.7s; }
+  @keyframes mit-spark-pop {
+    0%, 100% { opacity: 0; transform: scale(0.5) rotate(0deg); }
+    20%      { opacity: 1; transform: scale(1)   rotate(45deg); }
+    40%      { opacity: 0; transform: scale(0.5) rotate(90deg); }
+  }
+  .stage-geocities .mit-blurb {
+    margin: 0 auto 16px;
+    max-width: 460px;
+    padding: 8px 12px;
+    background: rgba(0, 0, 0, 0.4);
+    border-top: 1px dashed #ffd96a;
+    border-bottom: 1px dashed #ffd96a;
+    color: #fff5db;
+    font-family: 'Comic Neue', 'Comic Sans MS', cursive;
+    font-size: 13px;
+    text-align: center;
+    text-shadow: 1px 1px 0 #000;
+    line-height: 1.45;
+  }
+  .stage-geocities .mit-blurb strong { color: #ffd96a; }
+  .stage-geocities .mit-blurb em {
+    display: block;
+    margin-top: 4px;
+    font-size: 11px;
+    color: #b660e0;
+    font-style: italic;
+  }
+
   .stage-geocities .ring-links {
     display: flex;
     justify-content: center;
     gap: 10px;
-    margin-bottom: 14px;
+    margin: 8px 0 14px;
     font-family: 'Comic Neue', 'Comic Sans MS', cursive;
     font-size: 14px;
     color: #ffffff;
@@ -2207,6 +2618,7 @@ const awards = [
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    gap: 3px;
     font-family: 'Courier New', monospace;
     font-size: 9px;
     font-weight: 700;
@@ -2215,11 +2627,31 @@ const awards = [
     text-shadow: 1px 1px 0 #000;
     border: 1px solid #000;
     padding: 1px;
+    box-shadow: 1px 1px 0 #000;
   }
   .stage-geocities .b-netscape { background: linear-gradient(180deg, #1a0840 0%, #5a30a8 100%); color: #ffd96a; }
   .stage-geocities .b-blink    { background: #a8101e; color: #ffd96a; animation: geo-blink 1s steps(2, end) infinite; }
   .stage-geocities .b-1024     { background: #2a1a6a; color: #ffd96a; }
-  .stage-geocities .b-mit      { background: #e8b840; color: #1a0a08; text-shadow: 1px 1px 0 #fff8d4; }
+  .stage-geocities .b-mit {
+    background: linear-gradient(180deg, #fff8d4 0%, #ffd96a 40%, #a87018 100%);
+    color: #1a0a08;
+    text-shadow: 1px 1px 0 #fff8d4;
+    border-color: #4a2a08;
+    box-shadow: 1px 1px 0 #4a2a08, 0 0 8px rgba(255, 217, 106, 0.55);
+  }
+  .stage-geocities .b-mit .b-mit-icon { font-size: 12px; color: #5a0a18; }
+  .stage-geocities .b-arch {
+    background: linear-gradient(180deg, #1a1a1a 0%, #2a4860 100%);
+    color: #5acafe;
+    text-shadow: 0 0 4px rgba(90, 202, 254, 0.7);
+    border-color: #1a3850;
+  }
+  .stage-geocities .b-no-cookies {
+    background: linear-gradient(180deg, #4a050c 0%, #1a0a08 100%);
+    color: #ffd96a;
+    text-shadow: 1px 1px 0 #000;
+    border-color: #c8243d;
+  }
 
   /* ─── Sign-off ─── */
   .stage-geocities .signoff {
