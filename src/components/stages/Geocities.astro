@@ -232,13 +232,13 @@ const awards = [
           <h3 class="widget-h">♫ TUNE IN ♫</h3>
           <div class="midi-player">
             <ul class="station-tabs" aria-label="Pick a station">
-              <li><button type="button" class="station-tab is-on" data-station="plaza">PLAZA</button></li>
+              <li><button type="button" class="station-tab" data-station="plaza">PLAZA</button></li>
               <li><button type="button" class="station-tab" data-station="nightride">NITERIDE</button></li>
               <li><button type="button" class="station-tab" data-station="chillsynth">CHILL</button></li>
-              <li><button type="button" class="station-tab" data-station="spacesynth">SPACE</button></li>
+              <li><button type="button" class="station-tab is-on" data-station="spacesynth">SPACE</button></li>
             </ul>
             <div class="midi-screen">
-              <div class="midi-title" data-role="track">▶ PLAZA.ONE ▶</div>
+              <div class="midi-title" data-role="track">▶ SPACESYNTH ▶</div>
               <div class="midi-bars" aria-hidden="true">
                 <span></span><span></span><span></span><span></span><span></span>
                 <span></span><span></span><span></span><span></span><span></span>
@@ -250,16 +250,17 @@ const awards = [
               <button type="button" class="midi-btn" data-role="vol" title="volume" aria-label="cycle volume">♪</button>
             </div>
           </div>
-          <p class="midi-note" data-role="status">click ▶ to tune in!!1!</p>
+          <p class="midi-note" data-role="status">tuning in to SPACE...</p>
           <!--
-            No crossorigin attribute on purpose. Plaza One's stream
-            returns CORS only for the production origin, so declaring
-            crossorigin breaks playback in dev and on any non-prod
-            host. Bare <audio> can play cross-origin without CORS; the
-            crossorigin attribute is only needed if you want to feed
-            the stream through Web Audio for analysis.
+            crossorigin="anonymous" is required for the Web Audio
+            visualizer (MediaElementSource won't expose data without
+            CORS). Nightride.fm streams (default = Space) return
+            Access-Control-Allow-Origin: * so they work everywhere.
+            Plaza One's stream allows only grimoiremods.com origin
+            so it works on prod but not on dev — acceptable since
+            most listening happens in prod.
           -->
-          <audio data-role="audio" preload="none"></audio>
+          <audio data-role="audio" preload="none" crossorigin="anonymous"></audio>
         </div>
 
         <!-- Site stats -->
@@ -421,10 +422,16 @@ const awards = [
                 <circle cx="110" cy="110" r="82" fill="none" stroke="rgba(74, 42, 8, 0.55)" stroke-width="1.2"/>
                 <circle cx="110" cy="110" r="78" fill="none" stroke="rgba(255, 248, 212, 0.6)" stroke-width="0.6"/>
 
-                <!-- Arc text -->
-                <g class="mit-arc-text" fill="#1a0a08" font-family="'Times New Roman', Times, serif" font-weight="700" font-size="11" letter-spacing="2.4">
-                  <text text-anchor="middle"><textPath href="#mit-arc-top" startOffset="50%">✦ OPEN ✦ SOURCE ✦ FOREVER ✦</textPath></text>
-                  <text text-anchor="middle"><textPath href="#mit-arc-bot" startOffset="50%">✦ NO ✦ TELEMETRY ✦ NO ✦ CATCH ✦</textPath></text>
+                <!--
+                  Arc text. Each semicircle path is ~245px long; the
+                  previous strings overflowed and wrapped, which is
+                  why the rim read "ON OPEN SOURCE FOREVER" with the
+                  leading sigil cut off. Shorter labels + tighter
+                  font sit cleanly inside the path now.
+                -->
+                <g class="mit-arc-text" fill="#1a0a08" font-family="'Times New Roman', Times, serif" font-weight="700" font-size="10" letter-spacing="1.6">
+                  <text text-anchor="middle"><textPath href="#mit-arc-top" startOffset="50%">★ OPEN SOURCE ★</textPath></text>
+                  <text text-anchor="middle"><textPath href="#mit-arc-bot" startOffset="50%">★ NO TELEMETRY ★</textPath></text>
                 </g>
 
                 <!-- "MIT" wordmark, central -->
@@ -724,12 +731,75 @@ const awards = [
     const volBtn  = widget.querySelector('[data-role="vol"]')   as HTMLButtonElement;
     const tabs    = widget.querySelectorAll<HTMLButtonElement>('.station-tab');
 
-    let current: StationId = 'plaza';
+    let current: StationId = 'spacesynth';
     let pollTimer: number | null = null;
     let volStep = 2;
     const volLevels = [0.25, 0.5, 0.75, 1.0];
 
     audio.volume = volLevels[volStep];
+
+    /*
+     * Web Audio visualizer. Real frequency analysis driven by the
+     * actual stream samples. Built lazily on first play() so the
+     * AudioContext starts in the user-gesture allowance window.
+     *
+     * Falls back gracefully if MediaElementSource throws (eg. CORS
+     * blocked on a station that doesn't allow our origin) — in that
+     * case the bars revert to their CSS keyframe stagger so the
+     * widget still looks alive.
+     */
+    let audioCtx: AudioContext | null = null;
+    let analyser: AnalyserNode | null = null;
+    let freqData: Uint8Array | null = null;
+    let vizRaf = 0;
+    const bars = Array.from(widget.querySelectorAll<HTMLElement>('.midi-bars span'));
+    /* Map each of the 10 visible bars to a frequency bin. Log-ish
+     * distribution so low/mid/high all get representation; index 0 is
+     * bass, index 9 is treble. fftSize=64 gives 32 bins, only the
+     * lower ~24 carry useful audio energy for music. */
+    const binMap = [1, 2, 3, 4, 6, 8, 10, 13, 17, 22];
+
+    function ensureViz() {
+      if (audioCtx) return true;
+      try {
+        const Ctor = (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext);
+        audioCtx = new Ctor();
+        const source = audioCtx.createMediaElementSource(audio);
+        analyser = audioCtx.createAnalyser();
+        analyser.fftSize = 64;
+        analyser.smoothingTimeConstant = 0.78;
+        source.connect(analyser);
+        analyser.connect(audioCtx.destination);
+        freqData = new Uint8Array(analyser.frequencyBinCount);
+        return true;
+      } catch (e) {
+        console.warn('[radio] visualizer disabled', e);
+        audioCtx = null; analyser = null; freqData = null;
+        return false;
+      }
+    }
+    function vizTick() {
+      vizRaf = requestAnimationFrame(vizTick);
+      if (audio.paused || !analyser || !freqData) return;
+      analyser.getByteFrequencyData(freqData as Uint8Array<ArrayBuffer>);
+      for (let i = 0; i < bars.length; i++) {
+        const idx = Math.min(binMap[i], freqData.length - 1);
+        const v = freqData[idx] / 255;
+        /* Floor at 0.06 so bars don't fully collapse during quiet
+         * passages — keeps the LCD looking "on". */
+        bars[i].style.transform = `scaleY(${Math.max(0.06, v)})`;
+      }
+    }
+    function startViz() {
+      if (!ensureViz()) return;
+      if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume().catch(() => {});
+      if (!vizRaf) vizTick();
+    }
+    function stopViz() {
+      if (vizRaf) { cancelAnimationFrame(vizRaf); vizRaf = 0; }
+      /* Reset bars to a flat baseline so they read as "off". */
+      bars.forEach((b) => { b.style.transform = ''; });
+    }
 
     function setStation(id: StationId, restart: boolean) {
       current = id;
@@ -761,22 +831,20 @@ const awards = [
 
     function play() {
       if (!audio.src) audio.src = stations[current].url;
-      audio.play().then(() => {
+      return audio.play().then(() => {
         widget.classList.add('is-playing');
         playBtn.textContent = '❚❚';
         status.textContent = 'tuned in!!! turn ur speakers UP!!1!';
+        startViz();
         updateTrack();
         if (pollTimer) clearInterval(pollTimer);
         pollTimer = window.setInterval(updateTrack, 15000);
       }).catch((err) => {
-        /* Surface the real error to console so future failures are
-         * diagnosable. Common causes: browser autoplay block (first
-         * gesture not yet registered), network/CORS rejection on the
-         * stream URL, or the stream being down. */
         console.warn('[radio] play() failed', err);
         status.textContent = err && err.name === 'NotAllowedError'
-          ? 'browser blocked autoplay : click ▶ again'
-          : 'stream failed to start : try another station';
+          ? 'click ▶ to tune in!!1!'
+          : 'stream failed : try another station';
+        throw err;
       });
     }
     function pause() {
@@ -785,6 +853,7 @@ const awards = [
       playBtn.textContent = '▶';
       track.textContent = `▶ ${stations[current].label} ▶`;
       status.textContent = 'paused';
+      stopViz();
       if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
     }
     function stop() {
@@ -795,6 +864,7 @@ const awards = [
       playBtn.textContent = '▶';
       track.textContent = `▶ ${stations[current].label} ▶`;
       status.textContent = 'click ▶ to tune in!!1!';
+      stopViz();
       if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
     }
 
@@ -814,8 +884,50 @@ const awards = [
       const e = audio.error;
       console.warn('[radio] audio error', e && { code: e.code, message: e.message }, 'src=', audio.currentSrc);
       status.textContent = 'stream error : try another station';
+      stopViz();
     });
     audio.addEventListener('stalled', () => console.warn('[radio] stalled', audio.currentSrc));
+
+    /*
+     * "have space be on automatically as a sound": browsers block
+     * autoplay with sound until the user has interacted with the
+     * page. We do the best we can:
+     *   1. Set Space as the default station (already selected in
+     *      markup).
+     *   2. Try play() immediately on load. Most browsers reject it
+     *      with NotAllowedError.
+     *   3. Bind a one-shot listener for any user gesture (pointer,
+     *      key, scroll) and retry play() then — that's the moment
+     *      autoplay policy unlocks. After that the radio is "on".
+     * Status text walks the user through whichever path triggers.
+     */
+    audio.src = stations[current].url;
+    audio.preload = 'auto';
+
+    let autoPlayed = false;
+    function tryAutoPlay() {
+      if (autoPlayed || !audio.paused) return;
+      autoPlayed = true;
+      status.textContent = 'tuning in to SPACE...';
+      play().catch(() => {
+        autoPlayed = false;
+        status.textContent = 'click ▶ or anywhere to tune in!!1!';
+        bindFirstGesture();
+      });
+    }
+    function bindFirstGesture() {
+      const opts = { once: true, passive: true } as AddEventListenerOptions;
+      const fire = () => tryAutoPlay();
+      window.addEventListener('pointerdown', fire, opts);
+      window.addEventListener('keydown',     fire, opts);
+      window.addEventListener('scroll',      fire, opts);
+      window.addEventListener('touchstart',  fire, opts);
+    }
+
+    /* Kick off: optimistic first attempt, then arm the gesture
+     * listener for the (more common) blocked case. */
+    tryAutoPlay();
+    bindFirstGesture();
   })();
 </script>
 
@@ -1308,10 +1420,24 @@ const awards = [
     border-bottom-color: #fff8d4;
     text-shadow: 1px 1px 0 rgba(255, 248, 212, 0.5);
   }
-  /* Bars are static while stopped, run their stagger while playing. */
+  /*
+   * Bar animation handoff. The default .midi-bars span has a CSS
+   * keyframe stagger that's right for the *fake* MIDI player. The
+   * radio widget overrides that:
+   *   - stopped : no animation, bars flat low
+   *   - playing : no keyframe either — the visualizer's JS sets
+   *     scaleY() inline from Web Audio frequency data each frame.
+   *     Adding `transition: transform 60ms linear` smooths the
+   *     per-frame jumps so quiet bins don't twitch visibly.
+   */
   .stage-geocities .widget-radio:not(.is-playing) .midi-bars span {
     animation: none;
     transform: scaleY(0.15);
+  }
+  .stage-geocities .widget-radio.is-playing .midi-bars span {
+    animation: none;
+    transition: transform 60ms linear;
+    background: linear-gradient(to top, #50e878 0%, #ffd96a 45%, #ff4a3a 100%);
   }
   .stage-geocities .widget-radio.is-playing .midi-title::before {
     content: "● ";
