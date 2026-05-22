@@ -388,96 +388,61 @@ const awards = [
             </h3>
 
             <!--
-              Hermetic MIT seal : centerpiece. Outer brass rim carries
-              the dictum AS ABOVE / SO BELOW + MIT LICENTIA LIBERA in
-              arc text. Inner occult panel holds the seven classical
-              planetary glyphs in a ring around Solomon's hexagram,
-              with MIT seated in the central hexagon.
+              MIT LICENSE BANNER : peak Geocities cringe. Horizontal
+              banner with rainbow stripes, scrolling marquees, blinking
+              NEW!! stamp, and tilted FREE/REAL ribbon stickers. Links
+              to OSI license text.
             -->
-            <a class="mit-medallion" href="https://opensource.org/license/mit/" target="_blank" rel="noopener" aria-label="MIT License">
-              <svg class="mit-medal" viewBox="0 0 220 220" aria-hidden="true">
-                <defs>
-                  <radialGradient id="herm-rim" cx="36%" cy="30%" r="82%">
-                    <stop offset="0%"   stop-color="#fff4c4"/>
-                    <stop offset="22%"  stop-color="#f5d066"/>
-                    <stop offset="55%"  stop-color="#c9892e"/>
-                    <stop offset="85%"  stop-color="#7a4810"/>
-                    <stop offset="100%" stop-color="#2a1408"/>
-                  </radialGradient>
-                  <radialGradient id="herm-inner" cx="50%" cy="40%" r="72%">
-                    <stop offset="0%"   stop-color="#2c1450"/>
-                    <stop offset="55%"  stop-color="#150830"/>
-                    <stop offset="100%" stop-color="#06031a"/>
-                  </radialGradient>
-                  <path id="herm-arc-top" d="M 32,110 A 78,78 0 0 1 188,110"/>
-                  <path id="herm-arc-bot" d="M 32,114 A 78,78 0 0 0 188,114"/>
-                </defs>
+            <a class="mit-medallion mit-banner" href="https://opensource.org/license/mit/" target="_blank" rel="noopener" aria-label="MIT License">
+              <span class="mit-banner-stripes" aria-hidden="true"></span>
 
-                <!-- Outer brass disc -->
-                <circle cx="110" cy="110" r="100" fill="url(#herm-rim)" stroke="#1a0a08" stroke-width="2"/>
+              <div class="mit-banner-top">
+                <span class="mit-banner-marquee">
+                  <span>★ FORK IT!!! ★ SHIP IT!!! ★ CLAIM IT AS UR OWN!!1! ★ 100% LEGIT M.I.T. !!! ★&nbsp;</span>
+                  <span>★ FORK IT!!! ★ SHIP IT!!! ★ CLAIM IT AS UR OWN!!1! ★ 100% LEGIT M.I.T. !!! ★&nbsp;</span>
+                </span>
+              </div>
 
-                <!-- 12 zodiac ticks around the rim -->
-                <g class="mit-rim-ticks" stroke="#1a0a08" stroke-width="1.3" stroke-linecap="round">
-                  <line x1="110" y1="12"  x2="110" y2="20"/>
-                  <line x1="155" y1="22"  x2="151" y2="29"/>
-                  <line x1="184" y1="55"  x2="178" y2="59"/>
-                  <line x1="200" y1="110" x2="192" y2="110"/>
-                  <line x1="184" y1="165" x2="178" y2="161"/>
-                  <line x1="155" y1="198" x2="151" y2="191"/>
-                  <line x1="110" y1="208" x2="110" y2="200"/>
-                  <line x1="65"  y1="198" x2="69"  y2="191"/>
-                  <line x1="36"  y1="165" x2="42"  y2="161"/>
-                  <line x1="20"  y1="110" x2="28"  y2="110"/>
-                  <line x1="36"  y1="55"  x2="42"  y2="59"/>
-                  <line x1="65"  y1="22"  x2="69"  y2="29"/>
-                </g>
+              <div class="mit-banner-main">
+                <span class="mit-banner-sidetag mit-banner-sidetag-l" aria-hidden="true">
+                  <span class="big">100%</span>
+                  <span class="lil">FREE!!</span>
+                </span>
 
-                <!-- Arc text on the brass rim -->
-                <g class="mit-arc-text" fill="#1a0a08" font-family="'Cardo', 'Times New Roman', Times, serif" font-weight="700" font-size="10" letter-spacing="1.8">
-                  <text text-anchor="middle"><textPath href="#herm-arc-top" startOffset="50%">✦ AS ABOVE ✦ SO BELOW ✦</textPath></text>
-                  <text text-anchor="middle"><textPath href="#herm-arc-bot" startOffset="50%">✦ LICENTIA LIBERA MCMLXXXVIII ✦</textPath></text>
-                </g>
+                <div class="mit-banner-mid">
+                  <div class="mit-banner-newbadge blink" aria-hidden="true">NEW!!</div>
+                  <h4 class="mit-banner-title">
+                    <span class="mit-rainbow">MIT</span><span class="mit-impact"> LICENSED!!1!</span>
+                  </h4>
+                  <div class="mit-banner-subtitle">
+                    <span class="blink">»</span>
+                    click here 2 read da TERMS!!!
+                    <span class="blink">«</span>
+                  </div>
+                </div>
 
-                <!-- Inner occult panel -->
-                <circle cx="110" cy="110" r="80" fill="url(#herm-inner)" stroke="#1a0a08" stroke-width="1.4"/>
-                <circle cx="110" cy="110" r="82" fill="none" stroke="rgba(255, 244, 196, 0.55)" stroke-width="0.6"/>
-                <circle cx="110" cy="110" r="76" fill="none" stroke="rgba(212, 175, 90, 0.35)" stroke-width="0.5" stroke-dasharray="2 3"/>
+                <span class="mit-banner-sidetag mit-banner-sidetag-r" aria-hidden="true">
+                  <span class="big">NO</span>
+                  <span class="lil">CATCH!!</span>
+                </span>
+              </div>
 
-                <!-- Seven classical planets, ringed at r=64 -->
-                <g class="mit-planets" font-family="'Cardo', 'Times New Roman', serif" font-size="13" fill="#d4af5a" text-anchor="middle" dominant-baseline="middle">
-                  <text x="110" y="50" font-size="15">☉</text>
-                  <text x="160" y="70">☽</text>
-                  <text x="172" y="124">☿</text>
-                  <text x="138" y="168">♀</text>
-                  <text x="82"  y="168">♂</text>
-                  <text x="48"  y="124">♃</text>
-                  <text x="60"  y="70">♄</text>
-                </g>
+              <div class="mit-banner-bot">
+                <span class="mit-banner-marquee reverse">
+                  <span>!! YOU ARE LEGALLY ALLOWED 2 STEAL THIS WEBSITE !! BEST VIEWED IN ANY BROWSER !!&nbsp;</span>
+                  <span>!! YOU ARE LEGALLY ALLOWED 2 STEAL THIS WEBSITE !! BEST VIEWED IN ANY BROWSER !!&nbsp;</span>
+                </span>
+              </div>
 
-                <!-- Solomon's hexagram (centroid at 110,110) -->
-                <g class="mit-hex" fill="none" stroke="#d4af5a" stroke-width="1.5" stroke-linejoin="round" opacity="0.95">
-                  <polygon points="110,82 80,134 140,134"/>
-                  <polygon points="110,138 80,86 140,86"/>
-                </g>
-                <g class="mit-hex-glow" fill="none" stroke="#fff4c4" stroke-width="0.5" stroke-linejoin="round" opacity="0.6">
-                  <polygon points="110,82 80,134 140,134"/>
-                  <polygon points="110,138 80,86 140,86"/>
-                </g>
-
-                <!-- MIT in the central hexagon -->
-                <text x="110" y="116" text-anchor="middle" font-family="'Cinzel', 'Cardo', 'Times New Roman', serif" font-size="20" font-weight="900" fill="#fff4c4" letter-spacing="3" class="mit-wordmark">MIT</text>
-              </svg>
-              <div class="mit-spark mit-spark-1">✶</div>
-              <div class="mit-spark mit-spark-2">✶</div>
-              <div class="mit-spark mit-spark-3">✶</div>
-              <div class="mit-spark mit-spark-4">✶</div>
+              <span class="mit-banner-burst mit-banner-burst-tl" aria-hidden="true">★</span>
+              <span class="mit-banner-burst mit-banner-burst-tr" aria-hidden="true">★</span>
+              <span class="mit-banner-burst mit-banner-burst-bl" aria-hidden="true">✦</span>
+              <span class="mit-banner-burst mit-banner-burst-br" aria-hidden="true">✦</span>
             </a>
             <p class="mit-blurb">
-              <span class="herm-glyph-row" aria-hidden="true">🜂 🜁 🜄 🜃</span>
-              <strong>LICENTIA LIBERA</strong> ✦ this codex is
-              <strong>open</strong> as the firmament: fork it, ship it,
-              transmute it into your own dark gospel.
-              <em>(but leave the copyright notice ye who enter)</em>
+              CERTIFIED <strong>OPEN SOURCE</strong>!!1!
+              fork it!!! ship it!!! claim it as your own dark gospel!!!
+              <em>(but maybe leave the copyright notice in there)</em>
             </p>
 
             <div class="ring-links">
@@ -2676,52 +2641,222 @@ const awards = [
     margin: 0 6px;
   }
 
-  /* ─── MIT license medallion ─── */
+  /* ─── MIT LICENSED!! Geocities banner ─── */
   .stage-geocities .mit-medallion {
     display: block;
     position: relative;
-    width: 220px;
-    margin: 4px auto 12px;
+    width: 100%;
+    max-width: 540px;
+    margin: 8px auto 14px;
     text-decoration: none;
-    filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.6));
-    transition: transform 200ms ease;
+    color: inherit;
+    transition: transform 180ms ease;
   }
   .stage-geocities .mit-medallion:hover {
-    transform: translateY(-2px) scale(1.02);
+    transform: translateY(-2px) scale(1.01);
   }
-  .stage-geocities .mit-medal {
-    display: block;
-    width: 100%;
-    height: auto;
+  .stage-geocities .mit-banner {
+    position: relative;
+    overflow: hidden;
+    background:
+      linear-gradient(
+        90deg,
+        #ff2eb5 0%,
+        #ffd96a 22%,
+        #50e878 44%,
+        #5acafe 66%,
+        #b660e0 88%,
+        #ff2eb5 100%
+      );
+    background-size: 220% 100%;
+    border-top: 4px ridge #ffd96a;
+    border-bottom: 4px ridge #ffd96a;
+    border-left: 4px ridge #c8243d;
+    border-right: 4px ridge #c8243d;
+    box-shadow:
+      inset 0 0 0 2px #000,
+      inset 0 0 30px rgba(0, 0, 0, 0.35),
+      0 4px 0 #000,
+      0 6px 14px rgba(0, 0, 0, 0.55);
+    animation: mit-rainbow-slide 5s linear infinite;
   }
-  /* Subtle slow gleam across the brass — a thin highlight rotates */
-  .stage-geocities .mit-medal {
-    animation: medal-gleam 9s linear infinite;
+  @keyframes mit-rainbow-slide {
+    from { background-position:   0% 0%; }
+    to   { background-position: 220% 0%; }
   }
-  @keyframes medal-gleam {
-    0%   { filter: hue-rotate(0deg)  brightness(1)    saturate(1); }
-    50%  { filter: hue-rotate(-6deg) brightness(1.07) saturate(1.1); }
-    100% { filter: hue-rotate(0deg)  brightness(1)    saturate(1); }
-  }
-  .stage-geocities .mit-spark {
+
+  /* Diagonal hatch overlay for that broken-GIF texture */
+  .stage-geocities .mit-banner-stripes {
     position: absolute;
-    font-size: 14px;
-    line-height: 1;
-    color: #fff8d4;
-    text-shadow: 0 0 6px #ffd96a, 0 0 12px rgba(255, 217, 106, 0.7);
+    inset: 22px 0;
+    background:
+      repeating-linear-gradient(
+        45deg,
+        transparent 0 16px,
+        rgba(0, 0, 0, 0.10) 16px 32px
+      );
     pointer-events: none;
-    opacity: 0;
-    animation: mit-spark-pop 3.6s ease-in-out infinite;
+    z-index: 0;
   }
-  .stage-geocities .mit-spark-1 { top: 10%;  left: 14%;  animation-delay: 0s;   }
-  .stage-geocities .mit-spark-2 { top: 18%;  right: 12%; animation-delay: 0.9s; }
-  .stage-geocities .mit-spark-3 { bottom: 28%; left: 8%;  animation-delay: 1.8s; }
-  .stage-geocities .mit-spark-4 { bottom: 36%; right: 6%;  animation-delay: 2.7s; }
-  @keyframes mit-spark-pop {
-    0%, 100% { opacity: 0; transform: scale(0.5) rotate(0deg); }
-    20%      { opacity: 1; transform: scale(1)   rotate(45deg); }
-    40%      { opacity: 0; transform: scale(0.5) rotate(90deg); }
+
+  /* Scrolling marquee strips top + bottom */
+  .stage-geocities .mit-banner-top,
+  .stage-geocities .mit-banner-bot {
+    position: relative;
+    height: 20px;
+    background: #07041a;
+    border-top: 1px solid #000;
+    border-bottom: 1px solid #000;
+    overflow: hidden;
+    z-index: 1;
   }
+  .stage-geocities .mit-banner-top    { box-shadow: inset 0 -1px 0 rgba(255, 217, 106, 0.55); }
+  .stage-geocities .mit-banner-bot    { box-shadow: inset 0  1px 0 rgba(255, 217, 106, 0.55); }
+  .stage-geocities .mit-banner-marquee {
+    display: flex;
+    white-space: nowrap;
+    font-family: 'Courier New', monospace;
+    font-size: 11px;
+    line-height: 20px;
+    color: #50e878;
+    text-shadow: 0 0 4px rgba(80, 232, 120, 0.85), 1px 1px 0 #000;
+    letter-spacing: 0.08em;
+    animation: mit-marquee 14s linear infinite;
+  }
+  .stage-geocities .mit-banner-marquee.reverse {
+    color: #ff66cc;
+    text-shadow: 0 0 4px rgba(255, 102, 204, 0.85), 1px 1px 0 #000;
+    animation-direction: reverse;
+    animation-duration: 16s;
+  }
+  .stage-geocities .mit-banner-marquee > span { padding-right: 16px; }
+  @keyframes mit-marquee {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-50%); }
+  }
+
+  /* Main row */
+  .stage-geocities .mit-banner-main {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 14px 14px;
+  }
+
+  /* FREE!! / NO CATCH!! tilted sticker stamps */
+  .stage-geocities .mit-banner-sidetag {
+    flex: 0 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 6px 10px;
+    background: #fff8d4;
+    border: 2px ridge #c8243d;
+    color: #c8243d;
+    font-family: 'Impact', 'Arial Black', sans-serif;
+    text-shadow: none;
+    box-shadow: 2px 2px 0 #000;
+  }
+  .stage-geocities .mit-banner-sidetag-l { transform: rotate(-9deg); }
+  .stage-geocities .mit-banner-sidetag-r { transform: rotate(8deg); }
+  .stage-geocities .mit-banner-sidetag .big {
+    font-size: 22px;
+    line-height: 1;
+    letter-spacing: 0.04em;
+  }
+  .stage-geocities .mit-banner-sidetag .lil {
+    margin-top: 2px;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    color: #1a0840;
+  }
+
+  /* Middle stack */
+  .stage-geocities .mit-banner-mid {
+    flex: 1;
+    position: relative;
+    text-align: center;
+    padding: 0 4px;
+  }
+  .stage-geocities .mit-banner-newbadge {
+    position: absolute;
+    top: -22px;
+    right: 0;
+    transform: rotate(14deg);
+    background: #ff0099;
+    color: #fff;
+    font-family: 'Impact', 'Arial Black', sans-serif;
+    font-size: 13px;
+    padding: 3px 7px;
+    border: 2px solid #000;
+    box-shadow: 2px 2px 0 #000;
+    letter-spacing: 0.1em;
+    z-index: 2;
+  }
+  .stage-geocities .mit-banner-title {
+    margin: 0;
+    font-family: 'Impact', 'Arial Black', sans-serif;
+    font-size: 30px;
+    line-height: 1;
+    letter-spacing: 0.04em;
+    text-shadow:
+      2px 2px 0 #000,
+      -1px -1px 0 #000,
+      1px -1px 0 #000,
+      -1px 1px 0 #000;
+  }
+  .stage-geocities .mit-banner-title .mit-rainbow {
+    background: linear-gradient(90deg, #ff0099, #ffd96a, #50e878, #5acafe, #b660e0, #ff0099);
+    background-size: 200% 100%;
+    -webkit-background-clip: text;
+            background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+    animation: mit-rainbow-slide 3s linear infinite;
+    filter: drop-shadow(1px 1px 0 #000);
+  }
+  .stage-geocities .mit-banner-title .mit-impact {
+    color: #fff8d4;
+  }
+  .stage-geocities .mit-banner-subtitle {
+    margin-top: 6px;
+    font-family: 'Comic Neue', 'Comic Sans MS', cursive;
+    font-size: 12px;
+    color: #fff8d4;
+    text-shadow: 1px 1px 0 #000;
+  }
+  .stage-geocities .mit-banner-subtitle .blink {
+    display: inline-block;
+    margin: 0 4px;
+    color: #ffd96a;
+  }
+
+  /* Corner sigil bursts that spin */
+  .stage-geocities .mit-banner-burst {
+    position: absolute;
+    font-size: 22px;
+    color: #fff8d4;
+    text-shadow:
+      0 0 6px #ffd96a,
+      0 0 12px rgba(255, 217, 106, 0.85),
+      1px 1px 0 #000;
+    z-index: 3;
+    pointer-events: none;
+    animation: mit-burst-spin 2.6s linear infinite;
+  }
+  .stage-geocities .mit-banner-burst-tl { top:    -10px; left:  -10px; }
+  .stage-geocities .mit-banner-burst-tr { top:    -10px; right: -10px; animation-direction: reverse; }
+  .stage-geocities .mit-banner-burst-bl { bottom: -10px; left:  -10px; animation-direction: reverse; }
+  .stage-geocities .mit-banner-burst-br { bottom: -10px; right: -10px; }
+  @keyframes mit-burst-spin {
+    0%   { transform: rotate(0deg)   scale(1);   }
+    50%  { transform: rotate(180deg) scale(1.25);}
+    100% { transform: rotate(360deg) scale(1);   }
+  }
+
   .stage-geocities .mit-blurb {
     margin: 0 auto 16px;
     max-width: 460px;
@@ -2743,29 +2878,6 @@ const awards = [
     font-size: 11px;
     color: #b660e0;
     font-style: italic;
-  }
-  .stage-geocities .herm-glyph-row {
-    display: block;
-    margin: 0 0 6px;
-    font-family: 'Cardo', 'Times New Roman', serif;
-    font-size: 16px;
-    color: #d4af5a;
-    letter-spacing: 0.6em;
-    text-shadow: 0 0 6px rgba(212, 175, 90, 0.55);
-  }
-  /* Hermetic medallion accents */
-  .stage-geocities .mit-wordmark {
-    filter: drop-shadow(0 0 4px rgba(255, 244, 196, 0.75));
-  }
-  .stage-geocities .mit-hex-glow {
-    animation: mit-hex-pulse 4.4s ease-in-out infinite;
-  }
-  @keyframes mit-hex-pulse {
-    0%, 100% { opacity: 0.35; }
-    50%      { opacity: 0.85; }
-  }
-  .stage-geocities .mit-planets text {
-    filter: drop-shadow(0 0 2px rgba(212, 175, 90, 0.55));
   }
 
   .stage-geocities .ring-links {
