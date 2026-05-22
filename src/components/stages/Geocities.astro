@@ -53,6 +53,7 @@ const sidebarNav = [
   { href: '#geo-about',    label: 'ABOUT ME',   icon: '👤' },
   { href: '#geo-news',     label: "WHAT'S NEW", icon: '📣' },
   { href: '#geo-download', label: 'GET MY MOD MGR', icon: '💾' },
+  { href: '/download',     label: 'DA FULL CODEX', icon: '📜' },
   { href: '#geo-webring',  label: 'WEBRING',    icon: '🔗' },
   { href: brand.discord,   label: 'GUESTBOOK',  icon: '✒', external: true },
   { href: 'mailto:slusheliott@gmail.com', label: 'E-MAIL ME', icon: '✉', external: true },
@@ -502,6 +503,13 @@ const awards = [
                 <span class="gdl-size">★ FREE ★</span>
               </a>
             </li>
+            <li class="gdl gdl-codex">
+              <a class="gdl-btn" href="/download">
+                <span class="gh-octo" aria-hidden="true">📜</span>
+                <span class="gdl-label">CHECKSUMS &amp; ALL PLATFORMS</span>
+                <span class="gdl-size">CODEX</span>
+              </a>
+            </li>
           </ul>
           <p class="cta-sub">
             IT IS <span class="blink">FREE</span>!!! NO TELEMETRY!! NO ADWARE!!!
@@ -620,7 +628,7 @@ const awards = [
             <span class="mail" aria-hidden="true">✉</span>
             E-MAIL ME!!
           </a>
-          <p class="midi-toggle">♫ Now playing: <em>THE.HERMIT.MID</em></p>
+          <p class="midi-toggle" data-now-playing>♫ Now playing: <em data-now-playing-track>SPACESYNTH</em></p>
         </section>
 
         <!-- ASCII art footer signature -->
@@ -662,7 +670,7 @@ const awards = [
           <h3 class="widget-h">~ QUOTE OF THE DAY ~</h3>
           <blockquote class="qotd">
             <p>"{quote.text}"</p>
-            <cite>— {quote.who}</cite>
+            <cite>~ {quote.who}</cite>
           </blockquote>
         </div>
 
@@ -769,15 +777,15 @@ const awards = [
           <ul class="gbook-list">
             <li>
               <span class="gbook-q">"COOL SITE!!! 5/5"</span>
-              <span class="gbook-sig">— kRaZee_44, 5/19</span>
+              <span class="gbook-sig">~ kRaZee_44, 5/19</span>
             </li>
             <li>
               <span class="gbook-q">"installed the mod ez!"</span>
-              <span class="gbook-sig">— ggez_lmao, 5/20</span>
+              <span class="gbook-sig">~ ggez_lmao, 5/20</span>
             </li>
             <li>
               <span class="gbook-q">"u rock slush!!!"</span>
-              <span class="gbook-sig">— anon, 5/21</span>
+              <span class="gbook-sig">~ anon, 5/21</span>
             </li>
           </ul>
           <a class="gbook-all" href={brand.discord} target="_blank" rel="noopener">
@@ -870,6 +878,28 @@ const awards = [
     const audio   = widget.querySelector('audio') as HTMLAudioElement;
     const track   = widget.querySelector('[data-role="track"]') as HTMLElement;
     const status  = widget.querySelector('[data-role="status"]') as HTMLElement;
+    /*
+     * Signoff "Now playing" mirror. Mirrors whatever the LCD title says
+     * so the two on-page widgets agree about what's streaming. Bound
+     * via MutationObserver so any track update we make to the LCD
+     * propagates here, no extra wiring at each call site.
+     */
+    const sigTrack = document.querySelector('[data-now-playing-track]') as HTMLElement | null;
+    if (sigTrack) {
+      /*
+       * Strip the LCD chrome (leading "▶ ", trailing " ▶", playing dot)
+       * before mirroring. The signoff already reads "♫ Now playing:"
+       * so the arrows are noise there even though they look right in
+       * the LCD screen.
+       */
+      const sync = () => {
+        const raw = (track.textContent ?? '').trim();
+        const clean = raw.replace(/^[●▶\s]+/, '').replace(/[▶\s]+$/, '');
+        sigTrack.textContent = clean || 'SPACESYNTH';
+      };
+      sync();
+      new MutationObserver(sync).observe(track, { childList: true, characterData: true, subtree: true });
+    }
     const playBtn = widget.querySelector('[data-role="play"]')  as HTMLButtonElement;
     const stopBtn = widget.querySelector('[data-role="stop"]')  as HTMLButtonElement;
     const volBtn  = widget.querySelector('[data-role="vol"]')   as HTMLButtonElement;
@@ -1234,6 +1264,22 @@ const awards = [
     flex-direction: column;
     gap: 14px;
   }
+  /*
+   * Visual pairing across rails. The SEPHIRA tree-of-life ad and the
+   * LODGE square-and-compasses ad are the two "sponsored content" big
+   * shouts — they want to sit at roughly the same Y so the page reads
+   * as a balanced spread. Without an `order:` override the tree-ad
+   * lives at the bottom of the left rail and dangles 200px below the
+   * shorter right rail (which ends with GUESTBOOK), leaving a lonely
+   * SEPHIRA tile in a dark void. Pulling it up to slot 5 puts it
+   * across from the lodge ad and lets the smaller POLL widget close
+   * out the left rail at roughly the GUESTBOOK height. Source order
+   * stays the same so the nth-child border-rotation cycle keeps its
+   * existing colors.
+   */
+  .stage-geocities .rail-left .widget-tree-ad { order: 5; }
+  .stage-geocities .rail-left .widget-stats   { order: 6; }
+  .stage-geocities .rail-left .widget-poll    { order: 7; }
 
   /* ─── Sidebar widget shell ─── */
   .stage-geocities .widget {
@@ -2971,7 +3017,8 @@ const awards = [
   }
   .stage-geocities .gdl-grid li { display: flex; }
   .stage-geocities .gdl-grid .gdl-5,
-  .stage-geocities .gdl-grid .gdl-gh { grid-column: span 2; }
+  .stage-geocities .gdl-grid .gdl-gh,
+  .stage-geocities .gdl-grid .gdl-codex { grid-column: span 2; }
   .stage-geocities .gdl-btn {
     flex: 1;
     display: grid;
@@ -3018,7 +3065,8 @@ const awards = [
    * of one tile being visibly larger than the other.
    */
   .stage-geocities .gdl-5 .gdl-btn,
-  .stage-geocities .gdl-gh .gdl-btn {
+  .stage-geocities .gdl-gh .gdl-btn,
+  .stage-geocities .gdl-codex .gdl-btn {
     padding: 12px 14px;
     font-size: 16px;
     color: #000 !important;
@@ -3034,11 +3082,16 @@ const awards = [
     background: linear-gradient(90deg, #869a4a 0%, #5a8a5a 50%, #869a4a 100%);
     animation: btn-pulse 1.2s ease-in-out infinite;
   }
-  /* AUR + GH labels : monospace command-style, bold, no underline,
+  .stage-geocities .gdl-codex .gdl-btn {
+    background: linear-gradient(90deg, #b66a2a 0%, #e8b840 50%, #b66a2a 100%);
+    animation: btn-pulse 1.4s ease-in-out infinite 0.15s;
+  }
+  /* AUR + GH + CODEX labels : monospace command-style, bold, no underline,
      centered, with a white text-shadow that gives contrast against
      the gradient on both light and dark stripes. */
   .stage-geocities .gdl-5 .gdl-label,
-  .stage-geocities .gdl-gh .gdl-label {
+  .stage-geocities .gdl-gh .gdl-label,
+  .stage-geocities .gdl-codex .gdl-label {
     font-family: 'JetBrains Mono', 'Courier New', monospace;
     font-weight: 700;
     text-align: center;
@@ -3051,9 +3104,11 @@ const awards = [
     line-height: 1;
     filter: drop-shadow(1px 1px 0 #000);
   }
-  /* Both side-badges blink-on-black for shared visual weight */
+  /* Side-badges on the three full-width rows share a black/brass chip
+     so the trio reads as a stack. */
   .stage-geocities .gdl-5 .gdl-size,
-  .stage-geocities .gdl-gh .gdl-size {
+  .stage-geocities .gdl-gh .gdl-size,
+  .stage-geocities .gdl-codex .gdl-size {
     background: #000;
     color: #d4af5a;
     border-color: #d4af5a;
