@@ -6,6 +6,7 @@
  * eras are requested here so we only emit one stylesheet link.
  */
 import '../styles/museum.css';
+import Neko from '../components/Neko.astro';
 
 interface Props {
   title?: string;
@@ -61,5 +62,6 @@ const ogImageUrl = new URL(ogImage, Astro.site);
     <main id="museum-main">
       <slot />
     </main>
+    <Neko />
   </body>
 </html>
