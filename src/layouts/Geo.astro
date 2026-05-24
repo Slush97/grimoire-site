@@ -1,0 +1,118 @@
+---
+/*
+ * Geo.astro
+ * HTML shell for Geocities-themed sub-pages (/tools, /download). Shares the
+ * same fonts/meta as Museum.astro and mounts the cursor-chasing neko, but
+ * paints the candlelit-grimoire chrome (starfield, top marquee, page frame,
+ * footer) from the shared geo.css system so sub-pages match the landing
+ * stage without depending on its scoped styles.
+ */
+import '../styles/geo.css';
+import Neko from '../components/Neko.astro';
+
+interface Props {
+  title?: string;
+  description?: string;
+  marquee?: string;
+  ogImage?: string;
+}
+
+const {
+  title = 'Grimoire',
+  description = 'Mod manager for Deadlock. Browse and install mods from GameBanana, manage your library, swap profiles.',
+  marquee = "✦ WELCOME BACK 2 GRIMOIRE!!1! ✦ BEST VIEWED IN NETSCAPE NAVIGATOR 4.0 BY MOONLIGHT ✦ SIGN THE BOOK OF NAMES!!! ✦ ",
+  ogImage = '/og.png',
+} = Astro.props;
+
+const canonicalUrl = new URL(Astro.url.pathname, Astro.site);
+const ogImageUrl = new URL(ogImage, Astro.site);
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+    <meta name="theme-color" content="#07041a" />
+
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalUrl} />
+
+    <link rel="icon" type="image/png" href="/logo.png" />
+    <link rel="apple-touch-icon" href="/logo.png" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Comic+Neue:wght@400;700&display=swap"
+    />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:image" content={ogImageUrl} />
+    <meta property="og:site_name" content="Grimoire" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImageUrl} />
+  </head>
+  <body>
+    <a href="#geo-main" class="geo-skip">Skip to content</a>
+    <div class="geo">
+      <div class="geo-stars" aria-hidden="true"></div>
+
+      <div class="geo-marquee" aria-hidden="true">
+        <span class="geo-track">
+          <span>{marquee}</span>
+          <span>{marquee}</span>
+        </span>
+      </div>
+
+      <main id="geo-main" class="geo-page">
+        <nav class="geo-crumbs" aria-label="Breadcrumb">
+          <a href="/">🏠 HOMEPAGE</a>
+          <span class="geo-crumb-sep" aria-hidden="true">»</span>
+          <a href="/tools">⚒ TOOLS</a>
+          <span class="geo-crumb-sep" aria-hidden="true">»</span>
+          <a href="/download">💾 DOWNLOADS</a>
+        </nav>
+
+        <slot />
+      </main>
+
+      <footer class="geo-footer">
+        <span class="geo-footer-glyph" aria-hidden="true">✦ ☽ ✦</span>
+        <p>
+          made with <span class="blink" style="color:#ff3a4a">♥</span> by slush ·
+          <a href="https://github.com/Slush97/grimoire" target="_blank" rel="noopener">GITHUB</a> ·
+          <a href="https://discord.gg/KgYGHEMq2P" target="_blank" rel="noopener">GUESTBOOK</a> ·
+          MIT MMXXVI
+        </p>
+        <p style="opacity:.7">BEST VIEWED BY MOONLIGHT · NO TELEMETRY · NO ADWARE</p>
+      </footer>
+    </div>
+    <Neko />
+
+    <style>
+      .geo-skip {
+        position: absolute;
+        left: -9999px;
+        top: 0;
+        z-index: 100;
+        background: #e8b840;
+        color: #1a0a08;
+        padding: 8px 14px;
+        font-family: 'Comic Neue', 'Comic Sans MS', cursive;
+        font-weight: 700;
+      }
+      .geo-skip:focus { left: 8px; top: 8px; }
+      html { background: #07041a; }
+      body { margin: 0; }
+    </style>
+  </body>
+</html>

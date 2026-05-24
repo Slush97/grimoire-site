@@ -1,70 +1,21 @@
 ---
-import Base from '../layouts/Base.astro';
+/*
+ * /download — Geocities-themed download page. Windows-first ordering
+ * (most users are on Windows). Live release data comes from the shared,
+ * build-time-memoized getDownloadUrls() in data/content.ts, so this page
+ * and the landing stage share one GitHub round-trip.
+ */
+import Geo from '../layouts/Geo.astro';
+import { brand, fmtBytes, getDownloadUrls } from '../data/content';
 
-const githubUrl = 'https://github.com/Slush97/grimoire';
-const aurUrl = 'https://aur.archlinux.org/packages/grimoire-bin';
-
-interface Asset {
-  name: string;
-  size: number;
-  browser_download_url: string;
-}
-
-interface Release {
-  tag_name: string;
-  name: string;
-  published_at: string;
-  html_url: string;
-  body: string;
-  assets: Asset[];
-}
-
-function fmtBytes(b: number): string {
-  if (!b) return '';
-  if (b < 1024 * 1024) return `${(b / 1024).toFixed(0)} KB`;
-  return `${(b / 1024 / 1024).toFixed(1)} MB`;
-}
-
-function fmtDate(s: string): string {
-  return new Date(s).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  });
-}
-
-const ghToken = import.meta.env.GITHUB_TOKEN ?? process.env.GITHUB_TOKEN;
-const headers: Record<string, string> = {
-  Accept: 'application/vnd.github+json',
-  'User-Agent': 'grimoire-site-build',
-};
-if (ghToken) headers.Authorization = `Bearer ${ghToken}`;
-
-let release: Release | null = null;
-try {
-  const res = await fetch('https://api.github.com/repos/Slush97/grimoire/releases/latest', {
-    headers,
-  });
-  if (res.ok) release = (await res.json()) as Release;
-} catch {
-  release = null;
-}
-
-const assets = release?.assets ?? [];
-const find = (pred: (n: string) => boolean) =>
-  assets.find((a) => pred(a.name.toLowerCase()));
-
-const winInstaller = find((n) => n.endsWith('.exe') && n.includes('setup'));
-const winPortable = find((n) => n.endsWith('.exe') && !n.includes('setup') && !n.includes('blockmap'));
-const appImage = find((n) => n.endsWith('.appimage'));
-const deb = find((n) => n.endsWith('.deb'));
-const sums = find((n) => n === 'sha256sums' || n.endsWith('.sha256sums'));
-
-const tag = release?.tag_name ?? '';
-const version = tag.replace(/^v/, '');
-const releaseDate = release ? fmtDate(release.published_at) : null;
-const releaseUrl = release?.html_url ?? `${githubUrl}/releases/latest`;
-const allReleasesUrl = `${githubUrl}/releases`;
+const dl = await getDownloadUrls();
+const winInstaller = dl.windowsInstaller;
+const winPortable = dl.windowsPortable;
+const appImage = dl.linuxAppImage;
+const deb = dl.linuxDeb;
+const sums = dl.sha256Sums;
+const { version, releaseDate, releaseUrl } = dl;
+const allReleasesUrl = `${brand.github}/releases`;
 
 // Brand SVG paths (Simple Icons)
 const ICON_WINDOWS =
@@ -75,400 +26,297 @@ const ICON_ARCH =
   'M11.39.605C10.376 3.092 9.764 4.72 8.635 7.132c.693.734 1.543 1.589 2.923 2.554-1.484-.61-2.496-1.224-3.252-1.86C6.86 10.842 4.596 15.138 0 23.395c3.612-2.085 6.412-3.37 9.021-3.862a6.61 6.61 0 01-.171-1.547l.003-.115c.058-2.315 1.261-4.095 2.687-3.973 1.426.12 2.534 2.096 2.478 4.409a6.52 6.52 0 01-.146 1.243c2.58.505 5.352 1.787 8.914 3.844-.702-1.293-1.33-2.459-1.929-3.57-.943-.73-1.926-1.682-3.933-2.713 1.38.359 2.367.772 3.137 1.234-6.09-11.334-6.582-12.84-8.67-17.74z';
 ---
 
-<Base
+<Geo
   title="Download Grimoire"
-  description="Download Grimoire, the open-source Deadlock mod manager, for Windows, Linux, and Arch."
+  description="Download Grimoire, the open-source Deadlock mod manager, for Windows, Linux, and Arch. MIT, free, no telemetry."
+  marquee="✦ DOWNLOAD GRIMOIRE!!1! ✦ FREE!! ✦ NO TELEMETRY!! ✦ NO ADWARE!! ✦ WINDOWS · LINUX · ARCH ✦ "
 >
-  <main class="relative z-10">
-    <!-- HERO: Windows-first big button -->
-    <section class="relative overflow-hidden">
-      <div class="relative mx-auto max-w-4xl px-6 pt-20 pb-12 text-center sm:pt-28">
-        <div class="flex justify-center">
-          <span class="kicker kicker--centered">Download</span>
-        </div>
-        <h1 class="font-display mt-5 text-5xl text-white sm:text-7xl">
-          Get <em>Grimoire</em>.
-        </h1>
-        <p class="mx-auto mt-6 max-w-xl text-lg leading-relaxed text-muted">
-          MIT-licensed, free, no telemetry, no analytics. Only does anything useful if
-          you have Deadlock installed via Steam.
-        </p>
+  <header class="geo-hero">
+    <h1 class="geo-wordart">GET GRIMOIRE!!!</h1>
+    <span class="geo-subtitle">✦ free · MIT · no telemetry · no adware ✦</span>
+  </header>
 
-      {winInstaller ? (
-        <div class="mx-auto mt-12">
-          <div class="relative">
-            {version && (
-              <span
-                class="pointer-events-none absolute -top-5 right-2 z-10 hidden sm:inline-block"
-                aria-hidden="true"
-              >
-                <span class="stamp stamp--sm">Conjured · v{version} · mmxxvi</span>
-              </span>
-            )}
-            <a
-              href={winInstaller.browser_download_url}
-              class="btn-win95 btn-win95--lg btn-win95--accent w-full"
-            >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                <path d={ICON_WINDOWS} />
-              </svg>
-              <span>Download for Windows</span>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <path d="M12 3v12m0 0 4-4m-4 4-4-4M5 21h14" />
-              </svg>
-            </a>
-          </div>
+  <p class="dl-intro">
+    Only does anything useful if you have <strong>DEADLOCK</strong> installed via Steam!!
+    <span class="blink">★</span>
+  </p>
 
-          <div class="codex-entry mt-6 text-left">
-            <div class="relative">
-              <dl class="grid grid-cols-[max-content_1fr] gap-x-6 gap-y-1.5 text-sm">
-                <dt class="font-sc text-[11px] uppercase tracking-[0.22em] text-paper opacity-70">File</dt>
-                <dd class="font-mono text-xs text-fg break-all">{winInstaller.name}</dd>
+  <div class="geo-glyph-rule" aria-hidden="true">✶ ⚝ ☥ ⚝ ✶</div>
 
-                <dt class="font-sc text-[11px] uppercase tracking-[0.22em] text-paper opacity-70">Size</dt>
-                <dd class="text-fg">{fmtBytes(winInstaller.size)}</dd>
+  <!-- WINDOWS-FIRST PRIMARY -->
+  <section class="dl-section">
+    <h2 class="geo-ribbon"><span class="blink">★</span> CLICK HERE 4 <em>WINDOWS!!</em> <span class="blink">★</span></h2>
 
-                {release && (
-                  <>
-                    <dt class="font-sc text-[11px] uppercase tracking-[0.22em] text-paper opacity-70">Version</dt>
-                    <dd class="text-fg">v{version} <span class="text-muted">· {releaseDate}</span></dd>
-                  </>
-                )}
-              </dl>
-              <div class="mt-5 flex flex-col items-center gap-3 border-t border-paper/15 pt-4 text-sm sm:flex-row sm:justify-between sm:gap-6">
-                {release && (
-                  <a
-                    href={releaseUrl}
-                    target="_blank"
-                    rel="noopener"
-                    class="codex-action codex-action--link"
-                  >Read the release notes →</a>
-                )}
-                <a href="#other-platforms" class="codex-action codex-action--link">
-                  Other platforms ↓
-                </a>
-              </div>
-            </div>
+    {winInstaller ? (
+      <div class="geo-card">
+        <div class="geo-card-h">💾 the big one · windows installer</div>
+        <div class="geo-card-body dl-primary">
+          <a class="geo-btn geo-btn--gold geo-btn--lg geo-btn--block" href={winInstaller.browser_download_url}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d={ICON_WINDOWS} /></svg>
+            <span>DOWNLOAD FOR WINDOWS</span>
+            <span class="geo-btn-meta">{fmtBytes(winInstaller.size)}</span>
+          </a>
+          <dl class="dl-meta">
+            <dt>FILE</dt><dd><code class="geo-code">{winInstaller.name}</code></dd>
+            <dt>SIZE</dt><dd>{fmtBytes(winInstaller.size)}</dd>
+            {version && (<><dt>VER</dt><dd>v{version}{releaseDate ? ` ★ ${releaseDate}` : ''}</dd></>)}
+          </dl>
+          <div class="dl-links">
+            <a href={releaseUrl} target="_blank" rel="noopener">READ DA RELEASE NOTES »</a>
+            <a href="#other">OTHER PLATFORMS ↓</a>
           </div>
         </div>
-      ) : (
-        <div class="mx-auto mt-12">
-          <div class="codex-entry text-center">
-            <div class="relative">
-              <p class="text-sm text-muted">Couldn't reach the GitHub release feed at build time.</p>
-              <a href={releaseUrl} target="_blank" rel="noopener" class="codex-action mt-4 inline-flex">
-                See releases on GitHub →
-              </a>
-            </div>
-          </div>
-        </div>
-      )}
       </div>
-    </section>
-
-    <!-- SmartScreen note (only relevant on Windows; show always since most users are on Windows) -->
-    {winInstaller && (
-      <section class="relative mx-auto max-w-4xl px-6 pb-12">
-        <div class="codex-notice">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mt-0.5 shrink-0" aria-hidden="true">
-            <circle cx="12" cy="12" r="10" />
-            <path d="M12 8v4M12 16h.01" />
-          </svg>
-          <span>
-            Grimoire isn't code-signed yet, so Windows SmartScreen may flag the installer as
-            <strong>Unknown Publisher</strong>. Click <strong>More info → Run anyway</strong>.
-          </span>
+    ) : (
+      <div class="geo-card">
+        <div class="geo-card-h">⚠ couldn't reach github</div>
+        <div class="geo-card-body">
+          <p>Couldn't reach the GitHub release feed when this page was built!!</p>
+          <a class="geo-btn geo-btn--green geo-btn--center" href={releaseUrl} target="_blank" rel="noopener">
+            <span class="geo-btn-arrow">▶</span><span>SEE RELEASES ON GITHUB</span>
+          </a>
         </div>
-      </section>
+      </div>
     )}
 
-    <!-- OTHER PLATFORMS -->
-    <section id="other-platforms" class="relative mx-auto max-w-4xl px-6 pb-12">
-      <div class="glyph-rule" aria-hidden="true">
-        <span class="glyph-rule-text">✶ ⚝ ☥ ⚝ ✶</span>
-      </div>
-      <div class="pt-10 text-center">
-        <span class="kicker kicker--centered">Other platforms</span>
-        <h2 class="font-display mt-4 text-3xl text-white sm:text-4xl">For the unwindowed.</h2>
-        <p class="mt-3">
-          <a
-            href={allReleasesUrl}
-            target="_blank"
-            rel="noopener"
-            class="codex-action codex-action--link"
-          >All releases on github →</a>
-        </p>
-      </div>
+    <div class="geo-notice">
+      <span class="geo-notice-bang" aria-hidden="true">⚠</span>
+      <span>
+        Grimoire isn't code-signed yet, so Windows SmartScreen may holler
+        <strong>Unknown Publisher</strong>!! Just click <strong>More info » Run anyway</strong>. It's fine, promise!!
+      </span>
+    </div>
+  </section>
 
-      <!-- Windows portable -->
-      <div class="mt-12">
-        <div class="codex-chapter mb-6">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-            <path d={ICON_WINDOWS} />
-          </svg>
-          <span>For Windows</span>
-        </div>
-        <div class="codex-entry">
-          <div class="relative flex flex-wrap items-start justify-between gap-4">
-            <div>
-              <div class="codex-entry-title">Portable .exe</div>
-              <div class="codex-entry-body">Single executable, no install. Same app as the installer.</div>
-              {winPortable && (
-                <code class="codex-entry-meta">{winPortable.name}</code>
-              )}
-            </div>
-            <a
-              href={winPortable?.browser_download_url ?? releaseUrl}
-              class="codex-action"
-            >
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <path d="M12 3v12m0 0 4-4m-4 4-4-4M5 21h14" />
-              </svg>
-              {winPortable ? fmtBytes(winPortable.size) : 'Download'}
+  <div class="geo-sep geo-sep--flame" aria-hidden="true"></div>
+
+  <!-- OTHER PLATFORMS -->
+  <section id="other" class="dl-section">
+    <h2 class="geo-ribbon"><span class="blink">★</span> 4 DA <em>UNWINDOWED</em> <span class="blink">★</span></h2>
+
+    <!-- Windows portable -->
+    <div class="geo-card">
+      <div class="geo-card-h">
+        <svg class="dl-h-ico" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d={ICON_WINDOWS} /></svg>
+        windows portable .exe
+      </div>
+      <div class="geo-card-body">
+        <p>Single executable, NO INSTALL!! Same app as the installer, just rawer!!</p>
+        {winPortable && <p><code class="geo-code">{winPortable.name}</code></p>}
+        <a class="geo-btn geo-btn--blue geo-btn--center" href={winPortable?.browser_download_url ?? releaseUrl}>
+          <span class="geo-btn-arrow">▶</span><span>{winPortable ? `PORTABLE · ${fmtBytes(winPortable.size)}` : 'DOWNLOAD'}</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Linux -->
+    <div class="geo-card">
+      <div class="geo-card-h">
+        <svg class="dl-h-ico" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d={ICON_LINUX} /></svg>
+        4 linux
+      </div>
+      <div class="geo-card-body">
+        <div class="dl-twocol">
+          <div>
+            <p><strong>AppImage</strong> · universal, works on most distros.</p>
+            <a class="geo-btn geo-btn--green geo-btn--center" href={appImage?.browser_download_url ?? releaseUrl}>
+              <span class="geo-btn-arrow">▶</span><span>{appImage ? `APPIMAGE · ${fmtBytes(appImage.size)}` : 'DOWNLOAD'}</span>
             </a>
-          </div>
-        </div>
-      </div>
-
-      <!-- Linux -->
-      <div class="mt-12">
-        <div class="codex-chapter mb-6">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-            <path d={ICON_LINUX} />
-          </svg>
-          <span>For Linux</span>
-        </div>
-
-        <div class="grid gap-5 sm:grid-cols-2">
-          <div class="codex-entry">
-            <div class="relative flex items-start justify-between gap-3">
-              <div>
-                <div class="codex-entry-title">AppImage</div>
-                <div class="codex-entry-body">Universal. Works on most distros.</div>
-              </div>
-              <a
-                href={appImage?.browser_download_url ?? releaseUrl}
-                class="codex-action"
-              >
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                  <path d="M12 3v12m0 0 4-4m-4 4-4-4M5 21h14" />
-                </svg>
-                {appImage ? fmtBytes(appImage.size) : 'Download'}
-              </a>
-            </div>
             {appImage && (
-              <div class="relative mt-4">
-                <span class="codex-cmd-label">Then run</span>
-                <div class="codex-cmd" data-copy={`chmod +x ${appImage.name} && ./${appImage.name}`}>
-                  <span class="truncate">
-                    <span class="select-none text-paper-dim">$ </span>chmod +x {appImage.name}
-                  </span>
-                  <button type="button" class="copy-btn" aria-label="Copy command">
-                    <svg class="copy-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                      <rect x="9" y="9" width="13" height="13" rx="2" />
-                      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
-                    </svg>
-                    <svg class="check-icon hidden" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                      <path d="M20 6 9 17l-5-5" />
-                    </svg>
-                  </button>
+              <div class="dl-cmd-wrap">
+                <span class="geo-cmd-label">then run</span>
+                <div class="geo-cmd" data-copy={`chmod +x ${appImage.name} && ./${appImage.name}`}>
+                  <span class="dl-cmd-txt"><span class="geo-cmd-dim">$ </span>chmod +x {appImage.name}</span>
+                  <button type="button" class="geo-copy-btn" aria-label="Copy command">COPY</button>
                 </div>
               </div>
             )}
           </div>
-
-          <div class="codex-entry">
-            <div class="relative flex items-start justify-between gap-3">
-              <div>
-                <div class="codex-entry-title">Debian / Ubuntu</div>
-                <div class="codex-entry-body">.deb package, installs via apt.</div>
-              </div>
-              <a
-                href={deb?.browser_download_url ?? releaseUrl}
-                class="codex-action"
-              >
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                  <path d="M12 3v12m0 0 4-4m-4 4-4-4M5 21h14" />
-                </svg>
-                {deb ? fmtBytes(deb.size) : 'Download'}
-              </a>
-            </div>
+          <div>
+            <p><strong>Debian / Ubuntu</strong> · .deb, installs via apt.</p>
+            <a class="geo-btn geo-btn--green geo-btn--center" href={deb?.browser_download_url ?? releaseUrl}>
+              <span class="geo-btn-arrow">▶</span><span>{deb ? `.DEB · ${fmtBytes(deb.size)}` : 'DOWNLOAD'}</span>
+            </a>
             {deb && (
-              <div class="relative mt-4">
-                <span class="codex-cmd-label">Then install</span>
-                <div class="codex-cmd" data-copy={`sudo apt install ./${deb.name}`}>
-                  <span class="truncate">
-                    <span class="select-none text-paper-dim">$ </span>sudo apt install ./{deb.name}
-                  </span>
-                  <button type="button" class="copy-btn" aria-label="Copy command">
-                    <svg class="copy-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                      <rect x="9" y="9" width="13" height="13" rx="2" />
-                      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
-                    </svg>
-                    <svg class="check-icon hidden" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                      <path d="M20 6 9 17l-5-5" />
-                    </svg>
-                  </button>
+              <div class="dl-cmd-wrap">
+                <span class="geo-cmd-label">then install</span>
+                <div class="geo-cmd" data-copy={`sudo apt install ./${deb.name}`}>
+                  <span class="dl-cmd-txt"><span class="geo-cmd-dim">$ </span>sudo apt install ./{deb.name}</span>
+                  <button type="button" class="geo-copy-btn" aria-label="Copy command">COPY</button>
                 </div>
               </div>
             )}
           </div>
         </div>
       </div>
+    </div>
 
-      <!-- Arch -->
-      <div class="mt-12">
-        <div class="codex-chapter mb-6">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-            <path d={ICON_ARCH} />
-          </svg>
-          <span>For Arch</span>
-        </div>
-        <div class="codex-entry">
-          <div class="relative flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <div class="flex items-center gap-3">
-                <div class="codex-entry-title">grimoire-bin</div>
-                <span class="font-sc text-[11px] tracking-[0.22em] uppercase text-paper opacity-70">aur</span>
-              </div>
-              <div class="codex-entry-body">Pre-built binary package on the AUR.</div>
-              <a
-                href={aurUrl}
-                target="_blank"
-                rel="noopener"
-                class="mt-2 codex-action codex-action--link"
-              >View on AUR →</a>
-            </div>
-            <div class="codex-cmd sm:min-w-[280px]" data-copy="yay -S grimoire-bin">
-              <span>
-                <span class="select-none text-paper-dim">$ </span>yay -S grimoire-bin
-              </span>
-              <button type="button" class="copy-btn" aria-label="Copy command">
-                <svg class="copy-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                  <rect x="9" y="9" width="13" height="13" rx="2" />
-                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
-                </svg>
-                <svg class="check-icon hidden" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                  <path d="M20 6 9 17l-5-5" />
-                </svg>
-              </button>
-            </div>
+    <!-- Arch -->
+    <div class="geo-card">
+      <div class="geo-card-h">
+        <svg class="dl-h-ico" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d={ICON_ARCH} /></svg>
+        4 arch (btw)
+      </div>
+      <div class="geo-card-body">
+        <p><strong>grimoire-bin</strong> · pre-built binary package on the AUR.</p>
+        <div class="dl-cmd-wrap">
+          <span class="geo-cmd-label">install with yay</span>
+          <div class="geo-cmd" data-copy="yay -S grimoire-bin">
+            <span class="dl-cmd-txt"><span class="geo-cmd-dim">$ </span>yay -S grimoire-bin</span>
+            <button type="button" class="geo-copy-btn" aria-label="Copy command">COPY</button>
           </div>
         </div>
+        <a class="dl-aur-link" href={brand.aur} target="_blank" rel="noopener">VIEW ON AUR »</a>
       </div>
-    </section>
+    </div>
 
-    <!-- VERIFY -->
-    <section class="relative mx-auto max-w-4xl px-6 pb-20">
-      <div class="glyph-rule" aria-hidden="true">
-        <span class="glyph-rule-text">☉ ⚝ ⚜ ⚝ ☉</span>
-      </div>
-      <div class="pt-10 text-center">
-        <span class="kicker kicker--centered">Provenance</span>
-        <h2 class="font-display mt-4 text-3xl text-white sm:text-4xl">Verify your download.</h2>
-        <p class="mx-auto mt-4 max-w-2xl text-sm leading-relaxed text-muted">
-          Every release ships a <code class="bg-black/40 border border-border px-1.5 py-0.5 font-mono text-xs text-paper">SHA256SUMS</code> file and a GitHub build provenance attestation. Either is enough to confirm a binary came from the GitHub Actions build, not someone re-hosting it.
+    <p class="dl-allreleases">
+      <a href={allReleasesUrl} target="_blank" rel="noopener">»» ALL RELEASES ON GITHUB ««</a>
+    </p>
+  </section>
+
+  <div class="geo-sep geo-sep--lightning" aria-hidden="true"></div>
+
+  <!-- VERIFY -->
+  <section class="dl-section">
+    <h2 class="geo-ribbon"><span class="blink">★</span> VERIFY UR <em>LOOT!!</em> <span class="blink">★</span></h2>
+    <div class="geo-card">
+      <div class="geo-card-h">⚖ provenance · trust but verify</div>
+      <div class="geo-card-body">
+        <p>
+          Every release ships a <code class="geo-code">SHA256SUMS</code> file and a GitHub build
+          provenance attestation. Either one proves a binary came from the real GitHub Actions
+          build, not some rando re-hosting it!!
         </p>
-      </div>
-
-      <div class="mt-8 grid gap-5 sm:grid-cols-2">
-        <div class="codex-entry">
-          <div class="relative">
-            <div class="flex items-baseline justify-between gap-3">
-              <div class="codex-entry-title">Checksum</div>
-              <span class="font-sc text-[11px] tracking-[0.22em] uppercase text-paper opacity-70">sha-256</span>
+        <div class="dl-twocol">
+          <div>
+            <span class="geo-cmd-label">checksum · linux / macos</span>
+            <div class="geo-cmd" data-copy="sha256sum -c SHA256SUMS">
+              <span class="dl-cmd-txt"><span class="geo-cmd-dim">$ </span>sha256sum -c SHA256SUMS</span>
+              <button type="button" class="geo-copy-btn" aria-label="Copy command">COPY</button>
             </div>
-            <div class="mt-4 space-y-3">
-              <div>
-                <span class="codex-cmd-label">Linux / macOS</span>
-                <div class="codex-cmd" data-copy="sha256sum -c SHA256SUMS">
-                  <span><span class="select-none text-paper-dim">$ </span>sha256sum -c SHA256SUMS</span>
-                  <button type="button" class="copy-btn" aria-label="Copy command">
-                    <svg class="copy-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                      <rect x="9" y="9" width="13" height="13" rx="2" />
-                      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
-                    </svg>
-                    <svg class="check-icon hidden" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                      <path d="M20 6 9 17l-5-5" />
-                    </svg>
-                  </button>
-                </div>
-              </div>
-              <div>
-                <span class="codex-cmd-label">PowerShell</span>
-                <div class="codex-cmd" data-copy="Get-FileHash <file>">
-                  <span><span class="select-none text-paper-dim">PS&gt; </span>Get-FileHash &lt;file&gt;</span>
-                  <button type="button" class="copy-btn" aria-label="Copy command">
-                    <svg class="copy-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                      <rect x="9" y="9" width="13" height="13" rx="2" />
-                      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
-                    </svg>
-                    <svg class="check-icon hidden" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                      <path d="M20 6 9 17l-5-5" />
-                    </svg>
-                  </button>
-                </div>
-              </div>
+            <span class="geo-cmd-label" style="margin-top:10px">checksum · powershell</span>
+            <div class="geo-cmd" data-copy="Get-FileHash <file>">
+              <span class="dl-cmd-txt"><span class="geo-cmd-dim">PS&gt; </span>Get-FileHash &lt;file&gt;</span>
+              <button type="button" class="geo-copy-btn" aria-label="Copy command">COPY</button>
             </div>
-            {sums && (
-              <a
-                href={sums.browser_download_url}
-                class="mt-4 codex-action codex-action--link inline-flex"
-              >Download SHA256SUMS ↓</a>
-            )}
+          </div>
+          <div>
+            <span class="geo-cmd-label">build provenance · gh cli</span>
+            <div class="geo-cmd" data-copy="gh attestation verify <file> --owner Slush97">
+              <span class="dl-cmd-txt"><span class="geo-cmd-dim">$ </span>gh attestation verify &lt;file&gt; --owner Slush97</span>
+              <button type="button" class="geo-copy-btn" aria-label="Copy command">COPY</button>
+            </div>
+            <p class="dl-verify-note">Confirms the binary was built by Grimoire's GitHub Actions workflow.</p>
           </div>
         </div>
-
-        <div class="codex-entry">
-          <div class="relative">
-            <div class="flex items-baseline justify-between gap-3">
-              <div class="codex-entry-title">Build provenance</div>
-              <span class="font-sc text-[11px] tracking-[0.22em] uppercase text-paper opacity-70">gh cli</span>
-            </div>
-            <div class="mt-4">
-              <span class="codex-cmd-label">Any platform with gh installed</span>
-              <div class="codex-cmd" data-copy="gh attestation verify <file> --owner Slush97">
-                <span class="truncate"><span class="select-none text-paper-dim">$ </span>gh attestation verify &lt;file&gt; --owner Slush97</span>
-                <button type="button" class="copy-btn" aria-label="Copy command">
-                  <svg class="copy-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                    <rect x="9" y="9" width="13" height="13" rx="2" />
-                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
-                  </svg>
-                  <svg class="check-icon hidden" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                    <path d="M20 6 9 17l-5-5" />
-                  </svg>
-                </button>
-              </div>
-            </div>
-            <p class="mt-4 text-xs text-muted">
-              Confirms the binary was built by Grimoire's GitHub Actions workflow.
-            </p>
-          </div>
-        </div>
+        {sums && (
+          <a class="dl-aur-link" href={sums.browser_download_url}>DOWNLOAD SHA256SUMS ↓</a>
+        )}
       </div>
-    </section>
-  </main>
-</Base>
+    </div>
+  </section>
+
+  <div class="geo-glyph-rule" aria-hidden="true">☉ ⚝ ⚜ ⚝ ☉</div>
+</Geo>
+
+<style>
+  .dl-intro {
+    max-width: 620px;
+    margin: 0 auto;
+    text-align: center;
+    font-family: 'Comic Neue', 'Comic Sans MS', cursive;
+    font-size: 16px;
+    color: #fff5db;
+    text-shadow: 1px 1px 0 #000;
+  }
+  .dl-intro strong { color: #ffd96a; }
+  .dl-section { max-width: 760px; margin: 0 auto; }
+  .dl-primary .geo-btn svg { justify-self: start; }
+  .dl-meta {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: 4px 14px;
+    margin: 14px 0 0;
+    font-family: 'Comic Neue', 'Comic Sans MS', cursive;
+    font-size: 13px;
+  }
+  .dl-meta dt {
+    font-weight: 700;
+    font-size: 10px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: #b660e0;
+    align-self: center;
+  }
+  .dl-meta dd { margin: 0; color: #fff5db; align-self: center; }
+  .dl-meta code { word-break: break-all; }
+  .dl-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-top: 14px;
+    font-family: 'Comic Neue', 'Comic Sans MS', cursive;
+    font-weight: 700;
+    font-size: 13px;
+  }
+  .dl-h-ico { vertical-align: -1px; margin-right: 4px; }
+  .dl-twocol {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+    align-items: start;
+  }
+  /* min-width:0 lets the columns shrink below their nowrap command text so
+     the ellipsis can engage instead of forcing the grid past the viewport. */
+  .dl-twocol > div { min-width: 0; }
+  .dl-twocol .geo-btn { width: 100%; margin-top: 6px; }
+  .dl-cmd-wrap { margin-top: 10px; }
+  .dl-cmd-txt {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .dl-aur-link {
+    display: inline-block;
+    margin-top: 12px;
+    font-family: 'Comic Neue', 'Comic Sans MS', cursive;
+    font-weight: 700;
+    font-size: 13px;
+  }
+  .dl-verify-note {
+    margin: 8px 0 0;
+    font-size: 12px;
+    color: #c8b8e8;
+    line-height: 1.5;
+  }
+  .dl-allreleases {
+    margin: 16px 0 0;
+    text-align: center;
+    font-family: 'Comic Neue', 'Comic Sans MS', cursive;
+    font-weight: 700;
+  }
+  @media (max-width: 640px) {
+    .dl-twocol { grid-template-columns: 1fr; }
+  }
+</style>
 
 <script>
-  // Copy-to-clipboard buttons
+  // Copy-to-clipboard for the .geo-cmd command tiles.
   for (const host of document.querySelectorAll<HTMLElement>('[data-copy]')) {
-    const btn = host.querySelector<HTMLButtonElement>('.copy-btn');
-    const copyIcon = host.querySelector<SVGElement>('.copy-icon');
-    const checkIcon = host.querySelector<SVGElement>('.check-icon');
+    const btn = host.querySelector<HTMLButtonElement>('.geo-copy-btn');
     if (!btn) continue;
     btn.addEventListener('click', async (e) => {
       e.preventDefault();
-      const text = host.dataset.copy ?? '';
       try {
-        await navigator.clipboard.writeText(text);
-        copyIcon?.classList.add('hidden');
-        checkIcon?.classList.remove('hidden');
-        btn.classList.add('text-accent');
+        await navigator.clipboard.writeText(host.dataset.copy ?? '');
+        const prev = btn.textContent;
+        btn.textContent = 'COPIED!!';
+        btn.classList.add('is-copied');
         setTimeout(() => {
-          checkIcon?.classList.add('hidden');
-          copyIcon?.classList.remove('hidden');
-          btn.classList.remove('text-accent');
+          btn.textContent = prev;
+          btn.classList.remove('is-copied');
         }, 1400);
       } catch {
         // Clipboard API unavailable (insecure context, etc.); fail silently.
