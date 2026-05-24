@@ -478,7 +478,7 @@ const awards = [
 
         <!-- Download CTA, Geocities style -->
         <section id="geo-download" class="download-cta">
-          <h2 class="ribbon ribbon-orange">CLICK HERE TO GET GRIMOIRE!!!</h2>
+          <h2 class="ribbon ribbon-orange"><a class="ribbon-link" href="/download">CLICK HERE TO GET GRIMOIRE!!!</a></h2>
           <ul class="gdl-grid">
             {geoDownloads.map((d) => (
               <li class={`gdl ${d.cls}`}>
@@ -515,6 +515,52 @@ const awards = [
             IT IS <span class="blink">FREE</span>!!! NO TELEMETRY!! NO ADWARE!!!
           </p>
           <p class="cta-sub">VERSION {dl.version || '1.x'}{dl.releaseDate ? ` ★ ${dl.releaseDate}` : ''}</p>
+        </section>
+
+        <!-- Sigil-chain separator -->
+        <div class="sep sep-rainbow" aria-hidden="true"></div>
+
+        <!--
+          NOW FEATURING : clapped-out affiliate banner farm. Three
+          sponsored tiles, each a link to the matching section of the
+          in-theme /tools page (the repo, the mp1 mod-profile spec slush
+          designed, and vpkmerge). Same 1996 "check out my other pages"
+          energy as the webring directly below.
+        -->
+        <section id="geo-featuring" class="featuring">
+          <h2 class="ribbon ribbon-orange">
+            <span class="blink">★</span> NOW <em>FEATURING!!!</em> <span class="blink">★</span>
+          </h2>
+          <p class="feat-sub">»» CHECK OUT DA REST OF MY SHRINE!!1! ««</p>
+          <ul class="feat-grid">
+            <li class="feat feat-repo">
+              <a href="/tools#repo">
+                <span class="feat-tag">★ OPEN SOURCE ★</span>
+                <span class="feat-ico" aria-hidden="true">📜</span>
+                <span class="feat-title">THE SOURCE CODE</span>
+                <span class="feat-pitch">read it!! fork it!! MIT 4 FREE!!</span>
+                <span class="feat-cta blink">»» VIEW REPO!! ««</span>
+              </a>
+            </li>
+            <li class="feat feat-spec">
+              <a href="/tools#spec">
+                <span class="feat-tag">★ I MADE THIS ★</span>
+                <span class="feat-ico" aria-hidden="true">⚗</span>
+                <span class="feat-title">MOD PROFILE SPEC</span>
+                <span class="feat-pitch">trade loadouts as tiny mp1: codes!!</span>
+                <span class="feat-cta blink">»» READ DA SPEC!! ««</span>
+              </a>
+            </li>
+            <li class="feat feat-vpk">
+              <a href="/tools#vpkmerge">
+                <span class="feat-tag">★ COMPANION TOOL ★</span>
+                <span class="feat-ico" aria-hidden="true">⚒</span>
+                <span class="feat-title">VPKMERGE</span>
+                <span class="feat-pitch">smush VPKs!! beat da 100 mod cap!!</span>
+                <span class="feat-cta blink">»» GET VPKMERGE!! ««</span>
+              </a>
+            </li>
+          </ul>
         </section>
 
         <!-- Lightning-bar separator -->
@@ -2960,6 +3006,24 @@ const awards = [
   .stage-geocities .ribbon-orange {
     background: linear-gradient(90deg, #a82010 0%, #ffd96a 50%, #a82010 100%);
   }
+  /* The download-CTA ribbon is itself a link to /download. Override the
+     stage's default purple/underline link styling so it reads as the
+     dark-on-gold banner, with a subtle hover lift for affordance. */
+  .stage-geocities .ribbon-link {
+    display: block;
+    margin: -8px -16px;
+    padding: 8px 16px;
+    color: inherit;
+    text-decoration: none;
+    transition: filter 120ms ease, transform 120ms ease;
+  }
+  .stage-geocities .ribbon-link:visited { color: inherit; }
+  .stage-geocities .ribbon-link:hover {
+    color: #5a0a18;
+    filter: brightness(1.08);
+    text-decoration: underline;
+  }
+  .stage-geocities .ribbon-link:active { transform: translateY(1px); }
   .stage-geocities .blink {
     color: #c44a2a;
     animation: geo-blink 0.8s steps(2, end) infinite;
@@ -3244,6 +3308,105 @@ const awards = [
     text-shadow: 1px 1px 0 #000;
   }
   .stage-geocities .cta-sub .blink { color: #c44a2a; }
+
+  /* ─── NOW FEATURING : affiliate banner trio ─── */
+  .stage-geocities .featuring { margin: 28px 0; }
+  .stage-geocities .feat-sub {
+    margin: 0 0 16px;
+    font-family: 'Comic Neue', 'Comic Sans MS', cursive;
+    font-weight: 700;
+    color: #d4af5a;
+    font-size: 14px;
+    text-align: center;
+    text-shadow: 1px 1px 0 #000;
+  }
+  .stage-geocities .feat-grid {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+  }
+  .stage-geocities .feat { display: flex; }
+  .stage-geocities .feat > a {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 12px 10px 10px;
+    text-decoration: none;
+    color: #fff;
+    background: linear-gradient(180deg, rgba(40, 14, 92, 0.65) 0%, rgba(10, 4, 32, 0.95) 100%);
+    border: 3px ridge #e8b840;
+    box-shadow: inset 0 0 20px rgba(120, 40, 180, 0.3), 3px 3px 0 #000;
+    transition: transform 90ms ease, box-shadow 90ms ease;
+  }
+  .stage-geocities .feat > a:hover {
+    transform: translate(-1px, -1px);
+    box-shadow: inset 0 0 24px rgba(168, 32, 100, 0.4), 5px 5px 0 #000;
+  }
+  .stage-geocities .feat > a:active { transform: translate(2px, 2px); box-shadow: inset 0 0 20px rgba(120,40,180,0.3), 1px 1px 0 #000; }
+  .stage-geocities .feat-repo > a { border-color: #8db04a; }
+  .stage-geocities .feat-spec > a { border-color: #e8b840; }
+  .stage-geocities .feat-vpk  > a { border-color: #b660e0; }
+  .stage-geocities .feat-tag {
+    align-self: stretch;
+    margin: -12px -10px 4px;
+    padding: 3px 6px;
+    font-family: 'Comic Neue', 'Comic Sans MS', cursive;
+    font-weight: 700;
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-align: center;
+    text-transform: uppercase;
+    color: #1a0a08;
+    background: linear-gradient(90deg, #5a0a18, #a82010 30%, #e8b840 50%, #a82010 70%, #5a0a18);
+    border-bottom: 2px solid #1a0a08;
+    text-shadow: 1px 1px 0 rgba(255, 248, 212, 0.6);
+  }
+  .stage-geocities .feat-ico {
+    font-size: 30px;
+    line-height: 1;
+    filter: drop-shadow(1px 1px 0 #000);
+    animation: feat-bob 2.2s ease-in-out infinite;
+  }
+  .stage-geocities .feat-spec .feat-ico { animation-delay: 0.3s; }
+  .stage-geocities .feat-vpk .feat-ico { animation-delay: 0.6s; }
+  @keyframes feat-bob {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-3px); }
+  }
+  .stage-geocities .feat-title {
+    font-family: 'Comic Neue', 'Comic Sans MS', 'Impact', sans-serif;
+    font-weight: 700;
+    font-size: 16px;
+    line-height: 1.05;
+    text-align: center;
+    background: linear-gradient(180deg, #fff8d4 0%, #ffd96a 40%, #e8b840 70%, #a87018 100%);
+    -webkit-background-clip: text;
+            background-clip: text;
+    color: transparent;
+    filter: drop-shadow(0 1px 0 rgba(10, 6, 18, 0.9));
+  }
+  .stage-geocities .feat-pitch {
+    font-family: 'Comic Neue', 'Comic Sans MS', cursive;
+    font-size: 11px;
+    line-height: 1.35;
+    text-align: center;
+    color: #fff5db;
+    text-shadow: 1px 1px 0 #000;
+  }
+  .stage-geocities .feat-cta {
+    margin-top: 2px;
+    font-family: 'Comic Neue', 'Comic Sans MS', cursive;
+    font-weight: 700;
+    font-size: 12px;
+    text-align: center;
+    color: #ffd96a !important;
+    text-shadow: 1px 1px 0 #000;
+  }
 
   /* ─── Webring : framed centerpiece with MIT medallion ─── */
   .stage-geocities .webring {
@@ -3701,6 +3864,7 @@ const awards = [
     .stage-geocities .wordart { font-size: 36px; }
     .stage-geocities .gdl-grid { grid-template-columns: 1fr; }
     .stage-geocities .gdl-grid li:last-child { grid-column: span 1; }
+    .stage-geocities .feat-grid { grid-template-columns: 1fr; }
     .stage-geocities .frameset {
       grid-template-columns: minmax(0, 1fr);
       gap: 14px;

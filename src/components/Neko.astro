@@ -1,14 +1,16 @@
 ---
 /*
  * Neko.astro
- * The classic cursor-chasing cat (oneko). Self-hosted sprite, no CDN,
- * no telemetry. Sits on a fixed pointer-events:none layer so it never
- * blocks clicks. Disabled entirely under prefers-reduced-motion and on
- * coarse-pointer (touch) devices, where there is no cursor to chase.
+ * The classic cursor-chasing cat (oneko), wearing the "lucy" skin. Self-hosted
+ * sprite (public/neko/lucy.png), no CDN, no telemetry. Sits on a fixed
+ * pointer-events:none layer so it never blocks clicks. Disabled entirely under
+ * prefers-reduced-motion and on coarse-pointer (touch) devices, where there is
+ * no cursor to chase.
  */
 ---
 
 <script>
+  const SPRITE = '/neko/lucy.png';
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const coarsePointer = window.matchMedia('(pointer: coarse)').matches;
 
@@ -56,7 +58,7 @@
       nekoEl.style.left = `${nekoPosX - 16}px`;
       nekoEl.style.top = `${nekoPosY - 16}px`;
       nekoEl.style.zIndex = '2147483647';
-      nekoEl.style.backgroundImage = "url('/oneko.gif')";
+      nekoEl.style.backgroundImage = `url('${SPRITE}')`;
 
       document.body.appendChild(nekoEl);
 
