@@ -112,7 +112,11 @@ GRIMOIRE(1)                      User Commands                      GRIMOIRE(1)
        Arch / Manjaro:
          <span class="cmd">$ yay -S grimoire-bin</span>
 
-       Debian / Ubuntu:
+       Debian / Ubuntu (apt, auto-updates):
+         <span class="cmd">$ # one-time repo setup at grimoiremods.com/download</span>
+         <span class="cmd">$ sudo apt update &amp;&amp; sudo apt install grimoire</span>
+
+       Debian / Ubuntu (.deb, manual):
          <a class="cmd-link" href={dl.linuxDeb?.browser_download_url ?? dl.releaseUrl}>{dl.linuxDeb?.name ?? 'grimoire.deb'}</a>
          <span class="cmd">$ sudo apt install ./{dl.linuxDeb?.name ?? 'grimoire.deb'}</span>
 

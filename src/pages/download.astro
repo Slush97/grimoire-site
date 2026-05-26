@@ -17,6 +17,11 @@ const sums = dl.sha256Sums;
 const { version, releaseDate, releaseUrl } = dl;
 const allReleasesUrl = `${brand.github}/releases`;
 
+// One-shot apt repo setup: install the signing key, add the source list, then
+// install. Kept as a single copyable command for the /download command tile.
+const DEB_APT_SETUP =
+  'sudo install -d -m 0755 /etc/apt/keyrings && curl -fsSL https://apt.grimoiremods.com/grimoire.gpg | sudo tee /etc/apt/keyrings/grimoire.gpg >/dev/null && echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/grimoire.gpg] https://apt.grimoiremods.com stable main" | sudo tee /etc/apt/sources.list.d/grimoire.list >/dev/null && sudo apt update && sudo apt install grimoire';
+
 // Brand SVG paths (Simple Icons)
 const ICON_WINDOWS =
   'M0,0H11.377V11.372H0ZM12.623,0H24V11.372H12.623ZM0,12.623H11.377V24H0Zm12.623,0H24V24H12.623';
@@ -133,9 +138,16 @@ const ICON_ARCH =
             )}
           </div>
           <div>
-            <p><strong>Debian / Ubuntu</strong> · .deb, installs via apt.</p>
+            <p><strong>Debian / Ubuntu</strong> · apt repo, auto-updates via <code class="geo-code">apt upgrade</code>!!</p>
+            <div class="dl-cmd-wrap">
+              <span class="geo-cmd-label">add repo + install</span>
+              <div class="geo-cmd" data-copy={DEB_APT_SETUP}>
+                <span class="dl-cmd-txt"><span class="geo-cmd-dim">$ </span>{DEB_APT_SETUP}</span>
+                <button type="button" class="geo-copy-btn" aria-label="Copy command">COPY</button>
+              </div>
+            </div>
             <a class="geo-btn geo-btn--green geo-btn--center" href={deb?.browser_download_url ?? releaseUrl}>
-              <span class="geo-btn-arrow">▶</span><span>{deb ? `.DEB · ${fmtBytes(deb.size)}` : 'DOWNLOAD'}</span>
+              <span class="geo-btn-arrow">▶</span><span>{deb ? `OR JUST THE .DEB · ${fmtBytes(deb.size)}` : 'DOWNLOAD .DEB'}</span>
             </a>
             {deb && (
               <div class="dl-cmd-wrap">
