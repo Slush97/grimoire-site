@@ -43,7 +43,7 @@ pnpm wrangler deploy  # deploy to Cloudflare
 
 | Var | Where | Purpose |
 |---|---|---|
-| `GITHUB_TOKEN` | local `.env` or Worker secret | **Optional.** Authenticates the build-time fetch of the latest release for `/download`. Skips the anonymous 60/hr GitHub rate limit. Use a fine-grained PAT, Contents: Read-only on `Slush97/grimoire`. |
+| `GITHUB_TOKEN_SITE` | local `.env` or Worker secret | **Optional.** Authenticates the build-time fetch of the latest release for `/download`. Skips the anonymous 60/hr GitHub rate limit. Use a fine-grained PAT, Contents: Read-only on `Slush97/grimoire`. |
 
 ## Conventions
 

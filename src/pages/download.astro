@@ -84,6 +84,21 @@ const ICON_ARCH =
       </div>
     )}
 
+    <!-- Windows portable .exe (secondary Windows option) -->
+    <div class="geo-card">
+      <div class="geo-card-h">
+        <svg class="dl-h-ico" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d={ICON_WINDOWS} /></svg>
+        windows portable .exe · no install
+      </div>
+      <div class="geo-card-body">
+        <p>Don't wanna install?? Grab the portable!! Single executable, same app as the installer, just rawer!!</p>
+        {winPortable && <p><code class="geo-code">{winPortable.name}</code></p>}
+        <a class="geo-btn geo-btn--blue geo-btn--center" href={winPortable?.browser_download_url ?? releaseUrl}>
+          <span class="geo-btn-arrow">▶</span><span>{winPortable ? `PORTABLE · ${fmtBytes(winPortable.size)}` : 'DOWNLOAD'}</span>
+        </a>
+      </div>
+    </div>
+
     <div class="geo-notice">
       <span class="geo-notice-bang" aria-hidden="true">⚠</span>
       <span>
@@ -98,21 +113,6 @@ const ICON_ARCH =
   <!-- OTHER PLATFORMS -->
   <section id="other" class="dl-section">
     <h2 class="geo-ribbon"><span class="blink">★</span> 4 DA <em>UNWINDOWED</em> <span class="blink">★</span></h2>
-
-    <!-- Windows portable -->
-    <div class="geo-card">
-      <div class="geo-card-h">
-        <svg class="dl-h-ico" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d={ICON_WINDOWS} /></svg>
-        windows portable .exe
-      </div>
-      <div class="geo-card-body">
-        <p>Single executable, NO INSTALL!! Same app as the installer, just rawer!!</p>
-        {winPortable && <p><code class="geo-code">{winPortable.name}</code></p>}
-        <a class="geo-btn geo-btn--blue geo-btn--center" href={winPortable?.browser_download_url ?? releaseUrl}>
-          <span class="geo-btn-arrow">▶</span><span>{winPortable ? `PORTABLE · ${fmtBytes(winPortable.size)}` : 'DOWNLOAD'}</span>
-        </a>
-      </div>
-    </div>
 
     <!-- Linux -->
     <div class="geo-card">

@@ -72,13 +72,69 @@ export interface Release {
 }
 
 /*
+ * Pinned fallback release. The /download CTA is the site's primary
+ * conversion, but it depends on a build-time fetch of the GitHub release
+ * feed (getLatestRelease). That fetch runs unauthenticated on the
+ * Cloudflare build, whose egress IPs share GitHub's anonymous 60/hr API
+ * limit, so it intermittently returns null and the page used to ship with
+ * no download links at all ("couldn't reach github").
+ *
+ * When the live fetch fails, getDownloadUrls falls back to this snapshot so
+ * the setup .exe and the other platform assets are always downloadable.
+ * Live data always wins when the fetch succeeds.
+ *
+ * BUMP THIS on each Grimoire release, alongside the redeploy this site
+ * already needs (see grimoire-site/CLAUDE.md: "/download is build-time data").
+ */
+const PINNED_RELEASE: Release = {
+  tag_name: 'v1.14.2',
+  name: 'v1.14.2',
+  published_at: '2026-05-29T09:30:58Z',
+  html_url: 'https://github.com/Slush97/grimoire/releases/tag/v1.14.2',
+  body: '',
+  assets: [
+    {
+      name: 'Grimoire-Setup-1.14.2.exe',
+      size: 190595617,
+      browser_download_url:
+        'https://github.com/Slush97/grimoire/releases/download/v1.14.2/Grimoire-Setup-1.14.2.exe',
+    },
+    {
+      name: 'Grimoire-Portable-1.14.2.exe',
+      size: 190276908,
+      browser_download_url:
+        'https://github.com/Slush97/grimoire/releases/download/v1.14.2/Grimoire-Portable-1.14.2.exe',
+    },
+    {
+      name: 'Grimoire-1.14.2.AppImage',
+      size: 219254293,
+      browser_download_url:
+        'https://github.com/Slush97/grimoire/releases/download/v1.14.2/Grimoire-1.14.2.AppImage',
+    },
+    {
+      name: 'grimoire_1.14.2_amd64.deb',
+      size: 180239502,
+      browser_download_url:
+        'https://github.com/Slush97/grimoire/releases/download/v1.14.2/grimoire_1.14.2_amd64.deb',
+    },
+    {
+      name: 'SHA256SUMS',
+      size: 370,
+      browser_download_url:
+        'https://github.com/Slush97/grimoire/releases/download/v1.14.2/SHA256SUMS',
+    },
+  ],
+};
+
+/*
  * Memoized per Node process. Astro builds each page in the same Vite
  * process, so /index and /download share one network round-trip.
  */
 let _releasePromise: Promise<Release | null> | null = null;
 
 async function fetchRelease(): Promise<Release | null> {
-  const ghToken = import.meta.env.GITHUB_TOKEN ?? process.env.GITHUB_TOKEN;
+  const ghToken =
+    import.meta.env.GITHUB_TOKEN_SITE ?? process.env.GITHUB_TOKEN_SITE;
   const headers: Record<string, string> = {
     Accept: 'application/vnd.github+json',
     'User-Agent': 'grimoire-site-build',
@@ -120,8 +176,10 @@ export interface DownloadUrls {
  * Stages that just want "the download link" should use primaryHref.
  */
 export async function getDownloadUrls(): Promise<DownloadUrls> {
-  const release = await getLatestRelease();
-  const assets = release?.assets ?? [];
+  // Live data wins; fall back to the pinned snapshot when the build-time
+  // fetch fails so the download links are never empty.
+  const release = (await getLatestRelease()) ?? PINNED_RELEASE;
+  const assets = release.assets ?? [];
   const find = (pred: (n: string) => boolean) =>
     assets.find((a) => pred(a.name.toLowerCase())) ?? null;
 
