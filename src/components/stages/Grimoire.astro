@@ -260,6 +260,55 @@ const motes = [
 
   <!-- ─── DIVIDER ─── -->
   <div class="glyph-rule" aria-hidden="true">
+    <span>☉ ☽ ⚝ ☽ ☉</span>
+  </div>
+
+  <!-- ─── THE WIRELESS ─── -->
+  {/* A real radio behind the occult dressing: free, listener-kept
+      dark-ambient streams (SomaFM, somafm.com), played by the shared
+      era-radio engine (on by default, rides the TIME MACHINE). */}
+  <section class="wireless">
+    <div class="wrap">
+      <span class="kicker kicker--centered">The wireless</span>
+      <h2>Voices, drawn<br />from the aether.</h2>
+      <p class="section-lead">
+        Three frequencies of dark ambience, broadcast freely and kept alive
+        by listeners. The séance begins of its own accord; bid it cease,
+        and it obeys.
+      </p>
+      <div class="wireless-rig" data-era-radio>
+        <div class="freq-list" role="group" aria-label="Frequencies">
+          <button type="button" class="freq" data-radio-station="doomed" aria-pressed="true">
+            <span class="freq-sigil" aria-hidden="true">☥</span>
+            <span class="freq-name">Doomed</span>
+            <span class="freq-note">industrial gloom</span>
+          </button>
+          <button type="button" class="freq" data-radio-station="dronezone" aria-pressed="false">
+            <span class="freq-sigil" aria-hidden="true">☽</span>
+            <span class="freq-name">Drone Zone</span>
+            <span class="freq-note">weightless drones</span>
+          </button>
+          <button type="button" class="freq" data-radio-station="darkzone" aria-pressed="false">
+            <span class="freq-sigil" aria-hidden="true">⚝</span>
+            <span class="freq-name">The Dark Zone</span>
+            <span class="freq-note">deeper still</span>
+          </button>
+        </div>
+        <button
+          type="button"
+          class="parchment-btn parchment-btn--accent wireless-btn"
+          data-radio-play
+          data-label-play="Begin the séance"
+          data-label-pause="Break the circle"
+          aria-pressed="false"
+        >Begin the séance</button>
+        <p class="wireless-status" data-radio-status aria-live="polite">The aether is silent.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── DIVIDER ─── -->
+  <div class="glyph-rule" aria-hidden="true">
     <span>✶ ⚝ ☥ ⚝ ✶</span>
   </div>
 
@@ -991,6 +1040,71 @@ const motes = [
   .stage-grimoire .links a:hover { color: #f97316; }
   .stage-grimoire .links .sep { opacity: 0.4; }
 
+  /* ─── The wireless ─── */
+  .stage-grimoire .wireless {
+    padding: 56px 0;
+    position: relative;
+    z-index: 2;
+  }
+  .stage-grimoire .wireless > .wrap { text-align: center; }
+  .stage-grimoire .wireless h2 {
+    margin: 14px 0 14px;
+    font-size: clamp(28px, 4.5vw, 42px);
+    line-height: 1.08;
+    font-weight: 400;
+    text-align: center;
+  }
+  .stage-grimoire .wireless-rig { margin-top: 32px; }
+  .stage-grimoire .freq-list {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 14px;
+    margin-bottom: 28px;
+  }
+  .stage-grimoire .freq {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    min-width: 150px;
+    padding: 14px 18px;
+    background: none;
+    border: 1px solid rgba(231, 210, 163, 0.25);
+    color: rgba(231, 210, 163, 0.85);
+    font-family: 'IM Fell English', serif;
+    cursor: pointer;
+    transition: border-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+  }
+  .stage-grimoire .freq:hover { border-color: rgba(231, 210, 163, 0.6); color: #e7d2a3; }
+  .stage-grimoire .freq.is-on {
+    border-color: rgba(249, 115, 22, 0.65);
+    color: #e7d2a3;
+    box-shadow: 0 0 18px rgba(249, 115, 22, 0.18), inset 0 0 14px rgba(249, 115, 22, 0.08);
+  }
+  .stage-grimoire .freq-sigil { font-size: 20px; }
+  .stage-grimoire .freq.is-on .freq-sigil { color: #f97316; }
+  .stage-grimoire .freq-name {
+    font-family: 'IM Fell English SC', 'IM Fell English', serif;
+    font-size: 15px;
+    letter-spacing: 0.08em;
+  }
+  .stage-grimoire .freq-note {
+    font-size: 12px;
+    font-style: italic;
+    opacity: 0.65;
+  }
+  .stage-grimoire .wireless-status {
+    margin: 18px 0 0;
+    font-style: italic;
+    font-size: 15px;
+    color: rgba(231, 210, 163, 0.7);
+  }
+  .stage-grimoire .wireless-rig.is-playing .wireless-status {
+    color: #e7d2a3;
+    text-shadow: 0 0 10px rgba(249, 115, 22, 0.35);
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .stage-grimoire .ghost-sigil svg,
     .stage-grimoire .mote,
@@ -1001,6 +1115,23 @@ const motes = [
 
   @media (max-width: 720px) {
     .stage-grimoire .hero { padding: 64px 0 48px; }
-    .stage-grimoire .entries, .stage-grimoire .plates, .stage-grimoire .colophon { padding: 48px 0; }
+    .stage-grimoire .entries, .stage-grimoire .plates, .stage-grimoire .colophon,
+    .stage-grimoire .wireless { padding: 48px 0; }
+    .stage-grimoire .freq { min-width: calc(50% - 14px); }
   }
 </style>
+
+<script>
+  import { bindEraRadioTuner } from '../../scripts/era-radio';
+
+  bindEraRadioTuner({
+    era: 'grimoire',
+    widget: document.querySelector<HTMLElement>('.stage-grimoire [data-era-radio]'),
+    text: {
+      idle: 'The aether rests, by your decree.',
+      waiting: 'Stir, and the voices will come.',
+      live: 'The circle holds: {st} speaks.',
+      error: 'The spirits decline this frequency. Try another.',
+    },
+  });
+</script>

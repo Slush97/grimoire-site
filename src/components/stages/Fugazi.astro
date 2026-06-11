@@ -458,6 +458,36 @@ const compliance = [
     </div>
   </section>
 
+  <!-- ─── OFFICE RADIO ─── -->
+  {/* A real player behind the SaaS satire: free, listener-supported
+      streams (laut.fm, SomaFM), driven by the shared era-radio engine
+      (sound on by default, follows the TIME MACHINE between channels). */}
+  <section class="radio-band">
+    <div class="wrap">
+      <div class="radio-card" data-era-radio>
+        <div class="radio-copy">
+          <span class="eyebrow">Grimoire FM</span>
+          <strong class="radio-title">Deep-work radio, zero meetings.</strong>
+          <span class="radio-status" data-radio-status aria-live="polite">Paused. Focus metrics at risk.</span>
+        </div>
+        <div class="radio-controls">
+          <div class="st-chips" role="group" aria-label="Stations">
+            <button type="button" class="st-chip" data-radio-station="lofi" aria-pressed="true">Lofi</button>
+            <button type="button" class="st-chip" data-radio-station="fluid" aria-pressed="false">Fluid</button>
+          </div>
+          <button
+            type="button"
+            class="btn btn-primary"
+            data-radio-play
+            data-label-play="Start listening"
+            data-label-pause="Pause"
+            aria-pressed="false"
+          >Start listening</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- ─── FINAL CTA ─── -->
   <section class="cta-final" id="contact">
     <div class="wrap">
@@ -491,7 +521,6 @@ const compliance = [
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
-    display: block;
     min-height: auto;
     overflow: visible;
   }
@@ -1201,6 +1230,78 @@ const compliance = [
     font-weight: 500;
   }
 
+  /* ─── Office radio ─── */
+  .stage-fugazi .radio-band {
+    padding: 0 0 96px;
+    background: #ffffff;
+  }
+  .stage-fugazi .radio-card {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    padding: 28px 32px;
+    background: #fafafa;
+    border: 1px solid #e4e4e7;
+    border-radius: 16px;
+  }
+  .stage-fugazi .radio-copy {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .stage-fugazi .radio-title {
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+  .stage-fugazi .radio-status {
+    font-size: 13px;
+    color: #71717a;
+  }
+  .stage-fugazi .radio-card.is-playing .radio-status::before {
+    content: '';
+    display: inline-block;
+    width: 7px;
+    height: 7px;
+    margin-right: 7px;
+    border-radius: 50%;
+    background: #22c55e;
+    animation: fugazi-radio-pulse 1.6s ease-in-out infinite;
+  }
+  @keyframes fugazi-radio-pulse {
+    50% { opacity: 0.35; }
+  }
+  .stage-fugazi .radio-controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 16px;
+  }
+  .stage-fugazi .st-chips {
+    display: flex;
+    gap: 8px;
+  }
+  .stage-fugazi .st-chip {
+    padding: 7px 14px;
+    border-radius: 100px;
+    border: 1px solid #e4e4e7;
+    background: #ffffff;
+    color: #52525b;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: border-color 0.15s ease, color 0.15s ease;
+  }
+  .stage-fugazi .st-chip:hover { border-color: #a1a1aa; color: #0a0a0a; }
+  .stage-fugazi .st-chip.is-on {
+    background: #0a0a0a;
+    border-color: #0a0a0a;
+    color: #ffffff;
+  }
+
   /* ─── Final CTA ─── */
   .stage-fugazi .cta-final {
     padding: 120px 24px 140px;
@@ -1253,3 +1354,18 @@ const compliance = [
     .stage-fugazi .wm-mono { font-size: 12px; }
   }
 </style>
+
+<script>
+  import { bindEraRadioTuner } from '../../scripts/era-radio';
+
+  bindEraRadioTuner({
+    era: 'fugazi',
+    widget: document.querySelector<HTMLElement>('.stage-fugazi [data-era-radio]'),
+    text: {
+      idle: 'Muted. Focus metrics at risk.',
+      waiting: 'Audio pending your first interaction.',
+      live: 'Streaming {st}. Deep work engaged.',
+      error: 'Stream degraded. Our team has been notified (it has not).',
+    },
+  });
+</script>

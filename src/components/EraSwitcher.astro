@@ -29,6 +29,13 @@ import { ERAS } from '../data/eras';
     <span class="era-remote-ir" aria-hidden="true"></span>
     <button type="button" class="era-remote-btn" data-era-next aria-label="Next era">CH ▲</button>
   </div>
+  <button
+    type="button"
+    class="era-remote-snd"
+    data-era-sound
+    aria-pressed="true"
+    title="Toggle the era radio. Each channel has its own station."
+  >♪ SOUND: ON</button>
   <ul class="era-remote-channels" id="era-channels" hidden>
     {ERAS.map((e, i) => (
       <li>
@@ -58,6 +65,14 @@ import { ERAS } from '../data/eras';
     eraIndex,
     type EraId,
   } from '../data/eras';
+  import {
+    initRadioEngine,
+    toggleSound,
+    subscribe as subscribeRadio,
+    getState as getRadioState,
+    stationFor,
+    type RadioState,
+  } from '../scripts/era-radio';
 
   const root = document.documentElement;
   const remote = document.querySelector<HTMLElement>('[data-era-remote]');
@@ -153,6 +168,31 @@ import { ERAS } from '../data/eras';
   });
 
   paintLed(current());
+
+  /*
+   * The TV's audio. The engine owns the stream (one station per
+   * channel, slow fade-in, era:change retunes it); the remote carries
+   * the master sound toggle and a tiny now-playing readout. The 1996
+   * channel runs its own radio when its widget is on the page, so the
+   * label points there instead of claiming the channel.
+   */
+  const sndBtn = remote?.querySelector<HTMLButtonElement>('[data-era-sound]');
+  function paintSound(s: RadioState) {
+    if (!sndBtn) return;
+    sndBtn.setAttribute('aria-pressed', String(s.on));
+    let label: string;
+    if (!s.on) label = '♪ SOUND: OFF';
+    else if (s.geoExternal && s.era === 'geocities') label = '♪ 1996 ON AIR';
+    else if (s.status === 'playing') label = `♪ ${stationFor(s.era).label.toUpperCase()}`;
+    else if (s.status === 'blocked') label = '♪ TAP FOR SOUND';
+    else if (s.status === 'error') label = '♪ NO SIGNAL';
+    else label = '♪ SOUND: ON';
+    sndBtn.textContent = label;
+  }
+  initRadioEngine();
+  subscribeRadio(paintSound);
+  paintSound(getRadioState());
+  sndBtn?.addEventListener('click', () => toggleSound());
 </script>
 
 <style>
@@ -232,6 +272,28 @@ import { ERAS } from '../data/eras';
     background: radial-gradient(circle at 35% 35%, #6a1a1a, #2a0505 70%);
     border: 1px solid #000;
   }
+  .era-remote-snd {
+    display: block;
+    width: 100%;
+    padding: 6px 8px;
+    background: linear-gradient(180deg, #2c2c2c, #161616);
+    border: 1px solid #000;
+    border-radius: 7px;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 2px 0 #000;
+    color: #9ef0a8;
+    font: 700 10px/1 'JetBrains Mono', ui-monospace, monospace;
+    letter-spacing: 0.08em;
+    text-align: center;
+    cursor: pointer;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .era-remote-snd:active {
+    transform: translateY(1px);
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.7);
+  }
+  .era-remote-snd[aria-pressed='false'] { color: #8a8a8a; }
   .era-remote-channels {
     list-style: none;
     margin: 0;

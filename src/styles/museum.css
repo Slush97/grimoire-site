@@ -109,8 +109,15 @@ svg {
  * inline script in Museum.astro and flipped at runtime by EraSwitcher.
  * The :not([data-era]) rule keeps the page usable with JS disabled
  * (you just live in 1996 forever, which is fine).
+ *
+ * The `html` prefix on the hide rule is load-bearing: it lifts its
+ * specificity to (0,2,1) so a stage's Astro-scoped root rule (which
+ * compiles to `.stage-x[data-astro-cid-...]`, (0,2,0), and is bundled
+ * after this file) can never re-show a hidden stage by declaring
+ * `display` on its own root. Stages must not set `display` on their
+ * root; the show rules below own it.
  */
-.stage[data-era] { display: none; }
+html .stage[data-era] { display: none; }
 html:not([data-era]) .stage-geocities,
 html[data-era="terminal"]  .stage-terminal,
 html[data-era="win95"]     .stage-win95,

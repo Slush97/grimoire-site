@@ -239,6 +239,47 @@ SOURCE: GITHUB.COM/SLUSH97/GRIMOIRE</pre>
     </div>
   </article>
 
+  <!-- Internet Radio window. Standard chrome, so the window manager
+       picks it up (focus, drag, close) via .win-window. The audio is
+       the shared era-radio engine (sound on by default, rides the TIME
+       MACHINE); stations are free, listener-supported streams (Kohina
+       plays demoscene and old game music, very 1995). -->
+  <article class="win-window win-radio" data-era-radio>
+    <div class="titlebar">
+      <span class="ico-mini" aria-hidden="true">
+        <svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="6.5" fill="#c0c0c0" stroke="#000" stroke-width="0.5" /><circle cx="8" cy="8" r="4" fill="none" stroke="#888" stroke-width="0.5" /><circle cx="8" cy="8" r="1.6" fill="#5599cc" stroke="#000" stroke-width="0.4" /></svg>
+      </span>
+      <span class="title">Internet Radio</span>
+      <span class="ctrls">
+        <button type="button" class="ctrl" aria-label="Minimize">_</button>
+        <button type="button" class="ctrl ctrl-close" aria-label="Close">✕</button>
+      </span>
+    </div>
+    <div class="menubar">
+      <span><u>S</u>tation</span><span><u>O</u>ptions</span><span><u>H</u>elp</span>
+    </div>
+    <div class="radio-lcd">
+      <span data-radio-track>KOHINA</span>
+      <span class="lcd-live" aria-hidden="true">▶ LIVE</span>
+    </div>
+    <div class="radio-controls">
+      <button
+        type="button"
+        class="winbtn radio-play"
+        data-radio-play
+        data-label-play="▶"
+        data-label-pause="■"
+        aria-pressed="false"
+        aria-label="Play or stop"
+      >▶</button>
+      <button type="button" class="winbtn radio-preset" data-radio-station="kohina" aria-pressed="true">Kohina</button>
+      <button type="button" class="winbtn radio-preset" data-radio-station="u80s" aria-pressed="false">Und. 80s</button>
+    </div>
+    <div class="statusbar">
+      <span class="status-cell status-cell-wide" data-radio-status aria-live="polite">Ready</span>
+    </div>
+  </article>
+
   <!-- Start menu (popup above the taskbar). Initially hidden; the Start
        button toggles it. Items either link out, focus a window, or
        "shut down" by scrolling into the next stage's BSOD transition. -->
@@ -320,6 +361,12 @@ SOURCE: GITHUB.COM/SLUSH97/GRIMOIRE</pre>
           <svg viewBox="0 0 16 16"><path d="M 1 4 L 6 4 L 7 6 L 15 6 L 15 13 L 1 13 Z" fill="#ffcc66" stroke="#000" stroke-width="0.5" /><rect x="8" y="8" width="5" height="3.5" fill="#5599cc" stroke="#000" stroke-width="0.4" /></svg>
         </span>
         Exploring - PICTURES
+      </button>
+      <button type="button" class="task" data-window=".win-radio">
+        <span class="task-ico" aria-hidden="true">
+          <svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="6.5" fill="#c0c0c0" stroke="#000" stroke-width="0.5" /><circle cx="8" cy="8" r="1.6" fill="#5599cc" stroke="#000" stroke-width="0.4" /></svg>
+        </span>
+        Internet Radio
       </button>
     </span>
     <span class="tray">
@@ -953,6 +1000,56 @@ SOURCE: GITHUB.COM/SLUSH97/GRIMOIRE</pre>
   }
 
   /* ─── Responsive ─── */
+  /* ─── Internet Radio window ─── */
+  .stage-win95 .win-radio {
+    width: 270px;
+    max-width: calc(100vw - 64px);
+    right: 48px;
+    bottom: 64px;
+  }
+  .stage-win95 .radio-lcd {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 8px;
+    margin: 6px 6px 4px;
+    padding: 7px 10px;
+    background: #000;
+    border: 1px solid #808080;
+    border-bottom-color: #ffffff;
+    border-right-color: #ffffff;
+    color: #00ff00;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+  .stage-win95 .lcd-live { visibility: hidden; font-size: 10px; }
+  .stage-win95 .win-radio.is-playing .lcd-live {
+    visibility: visible;
+    animation: win95-lcd-blink 1.2s steps(2, end) infinite;
+  }
+  @keyframes win95-lcd-blink {
+    50% { opacity: 0.3; }
+  }
+  .stage-win95 .radio-controls {
+    display: flex;
+    gap: 4px;
+    margin: 0 6px 6px;
+  }
+  .stage-win95 .radio-play { min-width: 44px; }
+  .stage-win95 .radio-preset { flex: 1; }
+  .stage-win95 .radio-preset.is-on {
+    border-top-color: #000;
+    border-left-color: #000;
+    border-bottom-color: #fff;
+    border-right-color: #fff;
+    background: #b8b8b8;
+    font-weight: 700;
+  }
+
   @media (max-width: 720px) {
     .stage-win95 { padding: 16px 12px 60px; }
     .stage-win95 .desktop-icons { display: none; }
@@ -987,6 +1084,14 @@ SOURCE: GITHUB.COM/SLUSH97/GRIMOIRE</pre>
     .stage-win95 .pics-view { height: 232px; }
     .stage-win95 .pics-grid { grid-template-columns: repeat(2, 1fr); }
     .stage-win95 .pic-name { font-size: 10px; }
+    /* Radio stacks above the Setup window's strip; tap-to-focus raises
+       whichever one you want, same as the rest. */
+    .stage-win95 .win-radio {
+      width: calc(100% - 24px);
+      left: 12px;
+      right: 12px;
+      bottom: 150px;
+    }
   }
 </style>
 
@@ -1240,4 +1345,19 @@ SOURCE: GITHUB.COM/SLUSH97/GRIMOIRE</pre>
       selectIcon(null);
     });
   })();
+</script>
+
+<script>
+  import { bindEraRadioTuner } from '../../scripts/era-radio';
+
+  bindEraRadioTuner({
+    era: 'win95',
+    widget: document.querySelector<HTMLElement>('.stage-win95 [data-era-radio]'),
+    text: {
+      idle: 'Sound is off',
+      waiting: 'Click anywhere to enable sound',
+      live: 'Playing: {st}',
+      error: 'Cannot open stream. Try the other preset.',
+    },
+  });
 </script>

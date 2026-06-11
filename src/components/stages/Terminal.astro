@@ -244,6 +244,42 @@ profiles.png   conflicts.png  variants.png
       </div>
     </div>
 
+    {/*
+      radio(1) : an icecast tuner posing as a tiny TUI. All stations are
+      SomaFM (listener-supported, commercial-free). The audio engine is
+      shared across eras (scripts/era-radio.ts) and rides the TIME
+      MACHINE: sound is on by default, wakes on the first gesture, and
+      retunes per channel. This block is just the costume.
+    */}
+    <div class="radio" aria-label="Radio">
+      <pre class="radio-prompt"><span class="cmd">$ radio --tui --autostart</span>
+<span class="dim"># somafm.com streams : listener-supported, commercial-free</span>
+<span class="dim"># kill switch: STOP here, or ♪ on the remote</span></pre>
+      <div class="radio-box" data-era-radio>
+        <div class="radio-head">
+          <span class="hd">RADIO(1)</span>
+          <span class="dim">icecast tuner</span>
+        </div>
+        <div class="radio-row">
+          <button
+            type="button"
+            class="radio-key"
+            data-radio-play
+            data-label-play="[ ▸ PLAY ]"
+            data-label-pause="[ ■ STOP ]"
+            aria-pressed="false"
+          >[ ▸ PLAY ]</button>
+          <span class="radio-track" data-radio-track>DEF CON</span>
+        </div>
+        <div class="radio-row radio-stations" role="group" aria-label="Stations">
+          <button type="button" class="radio-st" data-radio-station="defcon" aria-pressed="true">defcon</button>
+          <button type="button" class="radio-st" data-radio-station="deepspaceone" aria-pressed="false">deepspace</button>
+          <button type="button" class="radio-st" data-radio-station="missioncontrol" aria-pressed="false">mission</button>
+        </div>
+        <div class="radio-statusline"><span class="dim" data-radio-status aria-live="polite">stopped.</span></div>
+      </div>
+    </div>
+
     <!-- closing prompt -->
     <pre class="closing">
 <span class="cmd">$ </span><span class="user-cmd">grimoire</span>
@@ -521,6 +557,62 @@ profiles.png   conflicts.png  variants.png
     z-index: 1;
   }
 
+  /* radio(1) : the icecast tuner TUI */
+  .stage-terminal .radio { margin: 0 0 28px; }
+  .stage-terminal .radio-prompt { margin-bottom: 10px; }
+  .stage-terminal .radio-box {
+    max-width: 520px;
+    padding: 12px 14px;
+    border: 1px solid rgba(0, 255, 102, 0.35);
+  }
+  .stage-terminal .radio-head {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 10px;
+  }
+  .stage-terminal .radio-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 12px;
+    margin-bottom: 8px;
+  }
+  .stage-terminal .radio-key {
+    background: none;
+    border: 0;
+    padding: 0;
+    font: inherit;
+    color: #ffe047;
+    cursor: pointer;
+    text-shadow: 0 0 4px rgba(255, 224, 71, 0.35);
+  }
+  .stage-terminal .radio-key:hover { color: #fff; }
+  .stage-terminal .radio-track { color: #66ffaa; font-weight: 700; }
+  .stage-terminal .radio-box.is-playing .radio-track::before {
+    content: '● ';
+    color: #ff3b1f;
+    animation: term-radio-blink 1.2s steps(2, end) infinite;
+  }
+  @keyframes term-radio-blink {
+    50% { opacity: 0.25; }
+  }
+  .stage-terminal .radio-st {
+    background: none;
+    border: 0;
+    padding: 0;
+    font: inherit;
+    color: rgba(0, 255, 102, 0.45);
+    cursor: pointer;
+  }
+  .stage-terminal .radio-st::before { content: '['; }
+  .stage-terminal .radio-st::after { content: ']'; }
+  .stage-terminal .radio-st:hover { color: #66ffaa; }
+  .stage-terminal .radio-st.is-on {
+    color: #ffe047;
+    text-shadow: 0 0 4px rgba(255, 224, 71, 0.35);
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .stage-terminal .cursor-blink { animation: none; }
     .stage-terminal .shot img { transition: none; }
@@ -531,3 +623,18 @@ profiles.png   conflicts.png  variants.png
     .stage-terminal .terminal-wrap { padding: 0 12px; }
   }
 </style>
+
+<script>
+  import { bindEraRadioTuner } from '../../scripts/era-radio';
+
+  bindEraRadioTuner({
+    era: 'terminal',
+    widget: document.querySelector<HTMLElement>('.stage-terminal [data-era-radio]'),
+    text: {
+      idle: 'stopped.',
+      waiting: 'armed : wakes on your first keypress or click',
+      live: 'streaming {st} : 128kbps mp3',
+      error: 'stream unreachable : try another station',
+    },
+  });
+</script>

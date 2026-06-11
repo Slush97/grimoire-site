@@ -24,6 +24,7 @@ src/
     404.astro            themed dead-link page
   components/
     EraSwitcher.astro    TIME MACHINE remote + static burst + html[data-era]
+                         + the master ♪ sound toggle (era radio engine)
     Neko.astro           cursor-chasing cat (skins in public/neko/)
     stages/              six era stages: Terminal, Win95, Geocities, Aero,
                          Fugazi, Grimoire. Each is self-contained
@@ -41,6 +42,9 @@ src/
   styles/
     museum.css           reset + stage visibility rules (html[data-era])
     geo.css              sub-page chrome; CSS variables + per-era reskins
+  scripts/
+    era-radio.ts         the TV's audio: one global stream engine + the
+                         per-era station registry + tuner-widget binding
 scripts/
   gen-assets.mjs         regenerates public/og.png + screenshot thumbs
 public/
@@ -54,8 +58,18 @@ wrangler.jsonc           binds grimoiremods.com + www.grimoiremods.com
 
 - `<html data-era="...">` drives everything. Values live in `src/data/eras.ts` and must stay in sync with the inline pre-paint scripts in BOTH layouts (they hardcode the id list to run before paint).
 - On `/`, museum.css shows only the matching `.stage-<era>`; on sub-pages, geo.css swaps CSS variables per era.
-- `EraSwitcher` dispatches `era:change` on `document`; the Geocities radio uses it to pause when you leave 1996 and resume when you zap back.
-- Adding an era = new stage component + eras.ts entry + visibility rule in museum.css + override block in geo.css + both pre-paint lists.
+- `EraSwitcher` dispatches `era:change` on `document`; the Geocities radio uses it to pause when you leave 1996 and resume when you zap back, and the era radio engine retunes on it.
+- Adding an era = new stage component + eras.ts entry + visibility rule in museum.css + override block in geo.css + both pre-paint lists + a station list in `src/scripts/era-radio.ts`.
+
+## Era radio
+
+Every channel has sound, like a real TV. One global engine (`src/scripts/era-radio.ts`, initialized by EraSwitcher, so it runs on `/` and the sub-pages) owns a single Audio element: sound is on by default, starts on the visitor's first gesture (browsers block cold autoplay), fades in slowly to 0.35, and retunes when you zap channels. The remote carries the master ♪ toggle (persisted as `grimoire.sound`); each stage also mounts a themed tuner widget (`[data-era-radio]`) that is a pure view over the engine: play toggles the global sound, station buttons retune that era.
+
+Exceptions and rules:
+
+- Geocities keeps its own richer 1996 radio (visualizer, Plaza now-playing, STOP DA MUSIC). The engine goes `silent` on that channel when the widget is present and only covers geocities on sub-pages.
+- A saved STOP DA MUSIC mute (`geo-muted`) defaults the engine to off for first-time engine users. Respect both prefs in any redesign.
+- All stations are free, listener-supported streams (SomaFM, Kohina, laut.fm, Nightride). Verify a stream is alive and HTTPS before adding it; never two streams at once.
 
 ## Dev commands
 
