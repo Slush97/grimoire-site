@@ -87,41 +87,41 @@ export interface Release {
  * already needs (see grimoire-site/CLAUDE.md: "/download is build-time data").
  */
 const PINNED_RELEASE: Release = {
-  tag_name: 'v1.14.2',
-  name: 'v1.14.2',
-  published_at: '2026-05-29T09:30:58Z',
-  html_url: 'https://github.com/Slush97/grimoire/releases/tag/v1.14.2',
+  tag_name: 'v1.16.0',
+  name: 'v1.16.0',
+  published_at: '2026-06-10T05:03:10Z',
+  html_url: 'https://github.com/Slush97/grimoire/releases/tag/v1.16.0',
   body: '',
   assets: [
     {
-      name: 'Grimoire-Setup-1.14.2.exe',
-      size: 190595617,
+      name: 'Grimoire-Setup-1.16.0.exe',
+      size: 191381711,
       browser_download_url:
-        'https://github.com/Slush97/grimoire/releases/download/v1.14.2/Grimoire-Setup-1.14.2.exe',
+        'https://github.com/Slush97/grimoire/releases/download/v1.16.0/Grimoire-Setup-1.16.0.exe',
     },
     {
-      name: 'Grimoire-Portable-1.14.2.exe',
-      size: 190276908,
+      name: 'Grimoire-Portable-1.16.0.exe',
+      size: 191151749,
       browser_download_url:
-        'https://github.com/Slush97/grimoire/releases/download/v1.14.2/Grimoire-Portable-1.14.2.exe',
+        'https://github.com/Slush97/grimoire/releases/download/v1.16.0/Grimoire-Portable-1.16.0.exe',
     },
     {
-      name: 'Grimoire-1.14.2.AppImage',
-      size: 219254293,
+      name: 'Grimoire-1.16.0.AppImage',
+      size: 220333967,
       browser_download_url:
-        'https://github.com/Slush97/grimoire/releases/download/v1.14.2/Grimoire-1.14.2.AppImage',
+        'https://github.com/Slush97/grimoire/releases/download/v1.16.0/Grimoire-1.16.0.AppImage',
     },
     {
-      name: 'grimoire_1.14.2_amd64.deb',
-      size: 180239502,
+      name: 'grimoire_1.16.0_amd64.deb',
+      size: 181239456,
       browser_download_url:
-        'https://github.com/Slush97/grimoire/releases/download/v1.14.2/grimoire_1.14.2_amd64.deb',
+        'https://github.com/Slush97/grimoire/releases/download/v1.16.0/grimoire_1.16.0_amd64.deb',
     },
     {
       name: 'SHA256SUMS',
       size: 370,
       browser_download_url:
-        'https://github.com/Slush97/grimoire/releases/download/v1.14.2/SHA256SUMS',
+        'https://github.com/Slush97/grimoire/releases/download/v1.16.0/SHA256SUMS',
     },
   ],
 };
