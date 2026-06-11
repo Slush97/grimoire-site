@@ -7,6 +7,7 @@
  */
 import '../styles/museum.css';
 import Neko from '../components/Neko.astro';
+import EraSwitcher from '../components/EraSwitcher.astro';
 
 interface Props {
   title?: string;
@@ -30,6 +31,20 @@ const ogImageUrl = new URL(ogImage, Astro.site);
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="generator" content={Astro.generator} />
     <meta name="theme-color" content="#000000" />
+
+    <!--
+      Pre-paint era restore. Must run before first paint (inline, in
+      head) so the saved channel shows with no flash of the default era.
+      Keep the id list in sync with src/data/eras.ts.
+    -->
+    <script is:inline>
+      (function () {
+        var era = null;
+        try { era = localStorage.getItem('grimoire.era'); } catch (e) {}
+        var ok = ['terminal', 'win95', 'geocities', 'aero', 'fugazi', 'grimoire'];
+        document.documentElement.dataset.era = ok.indexOf(era) >= 0 ? era : 'geocities';
+      })();
+    </script>
 
     <title>{title}</title>
     <meta name="description" content={description} />
@@ -62,6 +77,7 @@ const ogImageUrl = new URL(ogImage, Astro.site);
     <main id="museum-main">
       <slot />
     </main>
+    <EraSwitcher />
     <Neko />
   </body>
 </html>

@@ -1,0 +1,316 @@
+---
+/*
+ * EraSwitcher.astro
+ * The TIME MACHINE: a universal-remote-looking fixed panel (bottom
+ * right) that zaps between the six era themes like TV channels. Mounted
+ * by both layouts so the chosen era follows the visitor across pages.
+ *
+ * Swap mechanics:
+ *   - sets <html data-era="..."> (museum CSS swaps stages; geo.css
+ *     reskins sub-page chrome) and persists to localStorage
+ *   - plays a ~480ms CRT static burst with a green channel OSD, skipped
+ *     under prefers-reduced-motion or the Geocities calm switch
+ *   - dispatches `era:change` on document so stages can react (the
+ *     Geocities radio pauses itself when you leave 1996)
+ *
+ * The remote deliberately looks like a chunky black TV remote in every
+ * era. A remote is anachronistic in all six timelines, which is the bit.
+ */
+import { ERAS } from '../data/eras';
+---
+
+<div class="era-remote" data-era-remote>
+  <button type="button" class="era-remote-toggle" data-era-menu-toggle aria-expanded="false" aria-controls="era-channels">
+    <span class="era-remote-brand">✦ TIME MACHINE ✦</span>
+    <span class="era-remote-led" data-era-led>CH 03 · GEOCITIES</span>
+  </button>
+  <div class="era-remote-row">
+    <button type="button" class="era-remote-btn" data-era-prev aria-label="Previous era">CH ▼</button>
+    <span class="era-remote-ir" aria-hidden="true"></span>
+    <button type="button" class="era-remote-btn" data-era-next aria-label="Next era">CH ▲</button>
+  </div>
+  <ul class="era-remote-channels" id="era-channels" hidden>
+    {ERAS.map((e, i) => (
+      <li>
+        <button type="button" class="era-remote-ch" data-era-pick={e.id}>
+          <span class="era-ch-num">{String(i + 1).padStart(2, '0')}</span>
+          <span class="era-ch-label">{e.label}</span>
+          <span class="era-ch-year">{e.year}</span>
+        </button>
+      </li>
+    ))}
+  </ul>
+  <p class="era-remote-sr" aria-live="polite" data-era-announce></p>
+</div>
+
+<!-- Full-screen static burst + channel OSD. Inert until a zap. -->
+<div class="era-static" data-era-static aria-hidden="true">
+  <span class="era-osd" data-era-osd></span>
+</div>
+
+<script>
+  import {
+    ERAS,
+    ERA_IDS,
+    ERA_KEY,
+    coerceEra,
+    eraChannel,
+    eraIndex,
+    type EraId,
+  } from '../data/eras';
+
+  const root = document.documentElement;
+  const remote = document.querySelector<HTMLElement>('[data-era-remote]');
+  const staticEl = document.querySelector<HTMLElement>('[data-era-static]');
+  const osd = document.querySelector<HTMLElement>('[data-era-osd]');
+  const led = document.querySelector<HTMLElement>('[data-era-led]');
+  const announce = document.querySelector<HTMLElement>('[data-era-announce]');
+  const menu = document.getElementById('era-channels');
+  const menuToggle = document.querySelector<HTMLButtonElement>('[data-era-menu-toggle]');
+
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function current(): EraId {
+    return coerceEra(root.dataset.era);
+  }
+
+  function paintLed(era: EraId) {
+    const def = ERAS[eraIndex(era)];
+    if (led) led.textContent = `${eraChannel(era)} · ${def.label}`;
+    remote
+      ?.querySelectorAll<HTMLButtonElement>('[data-era-pick]')
+      .forEach((b) => b.classList.toggle('is-on', b.dataset.eraPick === era));
+  }
+
+  function apply(era: EraId) {
+    root.dataset.era = era;
+    try {
+      localStorage.setItem(ERA_KEY, era);
+    } catch {
+      /* private mode etc.; the zap still works for this page */
+    }
+    paintLed(era);
+    document.dispatchEvent(new CustomEvent('era:change', { detail: { era } }));
+    const def = ERAS[eraIndex(era)];
+    if (announce) announce.textContent = `Now viewing the ${def.label} era`;
+  }
+
+  let zapping = false;
+  function zap(era: EraId) {
+    if (era === current() || zapping) return;
+    /* Calm mode (Geocities STOP DA FLASHING) or OS reduced motion: no
+       strobe, just an instant clean cut. */
+    const calm =
+      reduceMotion || document.querySelector('[data-calm="true"], .stage[data-calm]') !== null;
+    if (calm || !staticEl) {
+      apply(era);
+      window.scrollTo(0, 0);
+      return;
+    }
+    zapping = true;
+    const def = ERAS[eraIndex(era)];
+    if (osd) osd.textContent = `${eraChannel(era)} ✦ ${def.label} · ${def.osd}`;
+    staticEl.classList.add('is-zapping');
+    /* Swap mid-burst so the new era is revealed as the snow clears. */
+    setTimeout(() => {
+      apply(era);
+      window.scrollTo(0, 0);
+    }, 200);
+    setTimeout(() => {
+      staticEl.classList.remove('is-zapping');
+      zapping = false;
+    }, 520);
+  }
+
+  function step(dir: 1 | -1) {
+    const idx = (eraIndex(current()) + dir + ERA_IDS.length) % ERA_IDS.length;
+    zap(ERA_IDS[idx]);
+  }
+
+  remote?.querySelector('[data-era-next]')?.addEventListener('click', () => step(1));
+  remote?.querySelector('[data-era-prev]')?.addEventListener('click', () => step(-1));
+
+  menuToggle?.addEventListener('click', () => {
+    const open = menu?.hasAttribute('hidden') ?? false;
+    if (open) menu?.removeAttribute('hidden');
+    else menu?.setAttribute('hidden', '');
+    menuToggle.setAttribute('aria-expanded', String(open));
+  });
+
+  remote?.querySelectorAll<HTMLButtonElement>('[data-era-pick]').forEach((b) => {
+    b.addEventListener('click', () => {
+      zap(coerceEra(b.dataset.eraPick));
+      menu?.setAttribute('hidden', '');
+      menuToggle?.setAttribute('aria-expanded', 'false');
+    });
+  });
+
+  /* Click-away closes the channel list. */
+  document.addEventListener('click', (e) => {
+    if (!remote || remote.contains(e.target as Node)) return;
+    menu?.setAttribute('hidden', '');
+    menuToggle?.setAttribute('aria-expanded', 'false');
+  });
+
+  paintLed(current());
+</script>
+
+<style>
+  /*
+   * Remote styling is intentionally era-agnostic: matte black plastic,
+   * red LED, brass screws. It should look like somebody left a remote
+   * on the exhibit floor.
+   */
+  .era-remote {
+    position: fixed;
+    right: 14px;
+    bottom: 14px;
+    z-index: 9000;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    width: 178px;
+    padding: 10px 10px 12px;
+    background: linear-gradient(175deg, #232323, #101010 60%, #1c1c1c);
+    border: 2px solid #000;
+    border-radius: 12px;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.14),
+      0 6px 18px rgba(0, 0, 0, 0.6);
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+  }
+  .era-remote-toggle {
+    display: block;
+    width: 100%;
+    padding: 6px 6px 7px;
+    background: #0a0a0a;
+    border: 1px solid #2e2e2e;
+    border-radius: 6px;
+    cursor: pointer;
+    text-align: center;
+  }
+  .era-remote-brand {
+    display: block;
+    font-size: 8px;
+    letter-spacing: 0.22em;
+    color: #8a8a8a;
+  }
+  .era-remote-led {
+    display: block;
+    margin-top: 3px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    color: #ff3a3a;
+    text-shadow: 0 0 6px rgba(255, 58, 58, 0.8);
+  }
+  .era-remote-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+  }
+  .era-remote-btn {
+    flex: 1;
+    padding: 7px 0;
+    background: linear-gradient(180deg, #3a3a3a, #1a1a1a);
+    border: 1px solid #000;
+    border-radius: 7px;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18), 0 2px 0 #000;
+    color: #ddd;
+    font: 700 11px/1 'JetBrains Mono', ui-monospace, monospace;
+    cursor: pointer;
+  }
+  .era-remote-btn:active {
+    transform: translateY(1px);
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.7);
+  }
+  .era-remote-ir {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, #6a1a1a, #2a0505 70%);
+    border: 1px solid #000;
+  }
+  .era-remote-channels {
+    list-style: none;
+    margin: 0;
+    padding: 4px;
+    display: grid;
+    gap: 3px;
+    background: #0a0a0a;
+    border: 1px solid #2e2e2e;
+    border-radius: 6px;
+  }
+  .era-remote-ch {
+    display: grid;
+    grid-template-columns: 24px 1fr auto;
+    gap: 6px;
+    align-items: baseline;
+    width: 100%;
+    padding: 5px 7px;
+    background: transparent;
+    border: 0;
+    border-radius: 4px;
+    color: #bbb;
+    font: 700 10px/1.2 'JetBrains Mono', ui-monospace, monospace;
+    text-align: left;
+    cursor: pointer;
+  }
+  .era-remote-ch:hover { background: #1d1d1d; color: #fff; }
+  .era-remote-ch.is-on { background: #261111; color: #ff3a3a; }
+  .era-ch-num { opacity: 0.55; }
+  .era-ch-year { font-size: 9px; opacity: 0.5; }
+  .era-remote-sr {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+
+  /* ─── Static burst ─── */
+  .era-static {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: none;
+    pointer-events: none;
+    background-color: #111;
+    /* feTurbulence snow, tiled. */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-size: 240px 240px;
+  }
+  .era-static.is-zapping {
+    display: block;
+    animation: era-snow 80ms steps(2) infinite, era-zap 520ms linear forwards;
+  }
+  @keyframes era-snow {
+    0% { background-position: 0 0; }
+    50% { background-position: -90px 60px; }
+    100% { background-position: 60px -120px; }
+  }
+  @keyframes era-zap {
+    0% { opacity: 0; }
+    8% { opacity: 1; }
+    70% { opacity: 1; }
+    100% { opacity: 0; }
+  }
+  .era-osd {
+    position: absolute;
+    top: 26px;
+    left: 30px;
+    font: 700 clamp(16px, 3vw, 28px)/1 'JetBrains Mono', ui-monospace, monospace;
+    color: #39ff5a;
+    text-shadow: 0 0 8px rgba(57, 255, 90, 0.9), 2px 0 0 rgba(255, 0, 80, 0.5);
+    letter-spacing: 0.08em;
+  }
+
+  @media (max-width: 640px) {
+    .era-remote { width: 152px; right: 8px; bottom: 8px; }
+  }
+  @media print {
+    .era-remote, .era-static { display: none !important; }
+  }
+</style>

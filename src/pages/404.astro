@@ -1,0 +1,81 @@
+---
+/*
+ * 404 : dead-link page in the same dressing as the rest of the shrine.
+ * Prerenders to /404.html, which the Worker serves for any route that
+ * matches neither a page nor an asset. Uses only shared geo.css
+ * classes so the per-era reskins apply here too.
+ */
+import Geo from '../layouts/Geo.astro';
+import { brand } from '../data/content';
+---
+
+<Geo
+  title="404 · Grimoire"
+  description="This page was never consecrated."
+  marquee="✦ 404!!! ✦ U HAVE STRAYED FROM DA PATH!!1! ✦ THIS SCROLL DOES NOT EXIST ✦ RETURN 2 DA HOMEPAGE ✦ "
+>
+  <header class="geo-hero">
+    <h1 class="geo-wordart">404!!!</h1>
+    <span class="geo-subtitle">✦ u have strayed from da path ✦</span>
+  </header>
+
+  <div class="geo-glyph-rule" aria-hidden="true">💀 ⚝ ☥ ⚝ 💀</div>
+
+  <section class="nf-section">
+    <div class="geo-card">
+      <div class="geo-card-h">⚠ scroll not found</div>
+      <div class="geo-card-body nf-body">
+        <p class="nf-skull" aria-hidden="true"><span class="blink">💀</span></p>
+        <p>
+          The page you seek was <strong>never consecrated</strong>!!
+          Or maybe I deleted it. Or maybe it only manifests
+          <em>by moonlight</em>. Either way it is NOT HERE!!1!
+        </p>
+        <p class="nf-counter" aria-hidden="true">
+          LOST SOULS SO FAR: <span class="nf-led">001337</span>
+        </p>
+        <div class="nf-links">
+          <a class="geo-btn geo-btn--gold geo-btn--center" href="/">
+            <span class="geo-btn-arrow">▶</span><span>BACK 2 DA HOMEPAGE</span>
+          </a>
+          <a class="geo-btn geo-btn--green geo-btn--center" href="/download">
+            <span class="geo-btn-arrow">▶</span><span>GET GRIMOIRE INSTEAD</span>
+          </a>
+          <a class="geo-btn geo-btn--plum geo-btn--center" href={brand.discord} target="_blank" rel="noopener">
+            <span class="geo-btn-arrow">▶</span><span>REPORT DA DEAD LINK</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="geo-glyph-rule" aria-hidden="true">☉ ⚝ ⚜ ⚝ ☉</div>
+</Geo>
+
+<style>
+  .nf-section { max-width: 560px; margin: 0 auto; }
+  .nf-body { text-align: center; font-size: 15px; line-height: 1.7; }
+  .nf-skull { margin: 0; font-size: 56px; }
+  .nf-counter {
+    margin: 14px 0;
+    font-weight: 700;
+    font-size: 12px;
+    letter-spacing: 0.14em;
+  }
+  .nf-led {
+    display: inline-block;
+    padding: 3px 8px;
+    background: #0a0618;
+    border: 1px solid currentColor;
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 14px;
+    letter-spacing: 0.3em;
+    color: #ff3a4a;
+  }
+  .nf-links {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 18px;
+  }
+</style>

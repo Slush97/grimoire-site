@@ -1,15 +1,75 @@
 /* ─────────────────────────────────────────────────────────────────────
-   geo.css — shared Geocities sub-page design system.
+   geo.css : shared sub-page design system, now era-aware.
 
    The landing stage (components/stages/Geocities.astro) carries its own
    ~2600 lines of SCOPED styles under .stage-geocities, so its class names
    are Astro-hashed and unreachable from other pages. Rather than touch
    that working file, this stylesheet recreates the same candlelit-grimoire
    palette and chrome as a self-contained, globally-loaded system rooted at
-   `.geo` and prefixed `geo-*`. Sub-pages (/tools, /download) opt in by
-   wrapping their content in <div class="geo"> via the Geo layout.
+   `.geo` and prefixed `geo-*`. Sub-pages (/tools, /download, /404) opt in
+   by wrapping their content in <div class="geo"> via the Geo layout.
 
-   Palette (matched to the stage):
+   ERA RESKINS: the layout sets html[data-era] pre-paint (values: terminal,
+   win95, geocities, aero, fugazi, grimoire; geocities is the default).
+   Every visual decision below is routed through CSS custom properties
+   declared on .geo, whose DEFAULTS reproduce the original geocities look
+   byte-for-byte. Each other era gets one override block at the bottom of
+   this file (html[data-era="..."] .geo { ... }) that swaps the variables
+   plus a handful of targeted structural rules (bevels, marquee treatment,
+   button shape). Palettes are lifted from the matching stage components
+   in components/stages/.
+
+   THE VARIABLE CONTRACT (all declared on .geo with geocities defaults):
+     page      --geo-page-bg --geo-ink --geo-ink-muted --geo-ink-dim
+               --geo-accent --geo-accent-lt --geo-label-ink
+               --geo-link --geo-link-visited --geo-link-hover
+               --geo-body-glow --geo-shadow-hard --geo-font-size
+     fonts     --geo-font-body --geo-font-ui --geo-font-display
+               --geo-font-mono --geo-card-font
+     geometry  --geo-radius --geo-radius-sm --geo-btn-radius
+               --geo-chip-radius
+     layers    --geo-overlay-bg --geo-overlay-size --geo-overlay-opacity
+               --geo-stars-display --geo-stars-opacity
+     marquee   --geo-marquee-bg --geo-marquee-ink --geo-marquee-bt
+               --geo-marquee-bb --geo-marquee-text-shadow
+     crumbs    --geo-crumb-bg --geo-crumb-border --geo-crumb-ink
+               --geo-crumb-hover --geo-crumb-hover-border
+     wordart   --geo-wordart-fill --geo-wordart-ink --geo-wordart-filter
+               --geo-wordart-weight --geo-wordart-tracking
+               --geo-subtitle-font --geo-subtitle-style --geo-subtitle-ink
+               --geo-subtitle-shadow
+     ribbon    --geo-ribbon-bg --geo-ribbon-ink --geo-ribbon-bt
+               --geo-ribbon-bb --geo-ribbon-text-shadow --geo-ribbon-shadow
+               --geo-ribbon-em
+     card      --geo-card-bg --geo-card-border --geo-card-inner
+               --geo-card-shadow --geo-card-ink --geo-card-blur
+               --geo-card-h-bg --geo-card-h-ink --geo-card-h-bb
+               --geo-card-h-text-shadow --geo-strong-ink --geo-em-ink
+     code/cmd  --geo-code-bg --geo-code-border --geo-code-ink
+               --geo-cmd-bg --geo-cmd-border --geo-cmd-ink --geo-cmd-dim
+               --geo-cmd-label-ink --geo-aside-bg
+     list      --geo-li-bg --geo-li-border --geo-li-alt2 --geo-li-alt3
+               --geo-li-alt4 --geo-bullet-bg --geo-bullet-ink
+               --geo-bullet2-bg --geo-bullet2-ink --geo-bullet3-bg
+               --geo-bullet3-ink --geo-bullet4-bg --geo-bullet4-ink
+     buttons   --geo-btn-bg --geo-btn-ink --geo-btn-font --geo-btn-bt
+               --geo-btn-bl --geo-btn-br --geo-btn-bb --geo-btn-shadow
+               --geo-btn-text-shadow --geo-btn-case --geo-btn-tracking
+               --geo-btn-hover-ink --geo-btn-hover-tf --geo-btn-hover-shadow
+               --geo-btn-active-tf --geo-btn-active-shadow --geo-btn-pulse
+               --geo-btn-arrow-ink --geo-btn-meta-bg --geo-btn-meta-ink
+               --geo-btn-meta-border
+               variant bgs/inks: --geo-btn-{gold,green,blue,plum,brass}-bg
+               and matching -ink (ink defaults chain to --geo-btn-ink)
+     copy btn  --geo-copybtn-bg --geo-copybtn-ink --geo-copybtn-bt
+               --geo-copybtn-bl --geo-copybtn-br --geo-copybtn-bb
+               --geo-copybtn-done-bg --geo-copybtn-done-ink
+     notice    --geo-notice-bg --geo-notice-border --geo-notice-ink
+               --geo-notice-bang
+     misc      --geo-glyph-ink --geo-glyph-shadow --geo-glyph-line
+               --geo-kicker-ink --geo-blink-ink --geo-blink-anim
+
+   Geocities palette (matched to the stage):
      ground   #07041a   plum vignette rgba(120,40,180) / oxblood rgba(140,20,50)
      brass    #e8b840  #ffd96a  #fff8d4  #d4af5a  #c9a961  #a87018
      oxblood  #c8243d  #a82010  #5a0a18  #8b1a1a  #c44a2a
@@ -28,6 +88,8 @@
 .geo *::after { box-sizing: border-box; }
 
 .geo {
+  /* Geocities palette primitives. Era blocks do not override these;
+     they override the semantic variables below instead. */
   --geo-ground: #07041a;
   --geo-brass: #e8b840;
   --geo-brass-lt: #ffd96a;
@@ -37,45 +99,211 @@
   --geo-red-dk: #5a0a18;
   --geo-plum: #9c7ae6;
   --geo-violet: #b660e0;
-  --geo-link: #b0a8d9;
   --geo-green: #8db04a;
   --geo-moon: #fff5db;
-  --geo-serif: 'Times New Roman', Times, serif;
-  --geo-comic: 'Comic Neue', 'Comic Sans MS', cursive;
-  --geo-mono: 'JetBrains Mono', 'Courier New', monospace;
+
+  /* Fonts. --geo-serif/--geo-comic/--geo-mono are kept as legacy aliases
+     so anything still reading them follows the era too. */
+  --geo-font-body: 'Times New Roman', Times, serif;
+  --geo-font-ui: 'Comic Neue', 'Comic Sans MS', cursive;
+  --geo-font-display: 'Comic Neue', 'Comic Sans MS', 'Impact', sans-serif;
+  --geo-font-mono: 'JetBrains Mono', 'Courier New', monospace;
+  --geo-card-font: var(--geo-font-ui);
+  --geo-serif: var(--geo-font-body);
+  --geo-comic: var(--geo-font-ui);
+  --geo-mono: var(--geo-font-mono);
+  --geo-font-size: 14px;
+
+  /* Page-level inks and accents */
+  --geo-page-bg:
+    radial-gradient(ellipse 90% 55% at 50% 0%, rgba(120, 40, 180, 0.55) 0%, transparent 65%),
+    radial-gradient(ellipse 70% 40% at 50% 100%, rgba(140, 20, 50, 0.32) 0%, transparent 70%),
+    var(--geo-ground);
+  --geo-ink: #ffffff;
+  --geo-ink-muted: #fff5db;
+  --geo-ink-dim: #c8b8e8;
+  --geo-accent: #e8b840;
+  --geo-accent-lt: #ffd96a;
+  --geo-label-ink: #b660e0;
+  --geo-link: #b0a8d9;
+  --geo-link-visited: var(--geo-plum);
+  --geo-link-hover: #d4af5a;
+  --geo-body-glow: none;
+  --geo-shadow-hard: 1px 1px 0 #000;
+
+  /* Geometry */
+  --geo-radius: 0;
+  --geo-radius-sm: 0;
+  --geo-btn-radius: 0;
+  --geo-chip-radius: 0;
+
+  /* Background layers */
+  --geo-overlay-bg:
+    radial-gradient(circle at 25% 25%, rgba(168, 32, 100, 0.14) 0, transparent 22%),
+    radial-gradient(circle at 75% 75%, rgba(90, 30, 160, 0.14) 0, transparent 22%),
+    linear-gradient(45deg, transparent 48%, rgba(232, 184, 64, 0.06) 49%, rgba(232, 184, 64, 0.06) 51%, transparent 52%);
+  --geo-overlay-size: 80px 80px, 80px 80px, 36px 36px;
+  --geo-overlay-opacity: 0.85;
+  --geo-stars-display: block;
+  --geo-stars-opacity: 1;
+
+  /* Marquee */
+  --geo-marquee-bg: linear-gradient(90deg, #1a0840 0%, #2c0e6a 50%, #1a0840 100%);
+  --geo-marquee-ink: var(--geo-brass-lt);
+  --geo-marquee-bt: 2px solid var(--geo-oxblood);
+  --geo-marquee-bb: 2px solid var(--geo-oxblood);
+  --geo-marquee-text-shadow: 1px 1px 0 #000, 0 0 6px rgba(255, 217, 106, 0.45);
+
+  /* Breadcrumbs */
+  --geo-crumb-bg: linear-gradient(180deg, rgba(40, 14, 92, 0.6) 0%, rgba(12, 4, 38, 0.92) 100%);
+  --geo-crumb-border: 2px ridge var(--geo-brass);
+  --geo-crumb-ink: var(--geo-link);
+  --geo-crumb-hover: var(--geo-accent-lt);
+  --geo-crumb-hover-border: var(--geo-accent-lt);
+
+  /* WordArt + subtitle */
+  --geo-wordart-fill: linear-gradient(180deg, #fff8d4 0%, #ffd96a 22%, #e8b840 48%, #a87018 78%, #4a2a08 100%);
+  --geo-wordart-ink: transparent;
+  --geo-wordart-filter: drop-shadow(0 2px 0 rgba(10, 6, 18, 0.9)) drop-shadow(0 6px 10px rgba(0, 0, 0, 0.7));
+  --geo-wordart-weight: 700;
+  --geo-wordart-tracking: 0.01em;
+  --geo-subtitle-font: var(--geo-font-body);
+  --geo-subtitle-style: italic;
+  --geo-subtitle-ink: var(--geo-moon);
+  --geo-subtitle-shadow: 0 1px 0 #000, 0 0 10px rgba(244, 219, 166, 0.7);
+
+  /* Section ribbon */
+  --geo-ribbon-bg: linear-gradient(90deg, #5a0a18 0%, #a82010 18%, #ffd96a 50%, #a82010 82%, #5a0a18 100%);
+  --geo-ribbon-ink: #1a0a08;
+  --geo-ribbon-bt: 1px solid var(--geo-brass-hi);
+  --geo-ribbon-bb: 2px solid #1a0a08;
+  --geo-ribbon-text-shadow: 1px 1px 0 rgba(255, 248, 212, 0.7);
+  --geo-ribbon-shadow: 0 4px 10px -2px rgba(0, 0, 0, 0.55);
+  --geo-ribbon-em: #5a0a18;
+
+  /* Card shell */
+  --geo-card-bg: linear-gradient(180deg, rgba(40, 14, 92, 0.55) 0%, rgba(12, 4, 38, 0.92) 100%);
+  --geo-card-border: 3px ridge var(--geo-brass);
+  --geo-card-inner: none;
+  --geo-card-shadow: inset 0 0 24px rgba(120, 40, 180, 0.25), 0 2px 0 #000;
+  --geo-card-ink: #fff;
+  --geo-card-blur: none;
+  --geo-card-h-bg: linear-gradient(90deg, #5a0a18 0%, #a82010 20%, #e8b840 50%, #a82010 80%, #5a0a18 100%);
+  --geo-card-h-ink: #1a0a08;
+  --geo-card-h-bb: 2px solid #1a0a08;
+  --geo-card-h-text-shadow: 1px 1px 0 rgba(255, 248, 212, 0.65);
+  --geo-strong-ink: var(--geo-brass-lt);
+  --geo-em-ink: var(--geo-brass-lt);
+
+  /* Code chips + command tiles */
+  --geo-code-bg: rgba(0, 0, 0, 0.45);
+  --geo-code-border: 1px solid rgba(232, 184, 64, 0.5);
+  --geo-code-ink: var(--geo-brass-lt);
+  --geo-cmd-bg: #0a0614;
+  --geo-cmd-border: 2px inset #5a3a8a;
+  --geo-cmd-ink: var(--geo-brass-lt);
+  --geo-cmd-dim: #7a6aa8;
+  --geo-cmd-label-ink: var(--geo-plum);
+  --geo-aside-bg: rgba(0, 0, 0, 0.3);
+
+  /* Feature list */
+  --geo-li-bg: linear-gradient(180deg, rgba(30, 10, 70, 0.55) 0%, rgba(8, 4, 26, 0.85) 100%);
+  --geo-li-border: 2px ridge var(--geo-brass);
+  --geo-li-alt2: var(--geo-oxblood);
+  --geo-li-alt3: var(--geo-violet);
+  --geo-li-alt4: var(--geo-plum);
+  --geo-bullet-bg: var(--geo-brass);
+  --geo-bullet-ink: #1a0a08;
+  --geo-bullet2-bg: var(--geo-plum);
+  --geo-bullet2-ink: #0a0418;
+  --geo-bullet3-bg: var(--geo-oxblood);
+  --geo-bullet3-ink: #fff;
+  --geo-bullet4-bg: var(--geo-green);
+  --geo-bullet4-ink: #1a0a08;
+
+  /* Buttons */
+  --geo-btn-bg: var(--geo-brass);
+  --geo-btn-ink: #000;
+  --geo-btn-font: var(--geo-font-ui);
+  --geo-btn-bt: 3px solid #fff;
+  --geo-btn-bl: 3px solid #fff;
+  --geo-btn-br: 3px solid #000;
+  --geo-btn-bb: 3px solid #000;
+  --geo-btn-shadow: 3px 3px 0 #000;
+  --geo-btn-text-shadow: none;
+  --geo-btn-case: none;
+  --geo-btn-tracking: normal;
+  --geo-btn-hover-ink: #8b1a1a;
+  --geo-btn-hover-tf: translate(-1px, -1px);
+  --geo-btn-hover-shadow: 4px 4px 0 #000;
+  --geo-btn-active-tf: translate(2px, 2px);
+  --geo-btn-active-shadow: 1px 1px 0 #000;
+  --geo-btn-pulse: geo-btn-pulse 1.6s ease-in-out infinite;
+  --geo-btn-arrow-ink: #c44a2a;
+  --geo-btn-meta-bg: rgba(255, 255, 255, 0.55);
+  --geo-btn-meta-ink: #1f1240;
+  --geo-btn-meta-border: 1px solid #000;
+  --geo-btn-brass-bg: linear-gradient(90deg, #b66a2a 0%, #e8b840 50%, #b66a2a 100%);
+  --geo-btn-green-bg: linear-gradient(90deg, #869a4a 0%, #5a8a5a 50%, #869a4a 100%);
+  --geo-btn-plum-bg: #a47ac0;
+  --geo-btn-blue-bg: #b0a8d9;
+  --geo-btn-gold-bg: #d4af5a;
+
+  /* Copy button (command tiles) */
+  --geo-copybtn-bg: var(--geo-brass);
+  --geo-copybtn-ink: #1a0a08;
+  --geo-copybtn-bt: 2px solid #fff8d4;
+  --geo-copybtn-bl: 2px solid #fff8d4;
+  --geo-copybtn-br: 2px solid #000;
+  --geo-copybtn-bb: 2px solid #000;
+  --geo-copybtn-done-bg: var(--geo-green);
+  --geo-copybtn-done-ink: #0a1a04;
+
+  /* Notice */
+  --geo-notice-bg: linear-gradient(180deg, rgba(90, 10, 24, 0.7), rgba(40, 6, 14, 0.85));
+  --geo-notice-border: 2px ridge var(--geo-oxblood);
+  --geo-notice-ink: var(--geo-moon);
+  --geo-notice-bang: var(--geo-brass-lt);
+
+  /* Misc */
+  --geo-glyph-ink: var(--geo-accent);
+  --geo-glyph-shadow: 0 0 8px rgba(212, 175, 90, 0.6);
+  --geo-glyph-line: linear-gradient(90deg, transparent, rgba(212, 175, 90, 0.6), transparent);
+  --geo-kicker-ink: var(--geo-brass-lt);
+  --geo-blink-ink: #c44a2a;
+  --geo-blink-anim: geo-blink 0.8s steps(2, end) infinite;
 
   position: relative;
   isolation: isolate;
   min-height: 100vh;
   margin: 0;
-  background:
-    radial-gradient(ellipse 90% 55% at 50% 0%, rgba(120, 40, 180, 0.55) 0%, transparent 65%),
-    radial-gradient(ellipse 70% 40% at 50% 100%, rgba(140, 20, 50, 0.32) 0%, transparent 70%),
-    var(--geo-ground);
-  color: #ffffff;
-  font-family: var(--geo-serif);
-  font-size: 14px;
+  background: var(--geo-page-bg);
+  color: var(--geo-ink);
+  font-family: var(--geo-font-body);
+  font-size: var(--geo-font-size);
   line-height: 1.5;
+  text-shadow: var(--geo-body-glow);
   overflow-x: hidden;
 }
 
-/* Tiled candlelit-dust wallpaper behind the stars. */
+/* Tiled candlelit-dust wallpaper behind the stars (geocities default).
+   Eras repurpose this layer: terminal turns it into scanlines, aero into
+   sky highlights, fugazi into a faint indigo mesh, win95 hides it. */
 .geo::before {
   content: "";
   position: absolute;
   inset: 0;
   z-index: 0;
   pointer-events: none;
-  background-image:
-    radial-gradient(circle at 25% 25%, rgba(168, 32, 100, 0.14) 0, transparent 22%),
-    radial-gradient(circle at 75% 75%, rgba(90, 30, 160, 0.14) 0, transparent 22%),
-    linear-gradient(45deg, transparent 48%, rgba(232, 184, 64, 0.06) 49%, rgba(232, 184, 64, 0.06) 51%, transparent 52%);
-  background-size: 80px 80px, 80px 80px, 36px 36px;
-  opacity: 0.85;
+  background-image: var(--geo-overlay-bg);
+  background-size: var(--geo-overlay-size);
+  opacity: var(--geo-overlay-opacity);
 }
 
-/* Starfield layer (rendered by the layout). */
+/* Starfield layer (rendered by the layout). Hidden or dimmed per era. */
 .geo-stars {
+  display: var(--geo-stars-display);
+  opacity: var(--geo-stars-opacity);
   position: absolute;
   inset: 0;
   z-index: 0;
@@ -106,25 +334,24 @@
 
 /* ─── Links ─── */
 /* Exclude .geo-btn: buttons are anchors too, and the generic link color
-   (periwinkle, == --geo-link) would otherwise win over .geo-btn's black
-   text and make labels low-contrast (invisible on the periwinkle button). */
+   would otherwise win over .geo-btn's ink and make labels low-contrast. */
 .geo a:not(.geo-btn) { color: var(--geo-link); text-decoration: underline; }
-.geo a:not(.geo-btn):visited { color: var(--geo-plum); }
-.geo a:not(.geo-btn):hover { color: #d4af5a; }
+.geo a:not(.geo-btn):visited { color: var(--geo-link-visited); }
+.geo a:not(.geo-btn):hover { color: var(--geo-link-hover); }
 
 /* ─── Top marquee ─── */
 .geo-marquee {
   position: relative;
   z-index: 2;
   overflow: hidden;
-  background: linear-gradient(90deg, #1a0840 0%, #2c0e6a 50%, #1a0840 100%);
-  border-top: 2px solid var(--geo-oxblood);
-  border-bottom: 2px solid var(--geo-oxblood);
-  color: var(--geo-brass-lt);
-  font-family: var(--geo-comic);
+  background: var(--geo-marquee-bg);
+  border-top: var(--geo-marquee-bt);
+  border-bottom: var(--geo-marquee-bb);
+  color: var(--geo-marquee-ink);
+  font-family: var(--geo-font-ui);
   font-weight: 700;
   font-size: 14px;
-  text-shadow: 1px 1px 0 #000, 0 0 6px rgba(255, 217, 106, 0.45);
+  text-shadow: var(--geo-marquee-text-shadow);
   padding: 4px 0;
 }
 .geo-marquee .geo-track {
@@ -156,7 +383,7 @@
   align-items: center;
   gap: 8px;
   margin: 0 auto 22px;
-  font-family: var(--geo-comic);
+  font-family: var(--geo-font-ui);
   font-weight: 700;
   font-size: 13px;
 }
@@ -165,95 +392,113 @@
   align-items: center;
   gap: 5px;
   padding: 3px 9px;
-  background: linear-gradient(180deg, rgba(40, 14, 92, 0.6) 0%, rgba(12, 4, 38, 0.92) 100%);
-  border: 2px ridge var(--geo-brass);
-  color: var(--geo-link);
+  background: var(--geo-crumb-bg);
+  border: var(--geo-crumb-border);
+  border-radius: var(--geo-chip-radius);
+  color: var(--geo-crumb-ink);
   text-decoration: none;
-  text-shadow: 1px 1px 0 #000;
+  text-shadow: var(--geo-shadow-hard);
 }
-.geo-crumbs a:hover { color: var(--geo-brass-lt); border-color: var(--geo-brass-lt); }
-.geo-crumbs .geo-crumb-sep { color: var(--geo-brass); }
+.geo-crumbs a:hover { color: var(--geo-crumb-hover); border-color: var(--geo-crumb-hover-border); }
+.geo-crumbs .geo-crumb-sep { color: var(--geo-accent); }
 
 /* ─── WordArt page title ─── */
 .geo-hero { text-align: center; margin: 4px 0 26px; }
 .geo-wordart {
   margin: 0;
-  font-family: 'Comic Neue', 'Comic Sans MS', 'Impact', sans-serif;
-  font-weight: 700;
+  font-family: var(--geo-font-display);
+  font-weight: var(--geo-wordart-weight);
   font-size: clamp(38px, 7vw, 60px);
   line-height: 1.04;
-  letter-spacing: 0.01em;
-  background: linear-gradient(180deg, #fff8d4 0%, #ffd96a 22%, #e8b840 48%, #a87018 78%, #4a2a08 100%);
+  letter-spacing: var(--geo-wordart-tracking);
+  background: var(--geo-wordart-fill);
   -webkit-background-clip: text;
           background-clip: text;
-  color: transparent;
-  filter: drop-shadow(0 2px 0 rgba(10, 6, 18, 0.9)) drop-shadow(0 6px 10px rgba(0, 0, 0, 0.7));
+  color: var(--geo-wordart-ink);
+  filter: var(--geo-wordart-filter);
 }
 .geo-subtitle {
   display: block;
   margin-top: 14px;
-  font-family: var(--geo-serif);
-  font-style: italic;
+  font-family: var(--geo-subtitle-font);
+  font-style: var(--geo-subtitle-style);
   font-size: 18px;
-  color: var(--geo-moon);
-  text-shadow: 0 1px 0 #000, 0 0 10px rgba(244, 219, 166, 0.7);
+  color: var(--geo-subtitle-ink);
+  text-shadow: var(--geo-subtitle-shadow);
 }
 
 /* ─── Section ribbon (header banner) ─── */
 .geo-ribbon {
   margin: 0 0 16px;
   padding: 8px 16px;
-  background: linear-gradient(90deg, #5a0a18 0%, #a82010 18%, #ffd96a 50%, #a82010 82%, #5a0a18 100%);
-  color: #1a0a08;
-  font-family: var(--geo-comic);
+  background: var(--geo-ribbon-bg);
+  color: var(--geo-ribbon-ink);
+  font-family: var(--geo-font-ui);
   font-size: clamp(18px, 4vw, 22px);
   font-weight: 700;
   text-align: center;
-  text-shadow: 1px 1px 0 rgba(255, 248, 212, 0.7);
-  border-top: 1px solid var(--geo-brass-hi);
-  border-bottom: 2px solid #1a0a08;
+  text-shadow: var(--geo-ribbon-text-shadow);
+  border-top: var(--geo-ribbon-bt);
+  border-bottom: var(--geo-ribbon-bb);
+  border-radius: var(--geo-radius);
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  box-shadow: 0 4px 10px -2px rgba(0, 0, 0, 0.55);
+  box-shadow: var(--geo-ribbon-shadow);
 }
-.geo-ribbon em { font-style: normal; color: #5a0a18; }
+.geo-ribbon em { font-style: normal; color: var(--geo-ribbon-em); }
 
 /* ─── Card (widget shell) ─── */
 .geo-card {
-  background: linear-gradient(180deg, rgba(40, 14, 92, 0.55) 0%, rgba(12, 4, 38, 0.92) 100%);
-  border: 3px ridge var(--geo-brass);
+  position: relative;
+  background: var(--geo-card-bg);
+  border: var(--geo-card-border);
+  border-radius: var(--geo-radius);
+  overflow: hidden;
   padding: 0;
   text-align: left;
-  color: #fff;
-  font-family: var(--geo-comic);
-  box-shadow: inset 0 0 24px rgba(120, 40, 180, 0.25), 0 2px 0 #000;
+  color: var(--geo-card-ink);
+  font-family: var(--geo-card-font);
+  box-shadow: var(--geo-card-shadow);
+  backdrop-filter: var(--geo-card-blur);
+  -webkit-backdrop-filter: var(--geo-card-blur);
+}
+/* Optional inner engraved frame (used by the grimoire era; renders
+   nothing while --geo-card-inner is none). */
+.geo-card::before {
+  content: "";
+  position: absolute;
+  inset: 5px;
+  border: var(--geo-card-inner);
+  pointer-events: none;
+  z-index: 1;
 }
 .geo-card + .geo-card { margin-top: 16px; }
 .geo-card-h {
   margin: 0;
   padding: 6px 10px;
-  background: linear-gradient(90deg, #5a0a18 0%, #a82010 20%, #e8b840 50%, #a82010 80%, #5a0a18 100%);
-  color: #1a0a08;
-  font-family: var(--geo-comic);
+  background: var(--geo-card-h-bg);
+  color: var(--geo-card-h-ink);
+  font-family: var(--geo-font-ui);
   font-size: 14px;
   font-weight: 700;
   text-align: center;
-  text-shadow: 1px 1px 0 rgba(255, 248, 212, 0.65);
-  border-bottom: 2px solid #1a0a08;
+  text-shadow: var(--geo-card-h-text-shadow);
+  border-bottom: var(--geo-card-h-bb);
   text-transform: uppercase;
   letter-spacing: 0.06em;
 }
 .geo-card-body { padding: 14px 16px; }
 .geo-card-body p { margin: 0 0 12px; line-height: 1.55; }
 .geo-card-body p:last-child { margin-bottom: 0; }
-.geo-card-body strong { color: var(--geo-brass-lt); }
-.geo-card-body em { color: var(--geo-brass-lt); font-style: italic; }
+.geo-card-body strong { color: var(--geo-strong-ink); }
+.geo-card-body em { color: var(--geo-em-ink); font-style: italic; }
 .geo-card-body code, .geo-code {
-  font-family: var(--geo-mono);
+  font-family: var(--geo-font-mono);
   font-size: 0.92em;
-  background: rgba(0, 0, 0, 0.45);
-  border: 1px solid rgba(232, 184, 64, 0.5);
-  color: var(--geo-brass-lt);
+  background: var(--geo-code-bg);
+  border: var(--geo-code-border);
+  border-radius: var(--geo-radius-sm);
+  color: var(--geo-code-ink);
   padding: 1px 5px;
 }
 
@@ -265,15 +510,16 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
-  font-family: var(--geo-comic);
+  font-family: var(--geo-card-font);
 }
 .geo-list li {
   display: flex;
   gap: 12px;
   align-items: flex-start;
   padding: 10px 12px;
-  background: linear-gradient(180deg, rgba(30, 10, 70, 0.55) 0%, rgba(8, 4, 26, 0.85) 100%);
-  border: 2px ridge var(--geo-brass);
+  background: var(--geo-li-bg);
+  border: var(--geo-li-border);
+  border-radius: var(--geo-radius-sm);
 }
 .geo-list .geo-bullet {
   display: inline-flex;
@@ -281,18 +527,19 @@
   justify-content: center;
   min-width: 34px;
   padding: 2px 6px;
-  background: var(--geo-brass);
-  color: #1a0a08;
+  background: var(--geo-bullet-bg);
+  color: var(--geo-bullet-ink);
+  border-radius: var(--geo-radius-sm);
   font-weight: 700;
   font-size: 12px;
   flex-shrink: 0;
 }
-.geo-list li:nth-child(2n) { border-color: var(--geo-oxblood); }
-.geo-list li:nth-child(2n) .geo-bullet { background: var(--geo-plum); color: #0a0418; }
-.geo-list li:nth-child(3n) { border-color: var(--geo-violet); }
-.geo-list li:nth-child(3n) .geo-bullet { background: var(--geo-oxblood); color: #fff; }
-.geo-list li:nth-child(4n) { border-color: var(--geo-plum); }
-.geo-list li:nth-child(4n) .geo-bullet { background: var(--geo-green); color: #1a0a08; }
+.geo-list li:nth-child(2n) { border-color: var(--geo-li-alt2); }
+.geo-list li:nth-child(2n) .geo-bullet { background: var(--geo-bullet2-bg); color: var(--geo-bullet2-ink); }
+.geo-list li:nth-child(3n) { border-color: var(--geo-li-alt3); }
+.geo-list li:nth-child(3n) .geo-bullet { background: var(--geo-bullet3-bg); color: var(--geo-bullet3-ink); }
+.geo-list li:nth-child(4n) { border-color: var(--geo-li-alt4); }
+.geo-list li:nth-child(4n) .geo-bullet { background: var(--geo-bullet4-bg); color: var(--geo-bullet4-ink); }
 
 /* ─── Chunky 90s buttons ─── */
 .geo-btn {
@@ -301,36 +548,42 @@
   align-items: center;
   gap: 10px;
   padding: 11px 16px;
-  font-family: var(--geo-comic);
+  font-family: var(--geo-btn-font);
   font-size: 16px;
   font-weight: 700;
-  color: #000;
+  color: var(--geo-btn-ink);
   text-decoration: none;
-  background: var(--geo-brass);
-  border-top: 3px solid #fff;
-  border-left: 3px solid #fff;
-  border-right: 3px solid #000;
-  border-bottom: 3px solid #000;
-  box-shadow: 3px 3px 0 #000;
+  text-shadow: var(--geo-btn-text-shadow);
+  text-transform: var(--geo-btn-case);
+  letter-spacing: var(--geo-btn-tracking);
+  background: var(--geo-btn-bg);
+  border-top: var(--geo-btn-bt);
+  border-left: var(--geo-btn-bl);
+  border-right: var(--geo-btn-br);
+  border-bottom: var(--geo-btn-bb);
+  border-radius: var(--geo-btn-radius);
+  box-shadow: var(--geo-btn-shadow);
   transition: transform 80ms ease, box-shadow 80ms ease;
 }
-.geo-btn:hover { color: #8b1a1a; transform: translate(-1px, -1px); box-shadow: 4px 4px 0 #000; }
-.geo-btn:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 #000; }
-.geo-btn .geo-btn-arrow { color: #c44a2a; font-size: 16px; }
+.geo-btn:hover { color: var(--geo-btn-hover-ink); transform: var(--geo-btn-hover-tf); box-shadow: var(--geo-btn-hover-shadow); }
+.geo-btn:active { transform: var(--geo-btn-active-tf); box-shadow: var(--geo-btn-active-shadow); }
+.geo-btn .geo-btn-arrow { color: var(--geo-btn-arrow-ink); font-size: 16px; }
 .geo-btn .geo-btn-meta {
-  font-family: var(--geo-mono);
+  font-family: var(--geo-font-mono);
   font-size: 11px;
-  color: #1f1240;
-  background: rgba(255, 255, 255, 0.55);
+  color: var(--geo-btn-meta-ink);
+  background: var(--geo-btn-meta-bg);
   padding: 1px 6px;
-  border: 1px solid #000;
+  border: var(--geo-btn-meta-border);
+  border-radius: var(--geo-radius-sm);
 }
-/* Button color variants */
-.geo-btn--brass  { background: linear-gradient(90deg, #b66a2a 0%, #e8b840 50%, #b66a2a 100%); }
-.geo-btn--green  { background: linear-gradient(90deg, #869a4a 0%, #5a8a5a 50%, #869a4a 100%); }
-.geo-btn--plum   { background: #a47ac0; }
-.geo-btn--blue   { background: #b0a8d9; }
-.geo-btn--gold   { background: #d4af5a; animation: geo-btn-pulse 1.6s ease-in-out infinite; }
+/* Button color variants. Inks chain to the base button ink unless an era
+   needs a variant to flip (grimoire's gold goes candle-orange on dark). */
+.geo-btn--brass  { background: var(--geo-btn-brass-bg); color: var(--geo-btn-brass-ink, var(--geo-btn-ink)); }
+.geo-btn--green  { background: var(--geo-btn-green-bg); color: var(--geo-btn-green-ink, var(--geo-btn-ink)); }
+.geo-btn--plum   { background: var(--geo-btn-plum-bg);  color: var(--geo-btn-plum-ink, var(--geo-btn-ink)); }
+.geo-btn--blue   { background: var(--geo-btn-blue-bg);  color: var(--geo-btn-blue-ink, var(--geo-btn-ink)); }
+.geo-btn--gold   { background: var(--geo-btn-gold-bg);  color: var(--geo-btn-gold-ink, var(--geo-btn-ink)); animation: var(--geo-btn-pulse); }
 .geo-btn--lg { font-size: 18px; padding: 14px 20px; }
 .geo-btn--block { display: grid; width: 100%; }
 .geo-btn--center { grid-template-columns: auto auto; justify-content: center; }
@@ -341,7 +594,8 @@
 
 /* ─── Separators ─── */
 /* Match the 760px section width (.dl-section / .tools-section) and center,
-   so the bars line up with the cards instead of spanning the full page. */
+   so the bars line up with the cards instead of spanning the full page.
+   Eras flatten these into era-appropriate rules via targeted overrides. */
 .geo-sep {
   max-width: 760px;
   margin: 24px auto;
@@ -382,29 +636,29 @@
   justify-content: center;
   gap: 14px;
   margin: 26px 0;
-  color: var(--geo-brass);
+  color: var(--geo-glyph-ink);
   font-size: 15px;
   letter-spacing: 0.4em;
-  text-shadow: 0 0 8px rgba(212, 175, 90, 0.6);
+  text-shadow: var(--geo-glyph-shadow);
 }
 .geo-glyph-rule::before,
 .geo-glyph-rule::after {
   content: "";
   flex: 1;
   height: 2px;
-  background: linear-gradient(90deg, transparent, rgba(212, 175, 90, 0.6), transparent);
+  background: var(--geo-glyph-line);
 }
 
 /* ─── Kicker / small caps tag ─── */
 .geo-kicker {
   display: inline-block;
-  font-family: var(--geo-comic);
+  font-family: var(--geo-font-ui);
   font-weight: 700;
   font-size: 11px;
   text-transform: uppercase;
   letter-spacing: 0.22em;
-  color: var(--geo-brass-lt);
-  text-shadow: 1px 1px 0 #000;
+  color: var(--geo-kicker-ink);
+  text-shadow: var(--geo-shadow-hard);
 }
 
 /* ─── Copy-command tile (download page) ─── */
@@ -414,22 +668,23 @@
   justify-content: space-between;
   gap: 10px;
   padding: 8px 10px;
-  background: #0a0614;
-  border: 2px inset #5a3a8a;
-  font-family: var(--geo-mono);
+  background: var(--geo-cmd-bg);
+  border: var(--geo-cmd-border);
+  border-radius: var(--geo-radius-sm);
+  font-family: var(--geo-font-mono);
   font-size: 12px;
-  color: var(--geo-brass-lt);
+  color: var(--geo-cmd-ink);
 }
-.geo-cmd .geo-cmd-dim { color: #7a6aa8; user-select: none; }
+.geo-cmd .geo-cmd-dim { color: var(--geo-cmd-dim); user-select: none; }
 .geo-cmd-label {
   display: block;
   margin-bottom: 4px;
-  font-family: var(--geo-comic);
+  font-family: var(--geo-font-ui);
   font-weight: 700;
   font-size: 11px;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  color: var(--geo-plum);
+  color: var(--geo-cmd-label-ink);
 }
 .geo-copy-btn {
   flex-shrink: 0;
@@ -437,18 +692,19 @@
   align-items: center;
   cursor: pointer;
   padding: 2px 6px;
-  background: var(--geo-brass);
-  color: #1a0a08;
-  border-top: 2px solid #fff8d4;
-  border-left: 2px solid #fff8d4;
-  border-right: 2px solid #000;
-  border-bottom: 2px solid #000;
-  font-family: var(--geo-comic);
+  background: var(--geo-copybtn-bg);
+  color: var(--geo-copybtn-ink);
+  border-top: var(--geo-copybtn-bt);
+  border-left: var(--geo-copybtn-bl);
+  border-right: var(--geo-copybtn-br);
+  border-bottom: var(--geo-copybtn-bb);
+  border-radius: var(--geo-radius-sm);
+  font-family: var(--geo-font-ui);
   font-weight: 700;
   font-size: 11px;
 }
 .geo-copy-btn:active { border-style: inset; }
-.geo-copy-btn.is-copied { background: var(--geo-green); color: #0a1a04; }
+.geo-copy-btn.is-copied { background: var(--geo-copybtn-done-bg); color: var(--geo-copybtn-done-ink); }
 
 /* ─── Notice / warning box ─── */
 .geo-notice {
@@ -456,15 +712,16 @@
   gap: 10px;
   align-items: flex-start;
   padding: 10px 14px;
-  background: linear-gradient(180deg, rgba(90, 10, 24, 0.7), rgba(40, 6, 14, 0.85));
-  border: 2px ridge var(--geo-oxblood);
-  font-family: var(--geo-comic);
+  background: var(--geo-notice-bg);
+  border: var(--geo-notice-border);
+  border-radius: var(--geo-radius-sm);
+  font-family: var(--geo-card-font);
   font-size: 13px;
   line-height: 1.5;
-  color: var(--geo-moon);
+  color: var(--geo-notice-ink);
 }
 .geo-notice .geo-notice-bang {
-  color: var(--geo-brass-lt);
+  color: var(--geo-notice-bang);
   font-size: 18px;
   line-height: 1;
   flex-shrink: 0;
@@ -472,8 +729,8 @@
 
 /* ─── Blink ─── */
 .geo .blink {
-  color: #c44a2a;
-  animation: geo-blink 0.8s steps(2, end) infinite;
+  color: var(--geo-blink-ink);
+  animation: var(--geo-blink-anim);
   display: inline-block;
 }
 @keyframes geo-blink { 50% { opacity: 0; } }
@@ -485,12 +742,839 @@
   margin: 40px auto 0;
   padding: 22px 16px 40px;
   text-align: center;
-  font-family: var(--geo-comic);
+  font-family: var(--geo-font-ui);
   font-size: 12px;
-  color: var(--geo-moon);
+  color: var(--geo-ink-muted);
 }
 .geo-footer a { font-weight: 700; }
-.geo-footer .geo-footer-glyph { color: var(--geo-brass); font-size: 16px; }
+.geo-footer .geo-footer-glyph { color: var(--geo-accent); font-size: 16px; }
+
+/* ═══════════════════════════════════════════════════════════════════
+   ERA OVERRIDES
+   One block per era. geocities needs no block: the defaults above ARE
+   geocities, so html[data-era="geocities"] (or no attribute) renders
+   pixel-identical to the pre-refactor stylesheet.
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* Overscroll backdrops, so rubber-banding past the page edge shows the
+   era's ground color instead of the layout's hardcoded indigo. */
+html[data-era="terminal"] { background: #000; }
+html[data-era="win95"]    { background: #c0c0c0; }
+html[data-era="aero"]     { background: #2196f3; }
+html[data-era="fugazi"]   { background: #fafafa; }
+html[data-era="grimoire"] { background: #0a0907; }
+
+/* ─── TERMINAL ───
+   Source: components/stages/Terminal.astro. Pure black, phosphor green
+   (#00ff66), bright green (#66ffaa) for links/commands, amber (#ffe047)
+   for headings, JetBrains Mono everywhere, scanline overlay. */
+html[data-era="terminal"] .geo {
+  --geo-page-bg: radial-gradient(ellipse 80% 60% at 50% 50%, rgba(0, 255, 102, 0.04), transparent 70%), #000;
+  --geo-ink: #00ff66;
+  --geo-ink-muted: rgba(0, 255, 102, 0.7);
+  --geo-ink-dim: rgba(0, 255, 102, 0.45);
+  --geo-accent: #ffe047;
+  --geo-accent-lt: #ffe047;
+  --geo-label-ink: #ffe047;
+  --geo-link: #66ffaa;
+  --geo-link-visited: #66ffaa;
+  --geo-link-hover: #ffe047;
+  --geo-body-glow: 0 0 4px rgba(0, 255, 102, 0.3);
+  --geo-shadow-hard: none;
+
+  --geo-font-body: 'JetBrains Mono', 'Courier New', monospace;
+  --geo-font-ui: 'JetBrains Mono', 'Courier New', monospace;
+  --geo-font-display: 'JetBrains Mono', 'Courier New', monospace;
+  --geo-font-mono: 'JetBrains Mono', 'Courier New', monospace;
+  --geo-card-font: var(--geo-font-mono);
+
+  /* Cheap scanlines on the existing overlay layer */
+  --geo-overlay-bg: repeating-linear-gradient(180deg, transparent 0, transparent 1px, rgba(0, 255, 100, 0.04) 1px, rgba(0, 255, 100, 0.04) 2px);
+  --geo-overlay-size: auto;
+  --geo-overlay-opacity: 1;
+  --geo-stars-display: none;
+
+  --geo-marquee-bg: #000;
+  --geo-marquee-ink: #00ff66;
+  --geo-marquee-bt: 1px solid rgba(0, 255, 102, 0.45);
+  --geo-marquee-bb: 1px solid rgba(0, 255, 102, 0.45);
+  --geo-marquee-text-shadow: 0 0 4px rgba(0, 255, 102, 0.3);
+
+  --geo-crumb-bg: transparent;
+  --geo-crumb-border: 1px solid rgba(0, 255, 102, 0.45);
+  --geo-crumb-ink: #66ffaa;
+  --geo-crumb-hover: #ffe047;
+  --geo-crumb-hover-border: #ffe047;
+
+  --geo-wordart-fill: none;
+  --geo-wordart-ink: #00ff66;
+  --geo-wordart-filter: drop-shadow(0 0 8px rgba(0, 255, 102, 0.45));
+  --geo-wordart-tracking: 0.02em;
+  --geo-subtitle-style: normal;
+  --geo-subtitle-ink: rgba(0, 255, 102, 0.7);
+  --geo-subtitle-shadow: none;
+
+  --geo-ribbon-bg: rgba(0, 255, 102, 0.1);
+  --geo-ribbon-ink: #00ff66;
+  --geo-ribbon-bt: 1px solid #00ff66;
+  --geo-ribbon-bb: 1px solid #00ff66;
+  --geo-ribbon-text-shadow: 0 0 6px rgba(0, 255, 102, 0.4);
+  --geo-ribbon-shadow: none;
+  --geo-ribbon-em: #ffe047;
+
+  --geo-card-bg: rgba(0, 255, 102, 0.03);
+  --geo-card-border: 1px solid #00ff66;
+  --geo-card-shadow: none;
+  --geo-card-ink: #00ff66;
+  --geo-card-h-bg: rgba(0, 255, 102, 0.1);
+  --geo-card-h-ink: #ffe047;
+  --geo-card-h-bb: 1px solid #00ff66;
+  --geo-card-h-text-shadow: none;
+  --geo-strong-ink: #ffe047;
+  --geo-em-ink: #66ffaa;
+
+  --geo-code-bg: rgba(0, 255, 102, 0.08);
+  --geo-code-border: 1px solid rgba(0, 255, 102, 0.35);
+  --geo-code-ink: #66ffaa;
+  --geo-cmd-bg: #000;
+  --geo-cmd-border: 1px dashed rgba(0, 255, 102, 0.45);
+  --geo-cmd-ink: #00ff66;
+  --geo-cmd-dim: rgba(0, 255, 102, 0.45);
+  --geo-cmd-label-ink: #ffe047;
+  --geo-aside-bg: rgba(0, 255, 102, 0.05);
+
+  --geo-li-bg: transparent;
+  --geo-li-border: 1px solid rgba(0, 255, 102, 0.35);
+  --geo-li-alt2: rgba(0, 255, 102, 0.35);
+  --geo-li-alt3: rgba(0, 255, 102, 0.35);
+  --geo-li-alt4: rgba(0, 255, 102, 0.35);
+  --geo-bullet-bg: #00ff66;  --geo-bullet-ink: #000;
+  --geo-bullet2-bg: #ffe047; --geo-bullet2-ink: #000;
+  --geo-bullet3-bg: #66ffaa; --geo-bullet3-ink: #000;
+  --geo-bullet4-bg: #00ff66; --geo-bullet4-ink: #000;
+
+  --geo-btn-bg: transparent;
+  --geo-btn-ink: #66ffaa;
+  --geo-btn-bt: none; --geo-btn-bl: none; --geo-btn-br: none; --geo-btn-bb: none;
+  --geo-btn-shadow: none;
+  --geo-btn-text-shadow: 0 0 4px rgba(0, 255, 102, 0.3);
+  --geo-btn-hover-ink: #ffe047;
+  --geo-btn-hover-tf: none;
+  --geo-btn-hover-shadow: none;
+  --geo-btn-active-tf: none;
+  --geo-btn-active-shadow: none;
+  --geo-btn-pulse: none;
+  --geo-btn-arrow-ink: #ffe047;
+  --geo-btn-meta-bg: rgba(0, 255, 102, 0.12);
+  --geo-btn-meta-ink: #00ff66;
+  --geo-btn-meta-border: 1px solid rgba(0, 255, 102, 0.35);
+  --geo-btn-brass-bg: transparent;
+  --geo-btn-green-bg: transparent;
+  --geo-btn-plum-bg: transparent;
+  --geo-btn-blue-bg: transparent;
+  --geo-btn-gold-bg: transparent;
+
+  --geo-copybtn-bg: transparent;
+  --geo-copybtn-ink: #66ffaa;
+  --geo-copybtn-bt: 1px solid rgba(0, 255, 102, 0.45);
+  --geo-copybtn-bl: 1px solid rgba(0, 255, 102, 0.45);
+  --geo-copybtn-br: 1px solid rgba(0, 255, 102, 0.45);
+  --geo-copybtn-bb: 1px solid rgba(0, 255, 102, 0.45);
+  --geo-copybtn-done-bg: #00ff66;
+  --geo-copybtn-done-ink: #000;
+
+  --geo-notice-bg: rgba(255, 224, 71, 0.05);
+  --geo-notice-border: 1px solid rgba(255, 224, 71, 0.5);
+  --geo-notice-ink: rgba(0, 255, 102, 0.85);
+  --geo-notice-bang: #ffe047;
+
+  --geo-glyph-ink: rgba(0, 255, 102, 0.6);
+  --geo-glyph-shadow: none;
+  --geo-glyph-line: linear-gradient(90deg, transparent, rgba(0, 255, 102, 0.45), transparent);
+  --geo-kicker-ink: #ffe047;
+  --geo-blink-ink: #00ff66;
+}
+/* Buttons become [ BRACKETED LABELS ]: drop the grid so the bracket
+   pseudos sit inline with the label instead of becoming grid cells. */
+html[data-era="terminal"] .geo .geo-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 14px;
+}
+html[data-era="terminal"] .geo .geo-btn::before { content: "["; color: rgba(0, 255, 102, 0.5); }
+html[data-era="terminal"] .geo .geo-btn::after  { content: "]"; color: rgba(0, 255, 102, 0.5); }
+html[data-era="terminal"] .geo .geo-btn:hover { background: rgba(0, 255, 102, 0.1); }
+/* Animated 90s bars collapse to a dashed phosphor rule. */
+html[data-era="terminal"] .geo .geo-sep {
+  height: 0;
+  background: none;
+  border-top: 1px dashed rgba(0, 255, 102, 0.35);
+  border-bottom: none;
+  animation: none;
+}
+
+/* ─── WIN95 ───
+   Source: components/stages/Win95.astro. Flat #c0c0c0 chrome, navy-blue
+   titlebar gradient (#000080 to #1084d0), explicit pixel bevels (#fff
+   highlight top-left, #000 deep shadow, #808080 mid), Tahoma type. */
+html[data-era="win95"] .geo {
+  --geo-page-bg: #c0c0c0;
+  --geo-ink: #000;
+  --geo-ink-muted: #333;
+  --geo-ink-dim: #555;
+  --geo-accent: #000080;
+  --geo-accent-lt: #1084d0;
+  --geo-label-ink: #000080;
+  --geo-link: #0000ee;
+  --geo-link-visited: #551a8b;
+  --geo-link-hover: #1084d0;
+  --geo-shadow-hard: none;
+  --geo-font-size: 13px;
+
+  --geo-font-body: Tahoma, 'MS Sans Serif', 'Microsoft Sans Serif', Geneva, sans-serif;
+  --geo-font-ui: Tahoma, 'MS Sans Serif', 'Microsoft Sans Serif', Geneva, sans-serif;
+  --geo-font-display: Tahoma, 'MS Sans Serif', 'Microsoft Sans Serif', Geneva, sans-serif;
+  --geo-font-mono: 'Courier New', Courier, monospace;
+  --geo-card-font: var(--geo-font-ui);
+
+  --geo-overlay-bg: none;
+  --geo-overlay-size: auto;
+  --geo-overlay-opacity: 0;
+  --geo-stars-display: none;
+
+  --geo-marquee-bg: #c0c0c0;
+  --geo-marquee-ink: #000;
+  --geo-marquee-bt: 2px solid #fff;
+  --geo-marquee-bb: 2px solid #808080;
+  --geo-marquee-text-shadow: none;
+
+  --geo-crumb-bg: #c0c0c0;
+  --geo-crumb-border: 1px solid #fff; /* sides corrected by bevel rule below */
+  --geo-crumb-ink: #000;
+  --geo-crumb-hover: #000080;
+  --geo-crumb-hover-border: #fff;
+
+  --geo-wordart-fill: none;
+  --geo-wordart-ink: #000080;
+  --geo-wordart-filter: drop-shadow(1px 1px 0 #ffffff);
+  --geo-wordart-tracking: 0;
+  --geo-subtitle-style: normal;
+  --geo-subtitle-ink: #000;
+  --geo-subtitle-shadow: none;
+
+  --geo-ribbon-bg: linear-gradient(90deg, #000080 0%, #1084d0 100%);
+  --geo-ribbon-ink: #fff;
+  --geo-ribbon-bt: none;
+  --geo-ribbon-bb: none;
+  --geo-ribbon-text-shadow: none;
+  --geo-ribbon-shadow: 1px 1px 0 #808080;
+  --geo-ribbon-em: #fff;
+
+  --geo-card-bg: #c0c0c0;
+  --geo-card-border: 2px solid #fff; /* sides corrected by bevel rule below */
+  --geo-card-shadow: 1px 1px 0 #808080;
+  --geo-card-ink: #000;
+  --geo-card-h-bg: linear-gradient(90deg, #000080 0%, #1084d0 100%);
+  --geo-card-h-ink: #fff;
+  --geo-card-h-bb: none;
+  --geo-card-h-text-shadow: none;
+  --geo-strong-ink: #000080;
+  --geo-em-ink: #000080;
+
+  --geo-code-bg: #fff;
+  --geo-code-border: 1px solid #808080;
+  --geo-code-ink: #000080;
+  --geo-cmd-bg: #fff;
+  --geo-cmd-border: 2px solid #808080; /* sides corrected by bevel rule below */
+  --geo-cmd-ink: #000;
+  --geo-cmd-dim: #808080;
+  --geo-cmd-label-ink: #000080;
+  --geo-aside-bg: #fff;
+
+  --geo-li-bg: #fff;
+  --geo-li-border: 1px solid #808080;
+  --geo-li-alt2: #808080;
+  --geo-li-alt3: #808080;
+  --geo-li-alt4: #808080;
+  --geo-bullet-bg: #000080;  --geo-bullet-ink: #fff;
+  --geo-bullet2-bg: #008080; --geo-bullet2-ink: #fff;
+  --geo-bullet3-bg: #800080; --geo-bullet3-ink: #fff;
+  --geo-bullet4-bg: #008000; --geo-bullet4-ink: #fff;
+
+  --geo-btn-bg: #c0c0c0;
+  --geo-btn-ink: #000;
+  --geo-btn-bt: 2px solid #fff;
+  --geo-btn-bl: 2px solid #fff;
+  --geo-btn-br: 2px solid #000;
+  --geo-btn-bb: 2px solid #000;
+  --geo-btn-shadow: 1px 1px 0 #808080;
+  --geo-btn-hover-ink: #000;
+  --geo-btn-hover-tf: none;
+  --geo-btn-hover-shadow: 1px 1px 0 #808080;
+  --geo-btn-active-tf: translate(1px, 1px);
+  --geo-btn-active-shadow: none;
+  --geo-btn-pulse: none;
+  --geo-btn-arrow-ink: #000080;
+  --geo-btn-meta-bg: #fff;
+  --geo-btn-meta-ink: #000;
+  --geo-btn-meta-border: 1px solid #808080;
+  --geo-btn-brass-bg: #c0c0c0;
+  --geo-btn-green-bg: #c0c0c0;
+  --geo-btn-plum-bg: #c0c0c0;
+  --geo-btn-blue-bg: #c0c0c0;
+  --geo-btn-gold-bg: #c0c0c0;
+
+  --geo-copybtn-bg: #c0c0c0;
+  --geo-copybtn-ink: #000;
+  --geo-copybtn-bt: 1px solid #fff;
+  --geo-copybtn-bl: 1px solid #fff;
+  --geo-copybtn-br: 1px solid #000;
+  --geo-copybtn-bb: 1px solid #000;
+  --geo-copybtn-done-bg: #000080;
+  --geo-copybtn-done-ink: #fff;
+
+  --geo-notice-bg: #ffffe1;
+  --geo-notice-border: 1px solid #000;
+  --geo-notice-ink: #000;
+  --geo-notice-bang: #000;
+
+  --geo-glyph-ink: #000080;
+  --geo-glyph-shadow: none;
+  --geo-glyph-line: linear-gradient(90deg, transparent, #808080, transparent);
+  --geo-kicker-ink: #000080;
+  --geo-blink-ink: #c00;
+}
+/* Classic pixel bevels: raised chrome for cards/crumbs, sunken field for
+   command tiles. Border shorthand vars can't carry per-side colors, so
+   the sides are corrected here. */
+html[data-era="win95"] .geo .geo-card,
+html[data-era="win95"] .geo .geo-crumbs a {
+  border-top-color: #fff;
+  border-left-color: #fff;
+  border-right-color: #000;
+  border-bottom-color: #000;
+}
+html[data-era="win95"] .geo .geo-cmd {
+  border-top-color: #808080;
+  border-left-color: #808080;
+  border-right-color: #fff;
+  border-bottom-color: #fff;
+}
+/* Buttons depress on click like real Win95 controls. */
+html[data-era="win95"] .geo .geo-btn:active,
+html[data-era="win95"] .geo .geo-copy-btn:active {
+  border-top-color: #000;
+  border-left-color: #000;
+  border-right-color: #fff;
+  border-bottom-color: #fff;
+  border-style: solid;
+}
+html[data-era="win95"] .geo .geo-btn:hover { background: #d0d0d0; }
+/* Ribbons and card headers read as left-aligned titlebars. */
+html[data-era="win95"] .geo .geo-ribbon {
+  text-align: left;
+  font-size: 14px;
+  padding: 4px 10px;
+}
+html[data-era="win95"] .geo .geo-card-h { text-align: left; }
+/* Etched divider line (groove between toolbar strips). */
+html[data-era="win95"] .geo .geo-sep {
+  height: 0;
+  background: none;
+  border-top: 1px solid #808080;
+  border-bottom: 1px solid #fff;
+  animation: none;
+}
+
+/* ─── AERO ───
+   Source: components/stages/Aero.astro. Sky gradient (#87ceeb to
+   #2196f3), deep-water ink #0a2d4a, frosted-glass cards (white rgba +
+   blur + inner highlight), glossy 4-stop aqua pills, rounded corners. */
+html[data-era="aero"] .geo {
+  --geo-page-bg: linear-gradient(180deg, #87ceeb 0%, #5cb3e0 45%, #2196f3 100%);
+  --geo-ink: #0a2d4a;
+  --geo-ink-muted: rgba(10, 45, 74, 0.78);
+  --geo-ink-dim: rgba(10, 45, 74, 0.6);
+  --geo-accent: #1a4d8a;
+  --geo-accent-lt: #2c6cad;
+  --geo-label-ink: #1a4d8a;
+  --geo-link: #1a4d8a;
+  --geo-link-visited: #1a4d8a;
+  --geo-link-hover: #0a2d4a;
+  --geo-body-glow: 0 1px 0 rgba(255, 255, 255, 0.4);
+  --geo-shadow-hard: none;
+
+  --geo-font-body: 'Segoe UI', 'Lucida Grande', 'Lucida Sans Unicode', 'Helvetica Neue', sans-serif;
+  --geo-font-ui: 'Segoe UI', 'Lucida Grande', 'Lucida Sans Unicode', 'Helvetica Neue', sans-serif;
+  --geo-font-display: 'Segoe UI', 'Lucida Grande', 'Lucida Sans Unicode', 'Helvetica Neue', sans-serif;
+  --geo-font-mono: 'Consolas', 'JetBrains Mono', monospace;
+  --geo-card-font: var(--geo-font-ui);
+
+  --geo-radius: 14px;
+  --geo-radius-sm: 8px;
+  --geo-btn-radius: 100px;
+  --geo-chip-radius: 100px;
+
+  /* Open-sky highlights instead of candle dust */
+  --geo-overlay-bg:
+    radial-gradient(ellipse 60% 40% at 18% 8%, rgba(255, 255, 255, 0.55), transparent 60%),
+    radial-gradient(ellipse 70% 35% at 85% 30%, rgba(255, 255, 255, 0.35), transparent 65%);
+  --geo-overlay-size: auto;
+  --geo-overlay-opacity: 1;
+  --geo-stars-display: none;
+
+  --geo-marquee-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0.25));
+  --geo-marquee-ink: #0a2d4a;
+  --geo-marquee-bt: 1px solid rgba(255, 255, 255, 0.7);
+  --geo-marquee-bb: 1px solid rgba(255, 255, 255, 0.5);
+  --geo-marquee-text-shadow: 0 1px 0 rgba(255, 255, 255, 0.6);
+
+  --geo-crumb-bg: rgba(255, 255, 255, 0.4);
+  --geo-crumb-border: 1px solid rgba(255, 255, 255, 0.7);
+  --geo-crumb-ink: #0a2d4a;
+  --geo-crumb-hover: #0a2d4a;
+  --geo-crumb-hover-border: #fff;
+
+  --geo-wordart-fill: none;
+  --geo-wordart-ink: #ffffff;
+  --geo-wordart-filter: drop-shadow(0 1px 2px rgba(0, 45, 100, 0.35)) drop-shadow(0 4px 14px rgba(0, 45, 100, 0.25));
+  --geo-wordart-weight: 200;
+  --geo-wordart-tracking: -0.02em;
+  --geo-subtitle-style: normal;
+  --geo-subtitle-ink: #ffffff;
+  --geo-subtitle-shadow: 0 1px 2px rgba(0, 45, 100, 0.3);
+
+  --geo-ribbon-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.3));
+  --geo-ribbon-ink: #0a2d4a;
+  --geo-ribbon-bt: 1px solid rgba(255, 255, 255, 0.8);
+  --geo-ribbon-bb: 1px solid rgba(255, 255, 255, 0.5);
+  --geo-ribbon-text-shadow: 0 1px 0 rgba(255, 255, 255, 0.7);
+  --geo-ribbon-shadow: 0 4px 16px -4px rgba(0, 41, 89, 0.35);
+  --geo-ribbon-em: #1a4d8a;
+
+  --geo-card-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.55) 0%, rgba(255, 255, 255, 0.25) 100%);
+  --geo-card-border: 1px solid rgba(255, 255, 255, 0.7);
+  --geo-card-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 8px 32px -8px rgba(0, 41, 89, 0.35);
+  --geo-card-ink: #0a2d4a;
+  --geo-card-blur: blur(20px);
+  --geo-card-h-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.15));
+  --geo-card-h-ink: #0a2d4a;
+  --geo-card-h-bb: 1px solid rgba(255, 255, 255, 0.55);
+  --geo-card-h-text-shadow: 0 1px 0 rgba(255, 255, 255, 0.7);
+  --geo-strong-ink: #1a4d8a;
+  --geo-em-ink: #1a4d8a;
+
+  --geo-code-bg: rgba(255, 255, 255, 0.55);
+  --geo-code-border: 1px solid rgba(255, 255, 255, 0.75);
+  --geo-code-ink: #1a4d8a;
+  --geo-cmd-bg: rgba(255, 255, 255, 0.45);
+  --geo-cmd-border: 1px solid rgba(255, 255, 255, 0.7);
+  --geo-cmd-ink: #0a2d4a;
+  --geo-cmd-dim: rgba(10, 45, 74, 0.55);
+  --geo-cmd-label-ink: #1a4d8a;
+  --geo-aside-bg: rgba(255, 255, 255, 0.4);
+
+  --geo-li-bg: rgba(255, 255, 255, 0.35);
+  --geo-li-border: 1px solid rgba(255, 255, 255, 0.6);
+  --geo-li-alt2: rgba(255, 255, 255, 0.6);
+  --geo-li-alt3: rgba(255, 255, 255, 0.6);
+  --geo-li-alt4: rgba(255, 255, 255, 0.6);
+  --geo-bullet-bg: #2c6cad;  --geo-bullet-ink: #fff;
+  --geo-bullet2-bg: #2c6cad; --geo-bullet2-ink: #fff;
+  --geo-bullet3-bg: #2c6cad; --geo-bullet3-ink: #fff;
+  --geo-bullet4-bg: #2c6cad; --geo-bullet4-ink: #fff;
+
+  /* The classic 2-stop gloss pill: specular top sheen over a 4-stop
+     aqua body (same stops as the stage's .aqua-btn). */
+  --geo-btn-bg:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0) 50%),
+    linear-gradient(180deg, #7eb6e5 0%, #4a8fcc 49%, #2c6cad 51%, #1a4d8a 100%);
+  --geo-btn-ink: #fff;
+  --geo-btn-bt: 1px solid rgba(255, 255, 255, 0.55);
+  --geo-btn-bl: 1px solid rgba(255, 255, 255, 0.55);
+  --geo-btn-br: 1px solid rgba(255, 255, 255, 0.55);
+  --geo-btn-bb: 1px solid rgba(255, 255, 255, 0.55);
+  --geo-btn-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7), inset 0 -1px 0 rgba(0, 25, 60, 0.4), 0 4px 12px rgba(0, 41, 89, 0.35);
+  --geo-btn-text-shadow: 0 1px 1px rgba(0, 25, 60, 0.5);
+  --geo-btn-hover-ink: #fff;
+  --geo-btn-hover-tf: translateY(-1px);
+  --geo-btn-hover-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8), inset 0 -1px 0 rgba(0, 25, 60, 0.4), 0 6px 16px rgba(0, 41, 89, 0.45);
+  --geo-btn-active-tf: translateY(1px);
+  --geo-btn-active-shadow: inset 0 1px 2px rgba(0, 25, 60, 0.4);
+  --geo-btn-pulse: none;
+  --geo-btn-arrow-ink: rgba(255, 255, 255, 0.85);
+  --geo-btn-meta-bg: rgba(255, 255, 255, 0.25);
+  --geo-btn-meta-ink: #fff;
+  --geo-btn-meta-border: 1px solid rgba(255, 255, 255, 0.4);
+  --geo-btn-brass-bg:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0) 50%),
+    linear-gradient(180deg, #7eb6e5 0%, #4a8fcc 49%, #2c6cad 51%, #1a4d8a 100%);
+  --geo-btn-green-bg:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0) 50%),
+    linear-gradient(180deg, #9fd178 0%, #6fae46 49%, #4f8f2f 51%, #33701c 100%);
+  --geo-btn-plum-bg:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0) 50%),
+    linear-gradient(180deg, #7eb6e5 0%, #4a8fcc 49%, #2c6cad 51%, #1a4d8a 100%);
+  --geo-btn-blue-bg:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0) 50%),
+    linear-gradient(180deg, #7eb6e5 0%, #4a8fcc 49%, #2c6cad 51%, #1a4d8a 100%);
+  --geo-btn-gold-bg:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0) 50%),
+    linear-gradient(180deg, #8ec5f0 0%, #5a9cd6 49%, #3578b8 51%, #225a96 100%);
+
+  --geo-copybtn-bg: linear-gradient(180deg, #7eb6e5 0%, #2c6cad 100%);
+  --geo-copybtn-ink: #fff;
+  --geo-copybtn-bt: 1px solid rgba(255, 255, 255, 0.55);
+  --geo-copybtn-bl: 1px solid rgba(255, 255, 255, 0.55);
+  --geo-copybtn-br: 1px solid rgba(255, 255, 255, 0.55);
+  --geo-copybtn-bb: 1px solid rgba(255, 255, 255, 0.55);
+  --geo-copybtn-done-bg: #4f8f2f;
+  --geo-copybtn-done-ink: #fff;
+
+  --geo-notice-bg: rgba(255, 255, 255, 0.4);
+  --geo-notice-border: 1px solid rgba(255, 255, 255, 0.65);
+  --geo-notice-ink: #0a2d4a;
+  --geo-notice-bang: #d97706;
+
+  --geo-glyph-ink: #fff;
+  --geo-glyph-shadow: 0 1px 2px rgba(0, 45, 100, 0.3);
+  --geo-glyph-line: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.8), transparent);
+  --geo-kicker-ink: #1a4d8a;
+  --geo-blink-ink: #1a4d8a;
+}
+/* Dividers melt into soft glass bars. */
+html[data-era="aero"] .geo .geo-sep {
+  height: 8px;
+  background: rgba(255, 255, 255, 0.35);
+  border-top: 1px solid rgba(255, 255, 255, 0.6);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 999px;
+  animation: none;
+}
+
+/* ─── FUGAZI ───
+   Source: components/stages/Fugazi.astro. Off-white SaaS (#fafafa),
+   near-black ink, Inter, indigo/violet accents (#6366f1 / #8b5cf6),
+   pill buttons, huge soft shadows. The 1996 copy stays; that's the joke. */
+html[data-era="fugazi"] .geo {
+  --geo-page-bg: #fafafa;
+  --geo-ink: #0a0a0a;
+  --geo-ink-muted: #52525b;
+  --geo-ink-dim: #71717a;
+  --geo-accent: #6366f1;
+  --geo-accent-lt: #8b5cf6;
+  --geo-label-ink: #6366f1;
+  --geo-link: #6366f1;
+  --geo-link-visited: #6366f1;
+  --geo-link-hover: #4f46e5;
+  --geo-shadow-hard: none;
+
+  --geo-font-body: 'Inter', ui-sans-serif, -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --geo-font-ui: 'Inter', ui-sans-serif, -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --geo-font-display: 'Inter', ui-sans-serif, -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --geo-font-mono: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', monospace;
+  --geo-card-font: var(--geo-font-ui);
+
+  --geo-radius: 16px;
+  --geo-radius-sm: 8px;
+  --geo-btn-radius: 999px;
+  --geo-chip-radius: 999px;
+
+  /* Faint indigo mesh wash */
+  --geo-overlay-bg:
+    radial-gradient(ellipse 60% 40% at 80% 0%, rgba(99, 102, 241, 0.08), transparent 60%),
+    radial-gradient(ellipse 50% 35% at 10% 20%, rgba(139, 92, 246, 0.06), transparent 60%);
+  --geo-overlay-size: auto;
+  --geo-overlay-opacity: 1;
+  --geo-stars-display: none;
+
+  /* Slim corporate announcement bar (copy untouched; that's the bit) */
+  --geo-marquee-bg: linear-gradient(90deg, #6366f1, #8b5cf6);
+  --geo-marquee-ink: #fff;
+  --geo-marquee-bt: none;
+  --geo-marquee-bb: none;
+  --geo-marquee-text-shadow: none;
+
+  --geo-crumb-bg: #ffffff;
+  --geo-crumb-border: 1px solid rgba(10, 10, 10, 0.12);
+  --geo-crumb-ink: #52525b;
+  --geo-crumb-hover: #0a0a0a;
+  --geo-crumb-hover-border: rgba(10, 10, 10, 0.25);
+
+  --geo-wordart-fill: linear-gradient(100deg, #18181b 0%, #4338ca 60%, #8b5cf6 100%);
+  --geo-wordart-filter: none;
+  --geo-wordart-tracking: -0.03em;
+  --geo-subtitle-style: normal;
+  --geo-subtitle-ink: #52525b;
+  --geo-subtitle-shadow: none;
+
+  --geo-ribbon-bg: none;
+  --geo-ribbon-ink: #0a0a0a;
+  --geo-ribbon-bt: none;
+  --geo-ribbon-bb: 1px solid rgba(10, 10, 10, 0.08);
+  --geo-ribbon-text-shadow: none;
+  --geo-ribbon-shadow: none;
+  --geo-ribbon-em: #6366f1;
+
+  --geo-card-bg: #ffffff;
+  --geo-card-border: 1px solid rgba(10, 10, 10, 0.08);
+  --geo-card-shadow: 0 8px 28px -12px rgba(0, 0, 0, 0.12);
+  --geo-card-ink: #18181b;
+  --geo-card-h-bg: #fafafa;
+  --geo-card-h-ink: #0a0a0a;
+  --geo-card-h-bb: 1px solid rgba(10, 10, 10, 0.08);
+  --geo-card-h-text-shadow: none;
+  --geo-strong-ink: #0a0a0a;
+  --geo-em-ink: #6366f1;
+
+  --geo-code-bg: #f4f4f5;
+  --geo-code-border: 1px solid rgba(10, 10, 10, 0.08);
+  --geo-code-ink: #4f46e5;
+  --geo-cmd-bg: #18181b;
+  --geo-cmd-border: 1px solid #27272a;
+  --geo-cmd-ink: #e4e4e7;
+  --geo-cmd-dim: #71717a;
+  --geo-cmd-label-ink: #6366f1;
+  --geo-aside-bg: #f4f4f5;
+
+  --geo-li-bg: #fafafa;
+  --geo-li-border: 1px solid rgba(10, 10, 10, 0.08);
+  --geo-li-alt2: rgba(10, 10, 10, 0.08);
+  --geo-li-alt3: rgba(10, 10, 10, 0.08);
+  --geo-li-alt4: rgba(10, 10, 10, 0.08);
+  --geo-bullet-bg: #eef2ff;  --geo-bullet-ink: #4338ca;
+  --geo-bullet2-bg: #eef2ff; --geo-bullet2-ink: #4338ca;
+  --geo-bullet3-bg: #eef2ff; --geo-bullet3-ink: #4338ca;
+  --geo-bullet4-bg: #eef2ff; --geo-bullet4-ink: #4338ca;
+
+  --geo-btn-bg: #0a0a0a;
+  --geo-btn-ink: #fafafa;
+  --geo-btn-bt: 1px solid #0a0a0a;
+  --geo-btn-bl: 1px solid #0a0a0a;
+  --geo-btn-br: 1px solid #0a0a0a;
+  --geo-btn-bb: 1px solid #0a0a0a;
+  --geo-btn-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 1px 2px rgba(0, 0, 0, 0.08), 0 6px 24px -8px rgba(0, 0, 0, 0.45);
+  --geo-btn-hover-ink: #fafafa;
+  --geo-btn-hover-tf: translateY(-1px);
+  --geo-btn-hover-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14), 0 2px 4px rgba(0, 0, 0, 0.12), 0 10px 32px -8px rgba(0, 0, 0, 0.55);
+  --geo-btn-active-tf: translateY(1px);
+  --geo-btn-active-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  --geo-btn-pulse: none;
+  --geo-btn-arrow-ink: rgba(250, 250, 250, 0.7);
+  --geo-btn-meta-bg: rgba(255, 255, 255, 0.15);
+  --geo-btn-meta-ink: #fafafa;
+  --geo-btn-meta-border: 1px solid rgba(255, 255, 255, 0.25);
+  --geo-btn-brass-bg: #0a0a0a;
+  --geo-btn-green-bg: #0a0a0a;
+  --geo-btn-plum-bg: #0a0a0a;
+  --geo-btn-blue-bg: #0a0a0a;
+  --geo-btn-gold-bg: linear-gradient(135deg, #6366f1, #8b5cf6);
+
+  --geo-copybtn-bg: #3f3f46;
+  --geo-copybtn-ink: #fafafa;
+  --geo-copybtn-bt: 1px solid #3f3f46;
+  --geo-copybtn-bl: 1px solid #3f3f46;
+  --geo-copybtn-br: 1px solid #3f3f46;
+  --geo-copybtn-bb: 1px solid #3f3f46;
+  --geo-copybtn-done-bg: #16a34a;
+  --geo-copybtn-done-ink: #fff;
+
+  --geo-notice-bg: #fffbeb;
+  --geo-notice-border: 1px solid #fde68a;
+  --geo-notice-ink: #92400e;
+  --geo-notice-bang: #d97706;
+
+  --geo-glyph-ink: #a1a1aa;
+  --geo-glyph-shadow: none;
+  --geo-glyph-line: linear-gradient(90deg, transparent, rgba(10, 10, 10, 0.15), transparent);
+  --geo-kicker-ink: #6366f1;
+  --geo-blink-ink: #6366f1;
+  --geo-blink-anim: geo-blink 1.4s steps(2, end) infinite;
+}
+/* Section headers become left-aligned editorial headings. */
+html[data-era="fugazi"] .geo .geo-ribbon {
+  text-align: left;
+  padding: 0 0 10px;
+  letter-spacing: -0.01em;
+  border-radius: 0;
+}
+/* Announcement bar slims down. */
+html[data-era="fugazi"] .geo .geo-marquee {
+  font-size: 13px;
+  font-weight: 600;
+}
+/* Dividers become hairlines. */
+html[data-era="fugazi"] .geo .geo-sep {
+  height: 0;
+  background: none;
+  border-top: 1px solid rgba(10, 10, 10, 0.08);
+  border-bottom: none;
+  animation: none;
+}
+
+/* ─── GRIMOIRE ───
+   Source: components/stages/Grimoire.astro. Parchment-dark (#0a0907),
+   sepia/brass inks (#e7d2a3 family), candle-gold accent (#f97316),
+   IM Fell English body with IM Fell SC small-caps chrome, thin double
+   engraved frames. Dim starfield stays: it suits the vigil. */
+html[data-era="grimoire"] .geo {
+  --geo-page-bg:
+    radial-gradient(ellipse 90% 55% at 50% 0%, rgba(196, 122, 50, 0.12) 0%, transparent 65%),
+    radial-gradient(ellipse 70% 40% at 50% 100%, rgba(249, 115, 22, 0.07) 0%, transparent 70%),
+    #0a0907;
+  --geo-ink: #ffffff;
+  --geo-ink-muted: rgba(255, 255, 255, 0.72);
+  --geo-ink-dim: rgba(255, 255, 255, 0.55);
+  --geo-accent: #e7d2a3;
+  --geo-accent-lt: #f4e2b5;
+  --geo-label-ink: rgba(231, 210, 163, 0.65);
+  --geo-link: #e7d2a3;
+  --geo-link-visited: #c9a961;
+  --geo-link-hover: #f97316;
+  --geo-shadow-hard: none;
+
+  --geo-font-body: 'IM Fell English', 'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, serif;
+  --geo-font-ui: 'IM Fell English SC', 'IM Fell English', serif;
+  --geo-font-display: 'IM Fell English SC', 'IM Fell English', serif;
+  --geo-font-mono: 'JetBrains Mono', 'Courier New', monospace;
+  --geo-card-font: var(--geo-font-body);
+
+  /* Faint candle pools instead of the indigo dust */
+  --geo-overlay-bg:
+    radial-gradient(circle at 25% 25%, rgba(249, 115, 22, 0.05) 0, transparent 30%),
+    radial-gradient(circle at 75% 70%, rgba(196, 122, 50, 0.05) 0, transparent 30%);
+  --geo-overlay-size: 220px 220px, 260px 260px;
+  --geo-overlay-opacity: 1;
+  --geo-stars-opacity: 0.35;
+
+  --geo-marquee-bg: #14110d;
+  --geo-marquee-ink: #e7d2a3;
+  --geo-marquee-bt: 1px solid rgba(231, 210, 163, 0.32);
+  --geo-marquee-bb: 1px solid rgba(231, 210, 163, 0.32);
+  --geo-marquee-text-shadow: none;
+
+  --geo-crumb-bg: rgba(10, 10, 10, 0.55);
+  --geo-crumb-border: 1px solid rgba(231, 210, 163, 0.32);
+  --geo-crumb-ink: #e7d2a3;
+  --geo-crumb-hover: #f97316;
+  --geo-crumb-hover-border: rgba(249, 115, 22, 0.6);
+
+  --geo-wordart-fill: linear-gradient(180deg, #f4e2b5 0%, #e7d2a3 45%, #c9a961 78%, #8a6d3b 100%);
+  --geo-wordart-filter: drop-shadow(0 2px 0 rgba(0, 0, 0, 0.85)) drop-shadow(0 0 18px rgba(249, 115, 22, 0.22));
+  --geo-wordart-weight: 400;
+  --geo-wordart-tracking: 0.04em;
+  --geo-subtitle-ink: rgba(231, 210, 163, 0.85);
+  --geo-subtitle-shadow: 0 0 12px rgba(249, 115, 22, 0.25);
+
+  --geo-ribbon-bg: linear-gradient(180deg, #161616 0%, #1f1f1f 100%);
+  --geo-ribbon-ink: #e7d2a3;
+  --geo-ribbon-bt: 1px solid rgba(231, 210, 163, 0.4);
+  --geo-ribbon-bb: 1px solid rgba(231, 210, 163, 0.4);
+  --geo-ribbon-text-shadow: none;
+  --geo-ribbon-shadow: 0 6px 18px -8px rgba(0, 0, 0, 0.8);
+  --geo-ribbon-em: #f97316;
+
+  --geo-card-bg: linear-gradient(180deg, #161616 0%, #1f1f1f 100%);
+  --geo-card-border: 1px solid rgba(231, 210, 163, 0.32);
+  --geo-card-inner: 1px solid rgba(231, 210, 163, 0.12);
+  --geo-card-shadow: 0 12px 30px -18px rgba(0, 0, 0, 0.9);
+  --geo-card-ink: rgba(255, 255, 255, 0.85);
+  --geo-card-h-bg: rgba(231, 210, 163, 0.07);
+  --geo-card-h-ink: #e7d2a3;
+  --geo-card-h-bb: 1px solid rgba(231, 210, 163, 0.22);
+  --geo-card-h-text-shadow: none;
+  --geo-strong-ink: #f4e2b5;
+  --geo-em-ink: #f97316;
+
+  --geo-code-bg: rgba(0, 0, 0, 0.45);
+  --geo-code-border: 1px solid rgba(231, 210, 163, 0.3);
+  --geo-code-ink: #e7d2a3;
+  --geo-cmd-bg: #0a0907;
+  --geo-cmd-border: 1px solid rgba(231, 210, 163, 0.25);
+  --geo-cmd-ink: #e7d2a3;
+  --geo-cmd-dim: rgba(231, 210, 163, 0.45);
+  --geo-cmd-label-ink: rgba(231, 210, 163, 0.65);
+  --geo-aside-bg: rgba(0, 0, 0, 0.35);
+
+  --geo-li-bg: rgba(10, 9, 7, 0.5);
+  --geo-li-border: 1px solid rgba(231, 210, 163, 0.22);
+  --geo-li-alt2: rgba(231, 210, 163, 0.22);
+  --geo-li-alt3: rgba(231, 210, 163, 0.22);
+  --geo-li-alt4: rgba(231, 210, 163, 0.22);
+  --geo-bullet-bg: #e7d2a3;  --geo-bullet-ink: #14110d;
+  --geo-bullet2-bg: #f97316; --geo-bullet2-ink: #0a0a0a;
+  --geo-bullet3-bg: #c9a961; --geo-bullet3-ink: #14110d;
+  --geo-bullet4-bg: #e7d2a3; --geo-bullet4-ink: #14110d;
+
+  /* Parchment buttons (the stage's .parchment-btn) */
+  --geo-btn-bg: rgba(10, 10, 10, 0.55);
+  --geo-btn-ink: #e7d2a3;
+  --geo-btn-bt: 1px solid rgba(231, 210, 163, 0.32);
+  --geo-btn-bl: 1px solid rgba(231, 210, 163, 0.32);
+  --geo-btn-br: 1px solid rgba(231, 210, 163, 0.32);
+  --geo-btn-bb: 1px solid rgba(231, 210, 163, 0.32);
+  --geo-btn-shadow: none;
+  --geo-btn-case: uppercase;
+  --geo-btn-tracking: 0.14em;
+  --geo-btn-hover-ink: #0a0a0a;
+  --geo-btn-hover-tf: none;
+  --geo-btn-hover-shadow: none;
+  --geo-btn-active-tf: translate(1px, 1px);
+  --geo-btn-active-shadow: none;
+  --geo-btn-pulse: none;
+  --geo-btn-arrow-ink: #f97316;
+  --geo-btn-meta-bg: rgba(0, 0, 0, 0.4);
+  --geo-btn-meta-ink: #e7d2a3;
+  --geo-btn-meta-border: 1px solid rgba(231, 210, 163, 0.3);
+  --geo-btn-brass-bg: rgba(10, 10, 10, 0.55);
+  --geo-btn-green-bg: rgba(10, 10, 10, 0.55);
+  --geo-btn-plum-bg: rgba(10, 10, 10, 0.55);
+  --geo-btn-blue-bg: rgba(10, 10, 10, 0.55);
+  --geo-btn-gold-bg: #f97316;
+  --geo-btn-gold-ink: #0a0a0a;
+
+  --geo-copybtn-bg: rgba(231, 210, 163, 0.12);
+  --geo-copybtn-ink: #e7d2a3;
+  --geo-copybtn-bt: 1px solid rgba(231, 210, 163, 0.4);
+  --geo-copybtn-bl: 1px solid rgba(231, 210, 163, 0.4);
+  --geo-copybtn-br: 1px solid rgba(231, 210, 163, 0.4);
+  --geo-copybtn-bb: 1px solid rgba(231, 210, 163, 0.4);
+  --geo-copybtn-done-bg: #f97316;
+  --geo-copybtn-done-ink: #0a0a0a;
+
+  --geo-notice-bg: linear-gradient(180deg, rgba(60, 18, 8, 0.6), rgba(20, 10, 6, 0.85));
+  --geo-notice-border: 1px solid rgba(249, 115, 22, 0.45);
+  --geo-notice-ink: rgba(255, 255, 255, 0.82);
+  --geo-notice-bang: #f97316;
+
+  --geo-glyph-ink: rgba(231, 210, 163, 0.75);
+  --geo-glyph-shadow: none;
+  --geo-glyph-line: linear-gradient(90deg, transparent, rgba(231, 210, 163, 0.5), transparent);
+  --geo-kicker-ink: rgba(231, 210, 163, 0.8);
+  --geo-blink-ink: #f97316;
+  --geo-blink-anim: geo-blink 1s steps(2, end) infinite;
+}
+/* Hover ignites: parchment buttons flood candle-orange, exactly like the
+   stage's .parchment-btn:hover. */
+html[data-era="grimoire"] .geo .geo-btn:hover {
+  background: #f97316;
+  border-color: #7c2d12;
+}
+/* The gold (primary) variant is the accent CTA from the stage. */
+html[data-era="grimoire"] .geo .geo-btn--gold {
+  border-color: #7c2d12;
+  box-shadow: 2px 2px 0 #14110d;
+}
+/* Engraved double hairline divider. */
+html[data-era="grimoire"] .geo .geo-sep {
+  height: 3px;
+  background: none;
+  border-top: 1px solid rgba(231, 210, 163, 0.25);
+  border-bottom: 1px solid rgba(231, 210, 163, 0.1);
+  animation: none;
+}
 
 /* ─── Reduced motion: kill the loops ─── */
 @media (prefers-reduced-motion: reduce) {

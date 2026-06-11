@@ -10,6 +10,7 @@
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
+    "gen:assets": "node scripts/gen-assets.mjs",
     "generate-types": "wrangler types"
   },
   "dependencies": {
@@ -23,6 +24,7 @@
     "vite": "^7"
   },
   "devDependencies": {
-    "@astrojs/sitemap": "^3.7.2"
+    "@astrojs/sitemap": "^3.7.2",
+    "sharp": "^0.35.0"
   }
 }

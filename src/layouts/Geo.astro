@@ -9,6 +9,7 @@
  */
 import '../styles/geo.css';
 import Neko from '../components/Neko.astro';
+import EraSwitcher from '../components/EraSwitcher.astro';
 
 interface Props {
   title?: string;
@@ -35,6 +36,20 @@ const ogImageUrl = new URL(ogImage, Astro.site);
     <meta name="generator" content={Astro.generator} />
     <meta name="theme-color" content="#07041a" />
 
+    <!--
+      Pre-paint era restore, same contract as Museum.astro: geo.css
+      reskins the page chrome from html[data-era]. Keep the id list in
+      sync with src/data/eras.ts.
+    -->
+    <script is:inline>
+      (function () {
+        var era = null;
+        try { era = localStorage.getItem('grimoire.era'); } catch (e) {}
+        var ok = ['terminal', 'win95', 'geocities', 'aero', 'fugazi', 'grimoire'];
+        document.documentElement.dataset.era = ok.indexOf(era) >= 0 ? era : 'geocities';
+      })();
+    </script>
+
     <title>{title}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonicalUrl} />
@@ -46,7 +61,7 @@ const ogImageUrl = new URL(ogImage, Astro.site);
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Comic+Neue:wght@400;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=UnifrakturMaguntia&family=Comic+Neue:wght@400;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap"
     />
 
     <meta property="og:type" content="website" />
@@ -96,6 +111,7 @@ const ogImageUrl = new URL(ogImage, Astro.site);
         <p style="opacity:.7">BEST VIEWED BY MOONLIGHT · NO TELEMETRY · NO ADWARE</p>
       </footer>
     </div>
+    <EraSwitcher />
     <Neko />
 
     <style>

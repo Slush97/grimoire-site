@@ -1,14 +1,21 @@
 ---
 /*
- * Index. Single-stage Geocities marketing page.
+ * Index. All six era stages mount here; only the one matching
+ * <html data-era> is displayed (rules in museum.css), and the
+ * EraSwitcher remote (mounted by the Museum layout) zaps between them
+ * with a CRT static burst. Default channel: GEOCITIES.
  *
- * The other era-museum stages and transitions still live in
- * src/components/stages/ and src/components/transitions/ but are no
- * longer mounted here. Re-enabling any of them is a single import +
- * render.
+ * Every stage renders the same product facts from data/content.ts in
+ * its own visual language, and all of them share one build-time GitHub
+ * release fetch.
  */
 import Museum from '../layouts/Museum.astro';
+import Terminal from '../components/stages/Terminal.astro';
+import Win95 from '../components/stages/Win95.astro';
 import Geocities from '../components/stages/Geocities.astro';
+import Aero from '../components/stages/Aero.astro';
+import Fugazi from '../components/stages/Fugazi.astro';
+import Grimoire from '../components/stages/Grimoire.astro';
 
 import { getDownloadUrls } from '../data/content';
 
@@ -16,5 +23,10 @@ const dl = await getDownloadUrls();
 ---
 
 <Museum>
+  <Terminal {...dl} />
+  <Win95 {...dl} />
   <Geocities {...dl} />
+  <Aero {...dl} />
+  <Fugazi {...dl} />
+  <Grimoire {...dl} />
 </Museum>

@@ -30,6 +30,22 @@ function pad(s: string, w: number): string {
   if (s.length >= w) return s;
   return s + ' '.repeat(w - s.length);
 }
+/*
+ * Screenshots, presented as a fake `feh` framebuffer session. Six shots,
+ * one per FEATURES line plus conflicts and variants. `res` is the native
+ * size of the full PNG (mixed: window was resized between captures), and
+ * w/h are the 880w thumb dimensions so the browser reserves layout space
+ * before lazy-load. Captions stay inside what the client actually does.
+ */
+const shots = [
+  { name: 'browse',    res: '1442x856', w: 880, h: 522, cap: 'the GameBanana mod browser',          alt: 'Grimoire browse tab: the GameBanana mod browser with search and mod cards' },
+  { name: 'installed', res: '1442x856', w: 880, h: 522, cap: 'mod library, per-mod on/off toggles', alt: 'Grimoire installed tab: local mod library with per-mod on and off toggles' },
+  { name: 'locker',    res: '1442x856', w: 880, h: 522, cap: 'Hero Locker, per-hero skin picker',   alt: 'Grimoire Hero Locker: per-hero skin picker, one active skin per hero' },
+  { name: 'profiles',  res: '1442x856', w: 880, h: 522, cap: 'saved mod loadouts',                  alt: 'Grimoire profiles tab: saved mod loadouts ready to swap' },
+  { name: 'conflicts', res: '1280x800', w: 880, h: 550, cap: 'VPK conflict warnings',               alt: 'Grimoire conflict warnings: overlapping files detected at the VPK layer' },
+  { name: 'variants',  res: '1280x800', w: 880, h: 550, cap: 'mod variant picker',                  alt: 'Grimoire variant picker: choosing between the variants a mod ships' },
+];
+
 const lsRows = [
   { perms: '-rw-r--r--', size: mib(dl.windowsInstaller?.size), name: dl.windowsInstaller?.name ?? '(missing setup.exe)',  href: dl.windowsInstaller?.browser_download_url },
   { perms: '-rw-r--r--', size: mib(dl.windowsPortable?.size),  name: dl.windowsPortable?.name  ?? '(missing portable.exe)', href: dl.windowsPortable?.browser_download_url  },
@@ -146,6 +162,39 @@ GRIMOIRE(1)                      User Commands                      GRIMOIRE(1)
 
 GRIMOIRE                        {brand.year}                         GRIMOIRE(1)
 </pre>
+
+    {/*
+      Screenshots : a fake `feh` session. Each frame is a link to the
+      full-size PNG; the title bar mimics feh's `name [n/total] WxH`
+      status line. At rest the thumbs are tinted phosphor green via CSS
+      filter (this is still a monochrome CRT); hover or focus renders
+      them in 24-bit color. Touch devices skip the tint entirely since
+      they have no hover to escape it with.
+    */}
+    <div class="shots" aria-label="Screenshots">
+      <pre class="shots-prompt"><span class="cmd">$ grimoire screenshots --list</span>
+browse.png     installed.png  locker.png
+profiles.png   conflicts.png  variants.png
+<span class="cmd">$ feh ./screenshots/*.png</span>
+<span class="dim hover-hint"># hover a frame: render in 24-bit color. click: open full size.</span></pre>
+
+      <div class="shot-grid">
+        {shots.map((s, i) => (
+          <a class="shot" href={`/screenshots/${s.name}.png`} target="_blank" rel="noopener">
+            <span class="shot-bar">feh: {s.name}.png [{i + 1}/{shots.length}] {s.res}</span>
+            <img
+              src={`/screenshots/thumbs/${s.name}.webp`}
+              alt={s.alt}
+              width={s.w}
+              height={s.h}
+              loading="lazy"
+              decoding="async"
+            />
+            <span class="shot-cap"><span class="dim"># </span>{s.cap}</span>
+          </a>
+        ))}
+      </div>
+    </div>
 
     {/*
       neofetch : two-column layout (ASCII chaos-star art + info column).
@@ -315,6 +364,70 @@ GRIMOIRE                        {brand.year}                         GRIMOIRE(1)
     .stage-terminal .ls-row .dim:first-child { display: none; }
   }
 
+  /* ─── Screenshots (feh framebuffer frames) ───
+     Each .shot is a bordered "window": a one-line status bar up top
+     (feh's `name [n/total] WxH` idiom), the image, a # comment caption
+     below. Rest state runs the thumbs through a phosphor-green filter
+     chain (grayscale → sepia → hue-rotate lands near #00ff66);
+     hover/focus lifts the filter for full color. */
+  .stage-terminal .shots { margin: 0 0 28px; }
+  .stage-terminal .shots-prompt { margin-bottom: 16px; }
+  .stage-terminal .shot-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+  .stage-terminal .shot {
+    display: block;
+    text-decoration: none;
+    border: 1px solid rgba(0, 255, 102, 0.35);
+    background: rgba(0, 255, 102, 0.03);
+  }
+  .stage-terminal .shot:hover,
+  .stage-terminal .shot:focus-visible {
+    border-color: rgba(255, 224, 71, 0.6);
+    outline: none;
+  }
+  .stage-terminal .shot-bar {
+    display: block;
+    padding: 3px 8px;
+    font-size: 12px;
+    color: #66ffaa;
+    border-bottom: 1px solid rgba(0, 255, 102, 0.35);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .stage-terminal .shot:hover .shot-bar,
+  .stage-terminal .shot:focus-visible .shot-bar { color: #ffe047; }
+  .stage-terminal .shot img {
+    display: block;
+    width: 100%;
+    height: auto;
+    filter: grayscale(1) sepia(1) hue-rotate(70deg) saturate(3) brightness(0.9);
+    transition: filter 200ms ease;
+  }
+  .stage-terminal .shot:hover img,
+  .stage-terminal .shot:focus-visible img { filter: none; }
+  .stage-terminal .shot-cap {
+    display: block;
+    padding: 3px 8px;
+    font-size: 12px;
+    color: rgba(0, 255, 102, 0.7);
+    border-top: 1px solid rgba(0, 255, 102, 0.35);
+  }
+  /* No hover available (touch): skip the tint, hide the hover hint. */
+  @media (hover: none) {
+    .stage-terminal .shot img { filter: none; }
+    .stage-terminal .hover-hint { display: none; }
+  }
+  @media (max-width: 720px) {
+    .stage-terminal .shot-grid {
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+  }
+
   /* ─── Neofetch ───
      Two-column grid (art + info) avoids whitespace-counting between the
      chaos-star ASCII and the label column. The info side is itself a
@@ -410,6 +523,7 @@ GRIMOIRE                        {brand.year}                         GRIMOIRE(1)
 
   @media (prefers-reduced-motion: reduce) {
     .stage-terminal .cursor-blink { animation: none; }
+    .stage-terminal .shot img { transition: none; }
   }
 
   @media (max-width: 720px) {

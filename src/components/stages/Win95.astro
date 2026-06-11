@@ -5,8 +5,9 @@
  * The page is literally a Win95 desktop. Teal background, chunky chrome
  * windows containing the product readout. A Notepad window with
  * README.TXT, a Setup Wizard window with a real Next-Next-Finish flow,
- * a taskbar at the bottom. Voice is README.TXT : terse, ALL-CAPS
- * section headers, no marketing language.
+ * an Explorer window of app screenshots posing as bitmaps, a taskbar
+ * at the bottom. Voice is README.TXT : terse, ALL-CAPS section
+ * headers, no marketing language.
  */
 import type { DownloadUrls } from '../../data/content';
 import { features as coreFeatures, fmtBytes } from '../../data/content';
@@ -16,6 +17,20 @@ const installerHref = dl.windowsInstaller?.browser_download_url ?? dl.releaseUrl
 const portableHref = dl.windowsPortable?.browser_download_url ?? dl.releaseUrl;
 const appImageHref = dl.linuxAppImage?.browser_download_url ?? dl.releaseUrl;
 const debHref = dl.linuxDeb?.browser_download_url ?? dl.releaseUrl;
+
+/* Explorer window contents: real app screenshots posing as bitmaps in
+ * C:\GRIMOIRE\PICTURES. Thumbs are 880w webp; the link target is the
+ * full-size PNG ("double-click to open", but one click will do).
+ * w/h are the actual thumb dimensions, so the grid doesn't reflow as
+ * images lazy-load. The status bar's 3.31MB is the real PNG total. */
+const shots = [
+  { name: 'browse', w: 880, h: 522, file: 'BROWSE~1.BMP', cap: 'GAMEBANANA MOD BROWSER', alt: 'Grimoire screenshot: browsing GameBanana mods for Deadlock inside the app' },
+  { name: 'installed', w: 880, h: 522, file: 'INSTAL~1.BMP', cap: 'MOD LIBRARY: ON/OFF TOGGLES', alt: 'Grimoire screenshot: installed mod library with per-mod on and off toggles' },
+  { name: 'locker', w: 880, h: 522, file: 'LOCKER~1.BMP', cap: 'HERO LOCKER: PER-HERO SKINS', alt: 'Grimoire screenshot: Hero Locker, a per-hero skin picker' },
+  { name: 'profiles', w: 880, h: 522, file: 'PROFIL~1.BMP', cap: 'SAVED MOD LOADOUTS', alt: 'Grimoire screenshot: profiles page with saved mod loadouts' },
+  { name: 'conflicts', w: 880, h: 550, file: 'CONFLI~1.BMP', cap: 'VPK CONFLICT WARNINGS', alt: 'Grimoire screenshot: warning dialog listing VPK conflicts between mods' },
+  { name: 'variants', w: 880, h: 550, file: 'VARIAN~1.BMP', cap: 'MOD VARIANT PICKER', alt: 'Grimoire screenshot: picker for choosing between mod variants' },
+];
 ---
 
 <section class="stage stage-win95" data-era="win95" aria-labelledby="win95-h1">
@@ -177,6 +192,53 @@ SOURCE: GITHUB.COM/SLUSH97/GRIMOIRE</pre>
     </div>
   </article>
 
+  <!-- Screenshots window (Explorer browsing C:\GRIMOIRE\PICTURES).
+       Same chrome as the others; the window manager picks it up by the
+       .win-window class, and its taskbar button maps here via
+       data-window=".win-pics". -->
+  <article class="win-window win-pics">
+    <div class="titlebar">
+      <span class="ico-mini" aria-hidden="true">
+        <svg viewBox="0 0 16 16"><path d="M 1 4 L 6 4 L 7 6 L 15 6 L 15 13 L 1 13 Z" fill="#ffcc66" stroke="#000" stroke-width="0.5" /><rect x="8" y="8" width="5" height="3.5" fill="#5599cc" stroke="#000" stroke-width="0.4" /><circle cx="9.2" cy="9" r="0.6" fill="#ffcc00" /></svg>
+      </span>
+      <span class="title">Exploring - C:\GRIMOIRE\PICTURES</span>
+      <span class="ctrls">
+        <button type="button" class="ctrl" aria-label="Minimize">_</button>
+        <button type="button" class="ctrl" aria-label="Maximize">▢</button>
+        <button type="button" class="ctrl ctrl-close" aria-label="Close">✕</button>
+      </span>
+    </div>
+    <div class="menubar">
+      <span><u>F</u>ile</span><span><u>E</u>dit</span><span><u>V</u>iew</span><span><u>H</u>elp</span>
+    </div>
+    <div class="pics-view">
+      <ul class="pics-grid">
+        {shots.map((s) => (
+          <li>
+            <a class="pic" href={`/screenshots/${s.name}.png`} target="_blank" rel="noopener" title={`Open ${s.file} (full size)`}>
+              <span class="pic-frame">
+                <img
+                  src={`/screenshots/thumbs/${s.name}.webp`}
+                  alt={s.alt}
+                  width={s.w}
+                  height={s.h}
+                  loading="lazy"
+                  decoding="async"
+                />
+              </span>
+              <span class="pic-name">{s.file}</span>
+              <span class="pic-cap">{s.cap}</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+    <div class="statusbar">
+      <span class="status-cell">{shots.length} object(s)</span>
+      <span class="status-cell status-cell-wide">3.31MB (Disk free space: 31.8MB)</span>
+    </div>
+  </article>
+
   <!-- Start menu (popup above the taskbar). Initially hidden; the Start
        button toggles it. Items either link out, focus a window, or
        "shut down" by scrolling into the next stage's BSOD transition. -->
@@ -253,6 +315,12 @@ SOURCE: GITHUB.COM/SLUSH97/GRIMOIRE</pre>
         </span>
         Grimoire Setup
       </button>
+      <button type="button" class="task" data-window=".win-pics">
+        <span class="task-ico" aria-hidden="true">
+          <svg viewBox="0 0 16 16"><path d="M 1 4 L 6 4 L 7 6 L 15 6 L 15 13 L 1 13 Z" fill="#ffcc66" stroke="#000" stroke-width="0.5" /><rect x="8" y="8" width="5" height="3.5" fill="#5599cc" stroke="#000" stroke-width="0.4" /></svg>
+        </span>
+        Exploring - PICTURES
+      </button>
     </span>
     <span class="tray">
       <span class="tray-ico" aria-hidden="true">
@@ -266,7 +334,8 @@ SOURCE: GITHUB.COM/SLUSH97/GRIMOIRE</pre>
 <style>
   /* ─────────────────────────────────────────────────────────────────
      WIN95: scoped 1995 desktop world. Teal background, chunky chrome
-     windows (Notepad README + Install Wizard), taskbar with Start menu,
+     windows (Notepad README + Install Wizard + Explorer screenshots),
+     taskbar with Start menu,
      desktop icons. Pixel-aligned bevels (#fff highlight top-left,
      #808080 mid shadow, #000 deep shadow). MS Sans Serif type.
      ───────────────────────────────────────────────────────────────── */
@@ -580,6 +649,104 @@ SOURCE: GITHUB.COM/SLUSH97/GRIMOIRE</pre>
   }
   .stage-win95 .winbtn-cancel { margin-left: 6px; }
 
+  /* ─── Screenshots (Explorer) ─── */
+  .stage-win95 .win-pics {
+    width: 560px;
+    /* Left-anchored, so clamp against its own left offset (not the
+       generic 64px the right-anchored windows use). */
+    max-width: calc(100vw - 212px);
+    top: 96px;
+    left: 180px;
+  }
+  .stage-win95 .pics-view {
+    /* Same sunken white field as the Notepad paper. */
+    background: #ffffff;
+    border: 1px solid #808080;
+    border-bottom-color: #c0c0c0;
+    border-right-color: #c0c0c0;
+    margin: 2px 2px 0;
+    padding: 10px;
+    height: 296px;
+    overflow-y: auto;
+    position: relative;
+    z-index: 1;
+  }
+  .stage-win95 .pics-grid {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px 10px;
+  }
+  .stage-win95 .pic {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    text-decoration: none;
+    color: #000;
+    padding: 3px;
+    border: 1px dotted transparent;
+  }
+  .stage-win95 .pic:hover,
+  .stage-win95 .pic:focus-visible {
+    border-color: #000080;
+    background: rgba(0, 0, 128, 0.06);
+    outline: none;
+  }
+  .stage-win95 .pic:hover .pic-name,
+  .stage-win95 .pic:focus-visible .pic-name {
+    background: #000080;
+    color: #ffffff;
+  }
+  .stage-win95 .pic-frame {
+    /* Sunken bevel around each thumbnail, like an image-well control. */
+    display: block;
+    width: 100%;
+    background: #c0c0c0;
+    border-top: 1px solid #808080;
+    border-left: 1px solid #808080;
+    border-right: 1px solid #ffffff;
+    border-bottom: 1px solid #ffffff;
+    padding: 2px;
+  }
+  .stage-win95 .pic-frame img {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+  .stage-win95 .pic-name {
+    font-size: 11px;
+    padding: 0 3px;
+    white-space: nowrap;
+  }
+  .stage-win95 .pic-cap {
+    font-size: 10px;
+    color: #555;
+    text-align: center;
+    line-height: 1.25;
+  }
+  .stage-win95 .statusbar {
+    display: flex;
+    gap: 2px;
+    margin: 2px;
+    position: relative;
+    z-index: 1;
+  }
+  .stage-win95 .status-cell {
+    /* Sunken status panes, Explorer-style. */
+    border: 1px solid #808080;
+    border-bottom-color: #ffffff;
+    border-right-color: #ffffff;
+    padding: 2px 6px;
+    font-size: 11px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .stage-win95 .status-cell-wide { flex: 1; }
+
   /* ─── Taskbar ─── */
   .stage-win95 .taskbar {
     position: absolute;
@@ -804,8 +971,22 @@ SOURCE: GITHUB.COM/SLUSH97/GRIMOIRE</pre>
     }
     .stage-win95 .paper { height: 240px; }
     .stage-win95 .setup-side { display: none; }
-    .stage-win95 .task { min-width: 100px; max-width: 130px; font-size: 10px; }
+    /* Three windows now share the strip; let the buttons shrink-to-fit
+       instead of clipping the third one off the edge. */
+    .stage-win95 .task { flex: 1 1 0; min-width: 0; max-width: 130px; font-size: 10px; }
     .stage-win95 .start-menu { width: 180px; }
+    /* Explorer stacks under the Notepad titlebar; tap its taskbar
+       button to raise it (focus is the window manager's job). */
+    .stage-win95 .win-pics {
+      width: calc(100% - 24px);
+      max-width: none;
+      left: 12px;
+      right: 12px;
+      top: 36px;
+    }
+    .stage-win95 .pics-view { height: 232px; }
+    .stage-win95 .pics-grid { grid-template-columns: repeat(2, 1fr); }
+    .stage-win95 .pic-name { font-size: 10px; }
   }
 </style>
 

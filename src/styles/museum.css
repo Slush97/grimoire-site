@@ -104,6 +104,22 @@ svg {
 }
 
 /*
+ * Era channel switching. All six stages are in the DOM; only the one
+ * matching <html data-era> paints. The attribute is set pre-paint by an
+ * inline script in Museum.astro and flipped at runtime by EraSwitcher.
+ * The :not([data-era]) rule keeps the page usable with JS disabled
+ * (you just live in 1996 forever, which is fine).
+ */
+.stage[data-era] { display: none; }
+html:not([data-era]) .stage-geocities,
+html[data-era="terminal"]  .stage-terminal,
+html[data-era="win95"]     .stage-win95,
+html[data-era="geocities"] .stage-geocities,
+html[data-era="aero"]      .stage-aero,
+html[data-era="fugazi"]    .stage-fugazi,
+html[data-era="grimoire"]  .stage-grimoire { display: block; }
+
+/*
  * The stage's "stage frame" : used by transitions to capture a fixed
  * viewport window while content scrolls past. Stages that need sticky
  * content compose this internally.

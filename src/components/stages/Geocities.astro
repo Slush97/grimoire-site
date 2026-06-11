@@ -46,6 +46,20 @@ const newsFeatures = [
 ];
 
 /*
+ * Screenshot gallery. Real app captures (public/screenshots/), each
+ * framed in a fake Netscape Navigator window. Thumbs are the 880w webp
+ * renditions from scripts/gen-assets.mjs; clicking opens the full PNG.
+ */
+const geoShots = [
+  { id: 'browse',    title: 'DA MOD CATALOG!!.html',     alt: 'Grimoire browsing the GameBanana mod catalog for Deadlock', caption: 'ALL THE MODS!! one click and they install THEMSELVES!!' },
+  { id: 'installed', title: 'MY LIBRARY!!.html',         alt: 'Installed mod library with enable and disable toggles',     caption: 'turn mods ON and OFF like a LIGHT SWITCH!!' },
+  { id: 'locker',    title: 'HERO LOCKER!!.html',        alt: 'Hero Locker choosing one active skin per hero',             caption: 'a CLOSET 4 ur heroes!! pick a fit!!' },
+  { id: 'profiles',  title: 'MY LOADOUTS!!.html',        alt: 'Saved mod profiles ready to swap',                          caption: 'save ur WHOLE setup!! trade em like POG CARDS!!' },
+  { id: 'conflicts', title: 'CONFLICT-O-VISION!!.html',  alt: 'VPK conflict warning between two overlapping mods',         caption: 'when 2 mods FIGHT, grimoire breaks it up!!' },
+  { id: 'variants',  title: 'PICK UR FLAVOR!!.html',     alt: 'Mod variant picker with multiple options',                  caption: 'some mods come in FLAVORS!! choose wisely!!' },
+];
+
+/*
  * Left sidebar nav. Classic "MY PAGES" frameset list. Anchors point at
  * the on-page sections we already render below, so the in-page hash
  * navigation actually works.
@@ -55,6 +69,7 @@ const sidebarNav = [
   { href: '#geo-h1',       label: 'HOME',       icon: '🏠' },
   { href: '#geo-about',    label: 'ABOUT ME',   icon: '👤' },
   { href: '#geo-news',     label: "WHAT'S NEW", icon: '📣' },
+  { href: '#geo-shots',    label: 'SCREENSHOTS', icon: '📷' },
   { href: '#geo-download', label: 'GET MY MOD MGR', icon: '💾' },
   { href: '/download',     label: 'DA FULL CODEX', icon: '📜' },
   { href: '#geo-webring',  label: 'WEBRING',    icon: '🔗' },
@@ -285,7 +300,7 @@ const awards = [
             CORS). Nightride.fm streams (default = Space) return
             Access-Control-Allow-Origin: * so they work everywhere.
             Plaza One's stream allows only grimoiremods.com origin
-            so it works on prod but not on dev — acceptable since
+            so it works on prod but not on dev : acceptable since
             most listening happens in prod.
           -->
           <audio data-role="audio" preload="none" crossorigin="anonymous"></audio>
@@ -494,6 +509,34 @@ const awards = [
               </li>
             ))}
           </ol>
+        </section>
+
+        <!-- Lightning-bar separator -->
+        <div class="sep sep-lightning" aria-hidden="true"></div>
+
+        <!--
+          SCREENSHOTS!!! Real app captures, each framed as its own tiny
+          Netscape Navigator window (gray chrome on purpose: they are
+          props from a 1996 desktop, not part of the candlelit palette).
+          Click opens the full-size PNG.
+        -->
+        <section id="geo-shots" class="shots">
+          <h2 class="ribbon">★ SCREENSHOTS OF MY <em>PROGRAM!!!</em> ★</h2>
+          <p class="shots-sub">»» 100% ACTUAL FOOTAGE!! NOT STAGED!! click 2 <span class="blink">EMBIGGEN</span>!! ««</p>
+          <ul class="shots-grid">
+            {geoShots.map((s) => (
+              <li class="shot">
+                <a class="shot-frame" href={`/screenshots/${s.id}.png`} target="_blank" rel="noopener">
+                  <span class="shot-bar">
+                    <span class="shot-bar-title">Netscape: {s.title}</span>
+                    <span class="shot-bar-btns" aria-hidden="true"><i></i><i></i><i></i></span>
+                  </span>
+                  <img src={`/screenshots/thumbs/${s.id}.webp`} alt={s.alt} loading="lazy" decoding="async" />
+                  <span class="shot-caption">{s.caption}</span>
+                </a>
+              </li>
+            ))}
+          </ul>
         </section>
 
         <!-- Rainbow-bar separator -->
@@ -737,9 +780,19 @@ const awards = [
         <!-- QUOTE OF THE DAY -->
         <div class="widget widget-quote">
           <h3 class="widget-h">~ QUOTE OF THE DAY ~</h3>
-          <blockquote class="qotd">
-            <p>"{quote.text}"</p>
-            <cite>~ {quote.who}</cite>
+          <!--
+            All quotes ship in the HTML; the build-time pick is the
+            no-JS fallback and a client script unhides the real
+            day-of-year pick (the page is prerendered, so the server
+            "today" is actually "whenever this last deployed").
+          -->
+          <blockquote class="qotd" data-qotd>
+            {modQuotes.map((q, i) => (
+              <div class="qotd-item" hidden={i !== dayOfYear % modQuotes.length}>
+                <p>"{q.text}"</p>
+                <cite>~ {q.who}</cite>
+              </div>
+            ))}
           </blockquote>
         </div>
 
@@ -863,7 +916,8 @@ const awards = [
         <div class="widget widget-time">
           <h3 class="widget-h">⏰ TODAY IS ⏰</h3>
           <div class="today">
-            <div class="today-date">{new Date().toDateString().toUpperCase()}</div>
+            <!-- Build-time date is the no-JS fallback; script refreshes it. -->
+            <div class="today-date" data-today-date>{new Date().toDateString().toUpperCase()}</div>
             <div class="today-sub">A FINE DAY TO MOD!!</div>
           </div>
         </div>
@@ -1042,7 +1096,7 @@ const awards = [
      * AudioContext starts in the user-gesture allowance window.
      *
      * Falls back gracefully if MediaElementSource throws (eg. CORS
-     * blocked on a station that doesn't allow our origin) — in that
+     * blocked on a station that doesn't allow our origin) : in that
      * case the bars revert to their CSS keyframe stagger so the
      * widget still looks alive.
      */
@@ -1084,7 +1138,7 @@ const awards = [
         const idx = Math.min(binMap[i], freqData.length - 1);
         const v = freqData[idx] / 255;
         /* Floor at 0.06 so bars don't fully collapse during quiet
-         * passages — keeps the LCD looking "on". */
+         * passages : keeps the LCD looking "on". */
         bars[i].style.transform = `scaleY(${Math.max(0.06, v)})`;
       }
     }
@@ -1208,16 +1262,35 @@ const awards = [
      *   2. Try play() immediately on load. Most browsers reject it
      *      with NotAllowedError.
      *   3. Bind a one-shot listener for any user gesture (pointer,
-     *      key, scroll) and retry play() then — that's the moment
+     *      key, scroll) and retry play() then : that's the moment
      *      autoplay policy unlocks. After that the radio is "on".
      * Status text walks the user through whichever path triggers.
      */
     audio.src = stations[current].url;
     audio.preload = 'auto';
 
+    /*
+     * Era gate. All six stages share one document now; the radio
+     * belongs to 1996. Never gesture-autoplay while another channel
+     * is showing, pause when the visitor zaps away, and treat zapping
+     * back as the gesture that restarts the stream.
+     */
+    const onGeocities = () =>
+      (document.documentElement.dataset.era ?? 'geocities') === 'geocities';
+    document.addEventListener('era:change', (ev) => {
+      const era = (ev as CustomEvent<{ era?: string }>).detail?.era;
+      if (era === 'geocities') {
+        autoPlayed = false;
+        tryAutoPlay();
+      } else if (!audio.paused) {
+        pause();
+        status.textContent = 'paused!! u left 1996!!';
+      }
+    });
+
     let autoPlayed = false;
     function tryAutoPlay() {
-      if (autoPlayed || muted || !audio.paused) return;
+      if (autoPlayed || muted || !audio.paused || !onGeocities()) return;
       autoPlayed = true;
       status.textContent = 'tuning in to SPACE...';
       play().catch(() => {
@@ -1329,6 +1402,31 @@ const awards = [
    * 999999. Client-only, no beacon, no analytics: the count is yours and
    * never leaves your browser.
    */
+  /*
+   * Live "today" widgets. The page is prerendered, so any new Date()
+   * in frontmatter froze at deploy time. Refresh the TODAY IS card and
+   * re-pick the quote of the day from the visitor's actual clock; the
+   * server-rendered values stay as the no-JS fallback.
+   */
+  (function liveToday() {
+    const date = document.querySelector('.stage-geocities [data-today-date]');
+    if (date) date.textContent = new Date().toDateString().toUpperCase();
+
+    const qotd = document.querySelector('.stage-geocities [data-qotd]');
+    if (qotd) {
+      const items = qotd.querySelectorAll(':scope > .qotd-item');
+      if (items.length) {
+        const now = new Date();
+        const dayOfYear = Math.floor(
+          (now.getTime() - new Date(now.getFullYear(), 0, 0).getTime()) / 86400000,
+        );
+        items.forEach((el, i) => {
+          el.toggleAttribute('hidden', i !== dayOfYear % items.length);
+        });
+      }
+    }
+  })();
+
   (function soulCounter() {
     const KEY = 'geo-souls';
     const BASE = 1337;
@@ -1466,7 +1564,7 @@ const awards = [
     z-index: 0;
     pointer-events: none;
     /*
-     * Old tile mixed brass + cyan + yellow at 4-8% opacity — read as
+     * Old tile mixed brass + cyan + yellow at 4-8% opacity : read as
      * grey noise. Swapped for plum + indigo + brass with higher
      * pigment, so the dark stage has tinted "candlelit dust" texture
      * instead of grey static.
@@ -1509,7 +1607,7 @@ const awards = [
   /*
    * Visual pairing across rails. The SEPHIRA tree-of-life ad and the
    * LODGE square-and-compasses ad are the two "sponsored content" big
-   * shouts — they want to sit at roughly the same Y so the page reads
+   * shouts : they want to sit at roughly the same Y so the page reads
    * as a balanced spread. Without an `order:` override the tree-ad
    * lives at the bottom of the left rail and dangles 200px below the
    * shorter right rail (which ends with GUESTBOOK), leaving a lonely
@@ -1934,7 +2032,7 @@ const awards = [
    * keyframe stagger that's right for the *fake* MIDI player. The
    * radio widget overrides that:
    *   - stopped : no animation, bars flat low
-   *   - playing : no keyframe either — the visualizer's JS sets
+   *   - playing : no keyframe either : the visualizer's JS sets
    *     scaleY() inline from Web Audio frequency data each frame.
    *     Adding `transition: transform 60ms linear` smooths the
    *     per-frame jumps so quiet bins don't twitch visibly.
@@ -2285,7 +2383,7 @@ const awards = [
    * background between black and dark-red on a 0.6s cycle while the
    * yellow text stays solidly readable the whole time. Previous
    * implementation used .blink (opacity 0/1 step animation), which
-   * made the CTA disappear for half of each cycle — explains the
+   * made the CTA disappear for half of each cycle : explains the
    * "missing button" screenshot.
    */
   .stage-geocities .ad-cta {
@@ -2954,7 +3052,7 @@ const awards = [
     animation: sep-scroll-l 1.6s linear infinite;
     height: 16px;
   }
-  /* sep-rainbow : sigil chain — brass beads on plum, scrolling */
+  /* sep-rainbow : sigil chain : brass beads on plum, scrolling */
   .stage-geocities .sep-rainbow {
     background:
       radial-gradient(circle at 12px 50%, #d4af5a 0 3px, transparent 4px) repeat-x,
@@ -3091,7 +3189,7 @@ const awards = [
             background-clip: text;
     color: transparent;
     /*
-     * Flat black drop-shadow only — no gold halo, no shimmer pulse.
+     * Flat black drop-shadow only : no gold halo, no shimmer pulse.
      * The brass-foil gradient carries the warmth; the black shadow
      * gives legibility against the plum background.
      */
@@ -3266,12 +3364,12 @@ const awards = [
         rgba(255, 255, 255, 0.98) 0%,
         rgba(255, 248, 220, 0.7) 6%,
         transparent 20%),
-      /* Reflected horizon band — bright equator line */
+      /* Reflected horizon band : bright equator line */
       radial-gradient(ellipse 90% 6% at 50% 54%,
         rgba(255, 240, 180, 0.7) 0%,
         rgba(232, 184, 64, 0.35) 40%,
         transparent 70%),
-      /* Hint of reflected checker — alternating bands in lower hemisphere */
+      /* Hint of reflected checker : alternating bands in lower hemisphere */
       repeating-radial-gradient(
         circle at 50% 100%,
         transparent 0,
@@ -3288,7 +3386,7 @@ const awards = [
     /*
      * Inset shadows give the sphere its dimension; the contact drop
      * shadow grounds it on the floor. The outer gold rim glow was
-     * removed — it broadcast a halo that read as ambient lighting in
+     * removed : it broadcast a halo that read as ambient lighting in
      * the area behind the sphere and the "as above so below" glyph.
      */
     box-shadow:
@@ -4312,6 +4410,88 @@ const awards = [
   .stage-geocities[data-calm] *::before,
   .stage-geocities[data-calm] *::after { animation: none !important; }
 
+  /* ─── SCREENSHOTS : Netscape-framed gallery ───
+     Gray window chrome on purpose: the frames are props from a 1996
+     desktop sitting on the candlelit page, not part of its palette. */
+  .stage-geocities .shots-sub {
+    margin: 10px 0 14px;
+    text-align: center;
+    font-family: 'Comic Neue', 'Comic Sans MS', cursive;
+    font-weight: 700;
+    font-size: 13px;
+    color: #fff5db;
+    text-shadow: 1px 1px 0 #000;
+  }
+  .stage-geocities .shots-grid {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px 18px;
+  }
+  .stage-geocities .shot-frame {
+    display: block;
+    background: #b9b9c9;
+    border: 2px outset #e4e4f0;
+    box-shadow: 0 0 0 1px #07041a, 5px 5px 0 rgba(0, 0, 0, 0.55);
+    text-decoration: none;
+    transform: rotate(-0.6deg);
+  }
+  .stage-geocities .shot:nth-child(2n) .shot-frame { transform: rotate(0.7deg); }
+  .stage-geocities .shot-frame:hover,
+  .stage-geocities .shot-frame:focus-visible {
+    outline: 3px solid #ffd96a;
+    outline-offset: 2px;
+    transform: rotate(0deg) scale(1.01);
+  }
+  .stage-geocities .shot-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 3px 6px;
+    background: linear-gradient(180deg, #3a3a8c 0%, #21215a 100%);
+    border-bottom: 1px solid #11113a;
+  }
+  .stage-geocities .shot-bar-title {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    font-family: 'Comic Neue', 'Comic Sans MS', cursive;
+    font-weight: 700;
+    font-size: 11px;
+    color: #fff;
+    text-shadow: 1px 1px 0 #000;
+  }
+  .stage-geocities .shot-bar-btns { display: inline-flex; gap: 2px; }
+  .stage-geocities .shot-bar-btns i {
+    width: 10px;
+    height: 10px;
+    background: #b9b9c9;
+    border: 1px outset #e4e4f0;
+  }
+  .stage-geocities .shot-frame img {
+    display: block;
+    width: 100%;
+    height: auto;
+    border: 1px inset #8a8a9e;
+  }
+  .stage-geocities .shot-caption {
+    display: block;
+    padding: 5px 8px 6px;
+    background: #d9d9e6;
+    border-top: 1px solid #9a9aae;
+    font-family: 'Comic Neue', 'Comic Sans MS', cursive;
+    font-weight: 700;
+    font-size: 12px;
+    color: #1a1030;
+  }
+
+  /* QOTD items: hidden ones stay hidden even with the [hidden] reset
+     some browser styles apply inside blockquote layouts. */
+  .stage-geocities .qotd-item[hidden] { display: none; }
+
   /* ─── Tablet : collapse to 2 columns (content + stacked sidebars) ─── */
   @media (max-width: 1000px) {
     .stage-geocities .frameset {
@@ -4337,6 +4517,7 @@ const awards = [
     .stage-geocities .visitor { width: 80%; max-width: 280px; }
     .stage-geocities .wordart { font-size: 36px; }
     .stage-geocities .gdl-grid { grid-template-columns: 1fr; }
+    .stage-geocities .shots-grid { grid-template-columns: 1fr; }
     .stage-geocities .gdl-grid li:last-child { grid-column: span 1; }
     .stage-geocities .feat-grid { grid-template-columns: 1fr; }
     .stage-geocities .frameset {

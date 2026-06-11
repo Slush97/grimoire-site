@@ -35,6 +35,21 @@ const occult = [
   { kicker: 'fol. vi · verso', title: 'Profiles as sigils',                 body: 'Full mod loadouts saved as short mp1: codes. Trade like talismans. Restore like spells. Or as .modprofile.json if a link feels too sketchy.' },
 ];
 
+/*
+ * Plates: impressions taken from the living instrument and pressed
+ * between these pages. Thumbs are 880w webp in /screenshots/thumbs/;
+ * each plate links out to the full-size impression in /screenshots/.
+ * Engraved in sepia at rest; living colour on hover and focus.
+ */
+const plates = [
+  { roman: 'I',   name: 'browse',    w: 880, h: 522, alt: 'Grimoire mod browser showing the GameBanana catalog for Deadlock', caption: 'Fig. I. The catalogue of workes, wherein the seeker browseth ye offerings of GameBanana.' },
+  { roman: 'II',  name: 'installed', w: 880, h: 522, alt: 'The installed mods library with per-mod on and off toggles',        caption: 'Fig. II. The library of bindings, each worke toggled on or off and never struck from ye disk.' },
+  { roman: 'III', name: 'locker',    w: 880, h: 522, alt: 'The Hero Locker, a per-hero skin picker',                           caption: 'Fig. III. The Hero Locker, wherein one skin per hero is chosen from all the seeker hath bound.' },
+  { roman: 'IV',  name: 'variants',  w: 880, h: 550, alt: 'The mod variant picker listing the variants a mod ships with',      caption: 'Fig. IV. The chooser of variants, that a worke may wear whichever of its faces pleaseth.' },
+  { roman: 'V',   name: 'conflicts', w: 880, h: 550, alt: 'VPK conflict warnings between two installed mods',                  caption: 'Fig. V. The augury of conflicts, whereby two bindings that contend for one VPK path are revealed before the round.' },
+  { roman: 'VI',  name: 'profiles',  w: 880, h: 522, alt: 'Saved mod loadout profiles in Grimoire',                            caption: 'Fig. VI. Profiles of the loadout, saved whole and carried betwixt machines as sigils.' },
+];
+
 const motes = [
   { glyph: '✦', left: '6%',  size: 18, dur: '34s', delay: '-2s',  op: 0.26 },
   { glyph: '⚝', left: '16%', size: 26, dur: '46s', delay: '-12s', op: 0.18 },
@@ -148,6 +163,54 @@ const motes = [
   <!-- ─── DIVIDER ─── -->
   <div class="glyph-rule" aria-hidden="true">
     <span>⚝ ☉ ⚝ ☽ ⚝</span>
+  </div>
+
+  <!-- ─── PLATES (engravings of the instrument) ─── -->
+  <section class="plates">
+    <div class="wrap">
+      <span class="kicker kicker--centered">The plates</span>
+      <h2>Engravings taken<br />from the living instrument.</h2>
+      <p class="section-lead">
+        Six impressions, pressed between these pages so the seeker need not
+        bind sight unseen. Lay the cursor upon any plate and behold it in
+        living colour; press it to summon the full folio.
+      </p>
+
+      <div class="plate-grid">
+        {plates.map((p) => (
+          <figure class="plate">
+            <span class="plate-label">Plate {p.roman}</span>
+            <a
+              class="plate-frame"
+              href={`/screenshots/${p.name}.png`}
+              target="_blank"
+              rel="noopener"
+            >
+              <img
+                class="plate-img"
+                src={`/screenshots/thumbs/${p.name}.webp`}
+                alt={p.alt}
+                width={p.w}
+                height={p.h}
+                loading="lazy"
+                decoding="async"
+              />
+            </a>
+            <figcaption class="plate-caption">{p.caption}</figcaption>
+          </figure>
+        ))}
+      </div>
+
+      <p class="plate-foot">
+        The engravings are sepia by the limits of the press, not of the
+        instrument. The instrument itself runs in full colour.
+      </p>
+    </div>
+  </section>
+
+  <!-- ─── DIVIDER ─── -->
+  <div class="glyph-rule" aria-hidden="true">
+    <span>☽ ✶ ☥ ✶ ☽</span>
   </div>
 
   <!-- ─── RITES OF BINDING (per-platform downloads) ─── -->
@@ -668,6 +731,96 @@ const motes = [
     position: relative;
   }
 
+  /* ─── Plates (engravings of the instrument) ─── */
+  .stage-grimoire .plates {
+    padding: 56px 0;
+    position: relative;
+    z-index: 2;
+  }
+  .stage-grimoire .plates > .wrap { text-align: center; }
+  .stage-grimoire .plates h2 {
+    margin: 14px 0 14px;
+    font-size: clamp(28px, 4.5vw, 42px);
+    line-height: 1.08;
+    font-weight: 400;
+    text-align: center;
+  }
+  .stage-grimoire .plate-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 36px 24px;
+    margin-top: 36px;
+    text-align: left;
+  }
+  @media (max-width: 720px) {
+    .stage-grimoire .plate-grid { grid-template-columns: 1fr; gap: 32px; }
+  }
+  .stage-grimoire .plate { margin: 0; }
+  .stage-grimoire .plate-label {
+    display: block;
+    font-family: 'IM Fell English SC', 'IM Fell English', serif;
+    font-size: 11px;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: rgba(231, 210, 163, 0.65);
+    text-align: center;
+    margin-bottom: 10px;
+  }
+  /* Thin double-rule frame: outer border on the mat, inner border inset,
+     same construction as .codex-entry but tighter. */
+  .stage-grimoire .plate-frame {
+    display: block;
+    position: relative;
+    padding: 10px;
+    background: linear-gradient(180deg, #161616 0%, #1f1f1f 100%);
+    border: 1px solid rgba(231, 210, 163, 0.4);
+  }
+  .stage-grimoire .plate-frame::before {
+    content: "";
+    position: absolute;
+    inset: 4px;
+    border: 1px solid rgba(231, 210, 163, 0.18);
+    pointer-events: none;
+    z-index: 1;
+  }
+  .stage-grimoire .plate-frame:focus-visible {
+    outline: 2px solid #f97316;
+    outline-offset: 3px;
+  }
+  /* Engraved at rest: sepia'd and dimmed so the modern chrome reads as
+     plate-work. Living colour on hover and keyboard focus. */
+  .stage-grimoire .plate-img {
+    display: block;
+    width: 100%;
+    height: auto;
+    filter: sepia(0.8) contrast(1.05) brightness(0.9) saturate(0.5);
+    transition: filter 200ms ease;
+  }
+  .stage-grimoire .plate-frame:hover .plate-img,
+  .stage-grimoire .plate-frame:focus-visible .plate-img {
+    filter: none;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .stage-grimoire .plate-img { transition: none; }
+  }
+  .stage-grimoire .plate-caption {
+    margin: 12px 6px 0;
+    font-size: 13.5px;
+    line-height: 1.5;
+    font-style: italic;
+    color: rgba(255, 255, 255, 0.68);
+    text-align: center;
+  }
+  .stage-grimoire .plate-foot {
+    margin: 32px auto 0;
+    max-width: 640px;
+    font-size: 13px;
+    line-height: 1.55;
+    color: rgba(255, 255, 255, 0.55);
+    font-style: italic;
+    text-align: center;
+  }
+
   /* ─── Rites of binding (per-platform downloads) ─── */
   .stage-grimoire .rites {
     padding: 56px 0;
@@ -848,6 +1001,6 @@ const motes = [
 
   @media (max-width: 720px) {
     .stage-grimoire .hero { padding: 64px 0 48px; }
-    .stage-grimoire .entries, .stage-grimoire .colophon { padding: 48px 0; }
+    .stage-grimoire .entries, .stage-grimoire .plates, .stage-grimoire .colophon { padding: 48px 0; }
   }
 </style>

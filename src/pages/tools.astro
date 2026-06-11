@@ -1,6 +1,6 @@
 ---
 /*
- * /tools — combined in-theme showcase for the three things the rail ads
+ * /tools : combined in-theme showcase for the three things the rail ads
  * point at: the open-source repo, the mp1 mod-profile spec slush designed,
  * and vpkmerge. Same candlelit-Geocities dressing as the landing stage,
  * via the shared Geo layout + geo.css.
@@ -156,17 +156,20 @@ const vpkFeatures = [
 </Geo>
 
 <style>
+  /* Era-aware: fonts/colors read the .geo variable contract from
+     src/styles/geo.css so this page reskins with html[data-era]. The
+     defaults reproduce the original geocities values exactly. */
   .tools-intro {
     max-width: 680px;
     margin: 0 auto 6px;
     text-align: center;
-    font-family: 'Comic Neue', 'Comic Sans MS', cursive;
+    font-family: var(--geo-card-font);
     font-size: 16px;
     line-height: 1.6;
-    color: #fff5db;
-    text-shadow: 1px 1px 0 #000;
+    color: var(--geo-ink-muted);
+    text-shadow: var(--geo-shadow-hard);
   }
-  .tools-intro strong { color: #ffd96a; }
+  .tools-intro strong { color: var(--geo-strong-ink); }
   .tools-section { margin: 0 auto; max-width: 760px; }
   .tools-section + .tools-section { margin-top: 0; }
   .tools-cta {
@@ -179,9 +182,9 @@ const vpkFeatures = [
   .tools-aside {
     margin: 14px 0 0;
     padding: 10px 12px;
-    background: rgba(0, 0, 0, 0.3);
-    border-left: 3px solid #e8b840;
-    font-family: 'Comic Neue', 'Comic Sans MS', cursive;
+    background: var(--geo-aside-bg);
+    border-left: 3px solid var(--geo-accent);
+    font-family: var(--geo-card-font);
     line-height: 1.7;
   }
   .tools-aside .geo-code { word-break: break-all; }
