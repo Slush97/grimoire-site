@@ -1,16 +1,18 @@
 ---
 /*
  * Neko.astro
- * The classic cursor-chasing cat (oneko), wearing the "lucy" skin. Self-hosted
- * sprite (public/neko/lucy.png), no CDN, no telemetry. Sits on a fixed
- * pointer-events:none layer so it never blocks clicks. Disabled entirely under
- * prefers-reduced-motion and on coarse-pointer (touch) devices, where there is
- * no cursor to chase.
+ * The classic cursor-chasing cat (oneko), with a local, no-telemetry skin
+ * preference. Skins come from the shared roster in data/kitties.ts; sprites
+ * are self-hosted (public/neko/*.png), no CDN. Sits on a fixed
+ * pointer-events:none layer so it never blocks clicks. Disabled entirely
+ * under prefers-reduced-motion and on coarse-pointer (touch) devices, where
+ * there is no cursor to chase.
  */
 ---
 
 <script>
-  const SPRITE = '/neko/lucy.png';
+  import { KITTY_KEY, coerceKitty, kittySprite } from '../data/kitties';
+
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const coarsePointer = window.matchMedia('(pointer: coarse)').matches;
 
@@ -47,6 +49,20 @@
       NW: [[-1, 0], [-1, -1]],
     };
 
+    function readKitty(): string | null {
+      try {
+        return localStorage.getItem(KITTY_KEY);
+      } catch {
+        return null;
+      }
+    }
+
+    function applyKitty(value: string | null | undefined) {
+      const kitty = coerceKitty(value);
+      nekoEl.dataset.kitty = kitty;
+      nekoEl.style.backgroundImage = `url('${kittySprite(kitty)}')`;
+    }
+
     function init() {
       nekoEl.id = 'oneko';
       nekoEl.ariaHidden = 'true';
@@ -58,13 +74,21 @@
       nekoEl.style.left = `${nekoPosX - 16}px`;
       nekoEl.style.top = `${nekoPosY - 16}px`;
       nekoEl.style.zIndex = '2147483647';
-      nekoEl.style.backgroundImage = `url('${SPRITE}')`;
+      applyKitty(readKitty());
 
       document.body.appendChild(nekoEl);
 
       document.addEventListener('mousemove', (event) => {
         mousePosX = event.clientX;
         mousePosY = event.clientY;
+      });
+
+      window.addEventListener('grimoire:kitty-change', (event) => {
+        const detail = (event as CustomEvent<{ kitty?: string }>).detail;
+        applyKitty(detail?.kitty);
+      });
+      window.addEventListener('storage', (event) => {
+        if (event.key === KITTY_KEY) applyKitty(event.newValue);
       });
 
       window.requestAnimationFrame(onAnimationFrame);

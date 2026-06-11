@@ -21,7 +21,10 @@
  */
 import type { DownloadUrls } from '../../data/content';
 import { brand, fmtBytes } from '../../data/content';
+import { KITTIES, DEFAULT_KITTY, kittyLabel } from '../../data/kitties';
 const dl = Astro.props as DownloadUrls;
+
+const kittyCount = String(KITTIES.length).padStart(2, '0');
 
 /*
  * Every binary the release shipped, in WordArt-loud form. Each is its own
@@ -91,6 +94,7 @@ const awards = [
   { title: 'TOP 10% LODGE',       sub: 'Silicon Lodge' },
   { title: 'NETSCAPE PICK',       sub: 'by moonlight'  },
 ];
+
 ---
 
 <section class="stage stage-geocities" data-era="geocities" aria-labelledby="geo-h1">
@@ -161,6 +165,25 @@ const awards = [
       <!-- ─── LEFT SIDEBAR ─── -->
       <aside class="rail rail-left" aria-label="Site navigation">
 
+        <!--
+          Sensory off-switches, in costume. Chunky 90s buttons that double
+          as real accessibility escape hatches: STOP DA FLASHING toggles
+          [data-calm] on the stage (killing every loop; see calmToggle()),
+          STOP DA MUSIC kills the radio and blocks its gesture autoplay
+          (see radio()). Both persist the choice and start in the quiet
+          state when the OS asks for it (reduced motion / muted pref).
+        -->
+        <div class="calm-bar">
+          <button type="button" class="calm-btn" data-calm-toggle aria-pressed="false">
+            <span class="calm-label calm-label-on">⚠ STOP DA FLASHING!! ⚠</span>
+            <span class="calm-label calm-label-off">✦ FLASHING IS OFF ✦ click 2 RE-ANIMATE</span>
+          </button>
+          <button type="button" class="calm-btn calm-btn--mute" data-mute-toggle aria-pressed="false">
+            <span class="calm-label mute-label-on">🔇 STOP DA MUSIC!! 🔇</span>
+            <span class="calm-label mute-label-off">♫ MUSIC IS OFF ♫ click 2 TUNE BACK IN</span>
+          </button>
+        </div>
+
         <!-- MY PAGES nav -->
         <nav class="widget widget-nav">
           <h3 class="widget-h">★ MY PAGES ★</h3>
@@ -209,7 +232,7 @@ const awards = [
 
         <!-- MAILBOX widget : bouncing scrolls + *NEW* sticker -->
         <div class="widget widget-mail">
-          <h3 class="widget-h mail-h"><span class="blink">✉</span> U HAVE MAIL!! <span class="blink">✉</span></h3>
+          <h3 class="widget-h mail-h">✉ U HAVE MAIL!! ✉</h3>
           <div class="mailbox">
             <span class="mail-icon" aria-hidden="true">📬</span>
             <div class="mail-body">
@@ -277,7 +300,7 @@ const awards = [
             <dt>LAST UPDATE:</dt>     <dd>{brand.year}</dd>
             <dt>HOSTED ON:</dt>       <dd>GeoCities</dd>
             <dt>LODGE:</dt>           <dd>SiliconLodge/4287</dd>
-            <dt>RANKED:</dt>          <dd><span class="blink">★</span> ALTAVISTA #1!!1!</dd>
+            <dt>RANKED:</dt>          <dd>★ ALTAVISTA #1!!1!</dd>
             <dt>BLESSED BY:</dt>      <dd>YAHWEH</dd>
           </dl>
           <div class="stat-bw" aria-hidden="true">
@@ -317,10 +340,10 @@ const awards = [
           <div class="tree-ad">
             <span class="tree-ad-stripes" aria-hidden="true"></span>
 
-            <h4 class="tree-ad-title">
+            <p class="tree-ad-title">
               <span class="line line-1">WHICH SEPHIRA</span>
               <span class="line line-2 rainbow">R U ??!?!</span>
-            </h4>
+            </p>
 
             <div class="tree-ad-diagram">
               <svg class="tree-svg" viewBox="0 0 160 220" role="img" aria-label="Kabbalistic Tree of Life">
@@ -425,7 +448,7 @@ const awards = [
             </div>
 
             <p class="tree-ad-pitch">
-              <span class="blink">★</span>
+              ★
               10 SPHERES OF UR LIFE-FORCE!!<br>
               <em>doctors HATE this 1 weird path</em>
             </p>
@@ -461,7 +484,7 @@ const awards = [
         <!-- What's NEW!!! -->
         <section id="geo-news" class="news">
           <h2 class="ribbon">
-            <span class="blink">★</span> WHAT'S <em>NEW!!!1!</em> <span class="blink">★</span>
+            ★ WHAT'S <em>NEW!!!1!</em> ★
           </h2>
           <ol class="news-list">
             {newsFeatures.map((f) => (
@@ -529,7 +552,7 @@ const awards = [
         -->
         <section id="geo-featuring" class="featuring">
           <h2 class="ribbon ribbon-orange">
-            <span class="blink">★</span> NOW <em>FEATURING!!!</em> <span class="blink">★</span>
+            ★ NOW <em>FEATURING!!!</em> ★
           </h2>
           <p class="feat-sub">»» CHECK OUT DA REST OF MY SHRINE!!1! ««</p>
           <ul class="feat-grid">
@@ -580,9 +603,9 @@ const awards = [
             <div class="webring-corner webring-corner-br">✦</div>
 
             <h3 class="webring-h">
-              <span class="webring-h-star blink">★</span>
+              <span class="webring-h-star">★</span>
               THE DARK CODEX WEBRING
-              <span class="webring-h-star blink">★</span>
+              <span class="webring-h-star">★</span>
             </h3>
 
             <!--
@@ -609,13 +632,13 @@ const awards = [
 
                 <div class="mit-banner-mid">
                   <div class="mit-banner-newbadge blink" aria-hidden="true">NEW!!</div>
-                  <h4 class="mit-banner-title">
+                  <p class="mit-banner-title">
                     <span class="mit-rainbow">MIT</span><span class="mit-impact"> LICENSED!!1!</span>
-                  </h4>
+                  </p>
                   <div class="mit-banner-subtitle">
-                    <span class="blink">»</span>
+                    »
                     click here 2 read da TERMS!!!
-                    <span class="blink">«</span>
+                    «
                   </div>
                 </div>
 
@@ -737,6 +760,34 @@ const awards = [
           <p class="ad-disclaimer">*not actually a sigil. just a link to GitHub.</p>
         </div>
 
+        <!-- CHOOSE YOUR KITTY : fake ad, real cursor-cat selector -->
+        <div class="widget widget-kitty-ad" data-kitty-selector>
+          <div class="kitty-ad-tag blink">{KITTIES.length} NEW PETZ!!!</div>
+          <div class="kitty-ad">
+            <span class="kitty-ad-stripes" aria-hidden="true"></span>
+            <p class="kitty-ad-title">
+              <span>CHOOSE</span>
+              <strong>YOUR KITTY</strong>
+            </p>
+            <div class="kitty-cycler" role="group" aria-label="Choose your cursor cat">
+              <button type="button" class="kitty-cycle" data-kitty-prev aria-label="Previous kitty">◀</button>
+              <div class="kitty-ad-stage" aria-hidden="true">
+                <span class="kitty-preview" data-kitty-preview></span>
+                <span class="kitty-star kitty-star-a">★</span>
+                <span class="kitty-star kitty-star-b">✦</span>
+              </div>
+              <button type="button" class="kitty-cycle" data-kitty-next aria-label="Next kitty">▶</button>
+            </div>
+            <p class="kitty-now">
+              NOW: <output data-kitty-name aria-live="polite">{kittyLabel(DEFAULT_KITTY)}</output>
+              <span class="kitty-count">· <span data-kitty-count>01/{kittyCount}</span></span>
+            </p>
+            <button type="button" class="kitty-random" data-kitty-random>
+              ★ SURPRISE ME!! ★
+            </button>
+          </div>
+        </div>
+
         <!-- FRIENDS LIST -->
         <div class="widget widget-friends">
           <h3 class="widget-h">★ MY FRIENDS ★</h3>
@@ -768,10 +819,10 @@ const awards = [
             </div>
 
             <div class="lodge-ad-body">
-              <h4 class="lodge-ad-title">
+              <p class="lodge-ad-title">
                 <span class="line line-1">JOIN DA</span>
                 <span class="line line-2 rainbow">LODGE!!1!</span>
-              </h4>
+              </p>
 
               <svg class="lodge-ad-sc" viewBox="0 0 100 100" aria-hidden="true">
                 <!-- square and compasses, white-on-dark sticker style -->
@@ -799,7 +850,7 @@ const awards = [
               </div>
 
               <p class="lodge-ad-pitch">
-                ANCIENT SECRETS!! <span class="blink">★</span><br>
+                ANCIENT SECRETS!! ★<br>
                 they don't want u 2 know!!1!
               </p>
 
@@ -857,6 +908,16 @@ const awards = [
 </section>
 
 <script>
+  import {
+    KITTIES,
+    KITTY_KEY,
+    coerceKitty,
+    kittyIndex,
+    kittyLabel,
+    kittySprite,
+    type KittyId,
+  } from '../../data/kitties';
+
   /*
    * Sparkle cursor trail. Scoped to the geocities stage only. Emits a
    * tiny ★ at the cursor every ~80ms while the mouse is inside the
@@ -950,6 +1011,23 @@ const awards = [
     const stopBtn = widget.querySelector('[data-role="stop"]')  as HTMLButtonElement;
     const volBtn  = widget.querySelector('[data-role="vol"]')   as HTMLButtonElement;
     const tabs    = widget.querySelectorAll<HTMLButtonElement>('.station-tab');
+
+    /*
+     * "STOP DA MUSIC" sidebar toggle. Persistent mute: while set, the
+     * radio is stopped and the gesture autoplay below never fires, so a
+     * muted visitor can scroll and click in peace. Pressing the radio's
+     * own ▶ counts as an explicit "music please" and clears it.
+     */
+    const muteBtn = document.querySelector<HTMLButtonElement>('[data-mute-toggle]');
+    const MUTE_KEY = 'geo-muted';
+    let muted = false;
+    try { muted = localStorage.getItem(MUTE_KEY) === '1'; } catch {}
+
+    function setMuted(on: boolean) {
+      muted = on;
+      muteBtn?.setAttribute('aria-pressed', String(on));
+      try { localStorage.setItem(MUTE_KEY, on ? '1' : '0'); } catch {}
+    }
 
     let current: StationId = 'spacesynth';
     let pollTimer: number | null = null;
@@ -1052,6 +1130,8 @@ const awards = [
     function play() {
       if (!audio.src) audio.src = stations[current].url;
       return audio.play().then(() => {
+        // Sound is audibly on: any successful play overrides the mute pref.
+        if (muted) setMuted(false);
         widget.classList.add('is-playing');
         playBtn.textContent = '❚❚';
         status.textContent = 'tuned in!!! turn ur speakers UP!!1!';
@@ -1090,6 +1170,17 @@ const awards = [
 
     playBtn.addEventListener('click', () => { audio.paused ? play() : pause(); });
     stopBtn.addEventListener('click', stop);
+    muteBtn?.addEventListener('click', () => {
+      if (!muted) {
+        setMuted(true);
+        stop();
+        status.textContent = 'music is OFF!! enjoy da silence';
+      } else {
+        // The click is a user gesture, so play() is allowed here.
+        setMuted(false);
+        play().catch(() => {});
+      }
+    });
     volBtn.addEventListener('click', () => {
       volStep = (volStep + 1) % volLevels.length;
       audio.volume = volLevels[volStep];
@@ -1126,7 +1217,7 @@ const awards = [
 
     let autoPlayed = false;
     function tryAutoPlay() {
-      if (autoPlayed || !audio.paused) return;
+      if (autoPlayed || muted || !audio.paused) return;
       autoPlayed = true;
       status.textContent = 'tuning in to SPACE...';
       play().catch(() => {
@@ -1145,9 +1236,114 @@ const awards = [
     }
 
     /* Kick off: optimistic first attempt, then arm the gesture
-     * listener for the (more common) blocked case. */
-    tryAutoPlay();
-    bindFirstGesture();
+     * listener for the (more common) blocked case. A saved mute
+     * pref skips all of it; the sidebar toggle is the way back in. */
+    setMuted(muted);
+    if (muted) {
+      status.textContent = 'music is OFF!! un-mute in da sidebar 2 tune in';
+    } else {
+      tryAutoPlay();
+      bindFirstGesture();
+    }
+  })();
+
+  /*
+   * "STOP DA FLASHING" toggle. The motion off-switch, in costume. Flips
+   * [data-calm] on the stage (the CSS kills every loop while it's set),
+   * remembers the choice in localStorage, and reflects state via
+   * aria-pressed. On a first visit it starts calm if the OS asks for
+   * reduced motion, so motion-sensitive visitors never see the strobe at
+   * all. No network: purely a local preference, in keeping with the
+   * no-telemetry rule.
+   */
+  (function calmToggle() {
+    const stage = document.querySelector('.stage-geocities');
+    const btn = stage?.querySelector('[data-calm-toggle]');
+    if (!stage || !btn) return;
+    const KEY = 'geo-calm';
+    const setCalm = (on: boolean) => {
+      stage.toggleAttribute('data-calm', on);
+      btn.setAttribute('aria-pressed', String(on));
+      try { localStorage.setItem(KEY, on ? '1' : '0'); } catch {}
+    };
+    let saved: string | null = null;
+    try { saved = localStorage.getItem(KEY); } catch {}
+    const prefersReduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    setCalm(saved === '1' || (saved === null && prefersReduce));
+    btn.addEventListener('click', () => setCalm(!stage.hasAttribute('data-calm')));
+  })();
+
+  /*
+   * "CHOOSE YOUR KITTY" ad. This is a real selector for the global
+   * cursor-chasing neko: save the local preference, update the ad preview,
+   * and broadcast to Neko.astro without any analytics or page reload.
+   */
+  (function kittySelector() {
+    const widget = document.querySelector<HTMLElement>('[data-kitty-selector]');
+    if (!widget) return;
+
+    const preview = widget.querySelector<HTMLElement>('[data-kitty-preview]');
+    const name = widget.querySelector<HTMLOutputElement>('[data-kitty-name]');
+    const count = widget.querySelector<HTMLElement>('[data-kitty-count]');
+    const prevBtn = widget.querySelector<HTMLButtonElement>('[data-kitty-prev]');
+    const nextBtn = widget.querySelector<HTMLButtonElement>('[data-kitty-next]');
+    const randomBtn = widget.querySelector<HTMLButtonElement>('[data-kitty-random]');
+
+    function applyKitty(value: string | null | undefined, save: boolean): KittyId {
+      const kitty = coerceKitty(value);
+      const idx = kittyIndex(kitty);
+      if (preview) preview.style.backgroundImage = `url('${kittySprite(kitty)}')`;
+      if (name) name.textContent = kittyLabel(kitty);
+      if (count) {
+        count.textContent = `${String(idx + 1).padStart(2, '0')}/${String(KITTIES.length).padStart(2, '0')}`;
+      }
+      if (save) {
+        try { localStorage.setItem(KITTY_KEY, kitty); } catch {}
+      }
+      window.dispatchEvent(new CustomEvent('grimoire:kitty-change', { detail: { kitty } }));
+      return kitty;
+    }
+
+    let saved: string | null = null;
+    try { saved = localStorage.getItem(KITTY_KEY); } catch {}
+    let current = applyKitty(saved, false);
+
+    function step(dir: number) {
+      const idx = (kittyIndex(current) + dir + KITTIES.length) % KITTIES.length;
+      current = applyKitty(KITTIES[idx].id, true);
+    }
+
+    prevBtn?.addEventListener('click', () => step(-1));
+    nextBtn?.addEventListener('click', () => step(1));
+    randomBtn?.addEventListener('click', () => {
+      const others = KITTIES.filter((k) => k.id !== current);
+      current = applyKitty(others[Math.floor(Math.random() * others.length)].id, true);
+    });
+  })();
+
+  /*
+   * Real hit counter. The "SOULS BEHELD" / "YOU ARE VISITOR" LEDs used to
+   * be hard-coded 001337; now they tick. Count lives in localStorage and
+   * never drops below the meme floor (1337), so a first-time visitor still
+   * sees a respectably haunted number. Six digits, odometer rollover past
+   * 999999. Client-only, no beacon, no analytics: the count is yours and
+   * never leaves your browser.
+   */
+  (function soulCounter() {
+    const KEY = 'geo-souls';
+    const BASE = 1337;
+    let n = BASE;
+    try {
+      const prev = parseInt(localStorage.getItem(KEY) || '0', 10);
+      n = Math.max(BASE, (Number.isNaN(prev) ? BASE : prev) + 1);
+      localStorage.setItem(KEY, String(n));
+    } catch { /* private mode / storage off: fall back to the floor */ }
+    const digits = String(n).padStart(6, '0').slice(-6).split('');
+    document.querySelectorAll('.led-counter, .stat-counter-led').forEach((led) => {
+      const cells = led.querySelectorAll('span');
+      if (cells.length !== digits.length) return;
+      digits.forEach((d, i) => { cells[i].textContent = d; });
+    });
   })();
 </script>
 
@@ -1518,17 +1714,20 @@ const awards = [
 
   .stage-geocities .mailbox {
     position: relative;
+    isolation: isolate;
     display: flex;
     align-items: center;
     gap: 10px;
-    padding: 10px 8px;
+    padding: 12px 8px 10px;
     background:
       radial-gradient(ellipse 80% 60% at 50% 50%, rgba(196, 74, 42, 0.25) 0%, transparent 70%),
       rgba(0, 0, 0, 0.45);
     border: 2px ridge #b0a8d9;
-    overflow: hidden;
+    overflow: visible;
   }
   .stage-geocities .mail-icon {
+    position: relative;
+    z-index: 1;
     font-size: 32px;
     line-height: 1;
     display: inline-block;
@@ -1542,9 +1741,13 @@ const awards = [
     75%      { transform: translateY(-2px) rotate(4deg);  }
   }
   .stage-geocities .mail-body {
+    position: relative;
+    z-index: 1;
     display: flex;
     flex-direction: column;
     flex: 1;
+    min-width: 0;
+    padding-right: 52px;
   }
   .stage-geocities .mail-count {
     font-family: 'Impact', 'Comic Neue', sans-serif;
@@ -1560,9 +1763,11 @@ const awards = [
   }
   .stage-geocities .mail-new-sticker {
     position: absolute;
-    top: -2px;
-    right: -10px;
+    top: 5px;
+    right: 5px;
+    z-index: 3;
     transform: rotate(14deg);
+    transform-origin: center;
     padding: 2px 6px;
     background: #c8243d;
     border: 2px ridge #ffd96a;
@@ -1573,6 +1778,7 @@ const awards = [
     text-shadow: 1px 1px 0 #000;
     box-shadow: 1px 1px 0 #000;
     animation: mail-sticker-wobble 1.8s ease-in-out infinite;
+    pointer-events: none;
   }
   @keyframes mail-sticker-wobble {
     0%, 100% { transform: rotate(14deg) scale(1); }
@@ -1889,7 +2095,7 @@ const awards = [
     background: #4a0a08;
     color: #fff8d4;
     text-shadow: 0 0 6px #ffd96a;
-    animation: geo-blink 0.8s steps(2, end) infinite;
+    animation: geo-blink 1.1s steps(2, end) infinite;
   }
 
   /* ─── AWARDS widget ─── */
@@ -2044,7 +2250,7 @@ const awards = [
   .stage-geocities .ad-text-1 {
     font-size: 24px;
     color: #d4af5a;
-    animation: ad-pulse 0.6s ease-in-out infinite alternate;
+    animation: ad-pulse 1.4s ease-in-out infinite alternate;
   }
   .stage-geocities .ad-text-2 {
     font-family: 'Comic Neue', cursive;
@@ -2060,11 +2266,11 @@ const awards = [
   .stage-geocities .ad-text-4 {
     font-size: 18px;
     color: #d4af5a;
-    animation: ad-pulse 0.5s ease-in-out infinite alternate;
+    animation: ad-pulse 1.4s ease-in-out infinite alternate;
   }
   @keyframes ad-pulse {
     from { transform: scale(1); }
-    to   { transform: scale(1.07); }
+    to   { transform: scale(1.035); }
   }
   .stage-geocities .ad-icon {
     position: absolute;
@@ -2072,7 +2278,7 @@ const awards = [
     bottom: 6px;
     font-size: 28px;
     filter: drop-shadow(1px 1px 0 #000);
-    animation: ad-pulse 0.7s ease-in-out infinite alternate;
+    animation: ad-pulse 1.6s ease-in-out infinite alternate;
   }
   /*
    * Attention-grab without ever going invisible: alternate the
@@ -2093,7 +2299,7 @@ const awards = [
     letter-spacing: 0.05em;
     border: 2px dashed #a83247;
     text-shadow: 1px 1px 0 #c00;
-    animation: ad-cta-flash 0.6s steps(2, end) infinite;
+    animation: ad-cta-flash 1.3s steps(2, end) infinite;
   }
   @keyframes ad-cta-flash {
     0%, 49%   { background: #000; border-color: #a83247; }
@@ -2111,6 +2317,214 @@ const awards = [
     color: #888;
     text-align: center;
     font-style: italic;
+  }
+
+  /* ─── CHOOSE YOUR KITTY ad : real neko selector ─── */
+  .stage-geocities .widget-kitty-ad {
+    padding: 6px;
+    border-color: #5acafe;
+  }
+  .stage-geocities .widget-kitty-ad .kitty-ad-tag {
+    display: block;
+    margin: 0 0 4px;
+    font-family: 'Courier New', monospace;
+    font-size: 9px;
+    font-weight: 700;
+    color: #ffd96a;
+    text-align: center;
+    letter-spacing: 0.16em;
+    text-shadow: 1px 1px 0 #000, 0 0 5px rgba(255, 217, 106, 0.75);
+  }
+  .stage-geocities .kitty-ad {
+    position: relative;
+    overflow: hidden;
+    padding: 8px;
+    background:
+      radial-gradient(ellipse 90% 70% at 50% 28%, rgba(90, 202, 254, 0.22) 0%, transparent 64%),
+      linear-gradient(135deg, #1a0840 0%, #5a0a18 48%, #071a28 100%);
+    border: 2px solid #000;
+    box-shadow: inset 0 0 18px rgba(0, 0, 0, 0.75);
+  }
+  .stage-geocities .kitty-ad-stripes {
+    position: absolute;
+    inset: -24px;
+    background: repeating-linear-gradient(
+      -45deg,
+      transparent 0 9px,
+      rgba(255, 217, 106, 0.12) 9px 18px
+    );
+    animation: kitty-stripes 1.8s linear infinite;
+    pointer-events: none;
+  }
+  @keyframes kitty-stripes {
+    from { transform: translate3d(0, 0, 0); }
+    to   { transform: translate3d(0, -25.455844px, 0); }
+  }
+  .stage-geocities .kitty-ad-title {
+    position: relative;
+    z-index: 1;
+    margin: 0 0 6px;
+    text-align: center;
+    font-family: 'Impact', 'Arial Black', sans-serif;
+    line-height: 0.95;
+    text-shadow: 2px 2px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000;
+  }
+  .stage-geocities .kitty-ad-title span,
+  .stage-geocities .kitty-ad-title strong {
+    display: block;
+  }
+  .stage-geocities .kitty-ad-title span {
+    color: #fff8d4;
+    font-size: 18px;
+    letter-spacing: 0.04em;
+  }
+  .stage-geocities .kitty-ad-title strong {
+    color: #ffd96a;
+    font-size: 26px;
+    letter-spacing: 0.03em;
+  }
+  .stage-geocities .kitty-cycler {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: 4px;
+    align-items: stretch;
+    margin: 0 0 6px;
+  }
+  .stage-geocities .kitty-ad-stage {
+    position: relative;
+    display: grid;
+    place-items: center;
+    min-height: 72px;
+    background:
+      radial-gradient(ellipse 62% 20% at 50% 78%, rgba(0, 0, 0, 0.6) 0%, transparent 70%),
+      rgba(0, 0, 0, 0.35);
+    border: 1px dashed rgba(255, 217, 106, 0.65);
+  }
+  .stage-geocities .kitty-preview {
+    display: inline-block;
+    width: 64px;
+    height: 64px;
+    /* Default skin; the selector swaps the sheet inline per pick. */
+    background-image: url('/neko/lucy.png');
+    background-repeat: no-repeat;
+    background-size: 512px 256px;
+    /* Idle (sitting) frame; the trot keyframes override while animated. */
+    background-position: -192px -192px;
+    image-rendering: pixelated;
+    animation:
+      kitty-float 1.4s ease-in-out infinite alternate,
+      kitty-trot 0.5s steps(1) infinite;
+  }
+  @keyframes kitty-float {
+    from { transform: translateY(0); }
+    to   { transform: translateY(-4px); }
+  }
+  /* Run-in-place: the two "running east" frames of the oneko sheet at 2x. */
+  @keyframes kitty-trot {
+    0%, 100% { background-position: -192px 0; }
+    50%      { background-position: -192px -64px; }
+  }
+  .stage-geocities .kitty-star {
+    position: absolute;
+    color: #ffd96a;
+    text-shadow: 0 0 6px rgba(255, 217, 106, 0.9), 1px 1px 0 #000;
+    animation: kitty-star-spin 2.4s linear infinite;
+  }
+  .stage-geocities .kitty-star-a {
+    left: 32px;
+    top: 14px;
+    font-size: 18px;
+  }
+  .stage-geocities .kitty-star-b {
+    right: 34px;
+    bottom: 12px;
+    font-size: 14px;
+    animation-direction: reverse;
+  }
+  @keyframes kitty-star-spin {
+    from { transform: rotate(0deg) scale(1); }
+    50%  { transform: rotate(180deg) scale(1.25); }
+    to   { transform: rotate(360deg) scale(1); }
+  }
+  .stage-geocities .kitty-cycle {
+    width: 26px;
+    cursor: pointer;
+    background: linear-gradient(180deg, #c0c0c0 0%, #777 100%);
+    border-top: 2px solid #fff;
+    border-left: 2px solid #fff;
+    border-right: 2px solid #404040;
+    border-bottom: 2px solid #404040;
+    color: #1a0a08;
+    font-size: 11px;
+    line-height: 1;
+  }
+  .stage-geocities .kitty-cycle:hover {
+    background: linear-gradient(180deg, #fff8d4 0%, #e8b840 100%);
+  }
+  .stage-geocities .kitty-cycle:active {
+    border-top-color: #404040;
+    border-left-color: #404040;
+    border-right-color: #fff;
+    border-bottom-color: #fff;
+    background: linear-gradient(180deg, #777 0%, #c0c0c0 100%);
+  }
+  .stage-geocities .kitty-cycle:focus-visible,
+  .stage-geocities .kitty-random:focus-visible {
+    outline: 3px solid #5acafe;
+    outline-offset: 2px;
+  }
+  .stage-geocities .kitty-now {
+    position: relative;
+    z-index: 1;
+    margin: 0;
+    padding: 2px 4px;
+    text-align: center;
+    background: #000;
+    border: 1px dashed #ffd96a;
+    color: #50e878;
+    font-family: 'Courier New', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-shadow: 0 0 5px rgba(80, 232, 120, 0.85);
+  }
+  .stage-geocities .kitty-now output {
+    color: #ffd96a;
+  }
+  .stage-geocities .kitty-count {
+    color: #50e878;
+    letter-spacing: 0.04em;
+  }
+  .stage-geocities .kitty-random {
+    position: relative;
+    z-index: 1;
+    display: block;
+    width: 100%;
+    margin: 6px 0 0;
+    padding: 4px;
+    cursor: pointer;
+    background: linear-gradient(180deg, #ffd96a 0%, #c8243d 100%);
+    border-top: 2px solid #fff8d4;
+    border-left: 2px solid #fff8d4;
+    border-right: 2px solid #404040;
+    border-bottom: 2px solid #404040;
+    color: #000;
+    font-family: 'Comic Neue', 'Comic Sans MS', cursive;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.45);
+  }
+  .stage-geocities .kitty-random:hover {
+    background: linear-gradient(180deg, #fff8d4 0%, #e8b840 100%);
+  }
+  .stage-geocities .kitty-random:active {
+    border-top-color: #404040;
+    border-left-color: #404040;
+    border-right-color: #fff8d4;
+    border-bottom-color: #fff8d4;
   }
 
   /* ─── FRIENDS widget ─── */
@@ -2177,14 +2591,18 @@ const awards = [
       #000 0 6px,
       #ffd96a 6px 12px
     );
-    color: #000;
+    /* Cream text with a thick black halo so the label stays legible over
+       both the black and the gold hazard stripes (was #000 = invisible). */
+    color: #ffe9a8;
     font-family: 'Courier New', monospace;
-    font-size: 9px;
+    font-size: 10px;
     font-weight: 700;
-    letter-spacing: 0.18em;
+    letter-spacing: 0.16em;
     text-align: center;
     padding: 2px 4px;
-    text-shadow: none;
+    text-shadow:
+      1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000,
+      0 0 3px #000;
     mix-blend-mode: normal;
   }
   .stage-geocities .lodge-ad-tag {
@@ -2194,8 +2612,12 @@ const awards = [
       rgba(0,0,0,0.85) 6px 12px
     ), linear-gradient(90deg, #ff2eb5, #ffd96a, #50e878, #5acafe);
     background-size: 100% 100%, 200% 100%;
+    /* Dark text with a white halo: the core reads over the bright rainbow
+       stripes, the halo keeps the letters visible over the black hazard
+       stripes (where the old single faint shadow let them disappear). */
     color: #07041a;
-    text-shadow: 1px 1px 0 rgba(255,255,255,0.4);
+    text-shadow:
+      0 0 1px #fff, 1px 1px 0 #fff, -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff;
     animation: lodge-tag-slide 4s linear infinite;
   }
   @keyframes lodge-tag-slide {
@@ -2246,6 +2668,7 @@ const awards = [
 
   .stage-geocities .lodge-ad-title {
     margin: 4px 0 4px;
+    font-weight: 900;
     font-family: 'Impact', 'Arial Black', sans-serif;
     line-height: 1;
     letter-spacing: 0.04em;
@@ -2273,7 +2696,13 @@ const awards = [
     color: transparent;
     -webkit-text-fill-color: transparent;
     animation: mit-rainbow-slide 3s linear infinite;
-    filter: drop-shadow(1px 1px 0 #000);
+    /* The parent title sets a heavy 4-way black text-shadow; on
+       transparent-fill (background-clip:text) glyphs that shadow renders
+       as a solid black mass that buried the gradient. Kill it here and
+       use a filter drop-shadow for the edge instead, so the rainbow
+       actually shows. */
+    text-shadow: none;
+    filter: drop-shadow(1px 1px 0 #000) drop-shadow(0 0 1px #000);
   }
 
   .stage-geocities .lodge-ad-sc {
@@ -2333,8 +2762,14 @@ const awards = [
     font-style: italic;
   }
 
-  .stage-geocities .lodge-ad-cta,
-  .stage-geocities .tree-ad-cta {
+  /* Selector is widget-scoped (specificity 0,3,0) so it beats the shared
+     .blink rule (0,2,0): .blink forces display:inline-block + an orange
+     color, which shrank the CTA to its text width (left-aligned, gap on
+     the right) and dimmed the label. display:block here restores the
+     full-bleed bar; the blink animation still applies. */
+  .stage-geocities .widget-lodge-ad .lodge-ad-cta,
+  .stage-geocities .widget-tree-ad .tree-ad-cta {
+    display: block;
     margin: 4px -2px 0;
     padding: 4px 4px;
     background: #c8243d;
@@ -2370,6 +2805,7 @@ const awards = [
   .stage-geocities .tree-ad-title {
     margin: 8px 4px 4px;
     text-align: center;
+    font-weight: 900;
     font-family: 'Impact', 'Arial Black', sans-serif;
     line-height: 1;
     letter-spacing: 0.04em;
@@ -2431,8 +2867,11 @@ const awards = [
   }
   .stage-geocities .tree-ad-stamp {
     position: absolute;
-    top: 70px;
-    right: -4px;
+    /* Top-right corner, fully inside the frame. Was top:70px/right:-4px,
+       which sat on top of node 2 and bled off the edge (clipped by the
+       ad's overflow:hidden), reading as a z-order/clipping bug. */
+    top: 4px;
+    right: 4px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -3026,7 +3465,7 @@ const awards = [
   .stage-geocities .ribbon-link:active { transform: translateY(1px); }
   .stage-geocities .blink {
     color: #c44a2a;
-    animation: geo-blink 0.8s steps(2, end) infinite;
+    animation: geo-blink 1.1s steps(2, end) infinite;
     display: inline-block;
   }
   @keyframes geo-blink { 50% { opacity: 0; } }
@@ -3179,7 +3618,7 @@ const awards = [
     font-weight: 700;
   }
   .stage-geocities .gdl-gh .gdl-size {
-    animation: geo-blink 0.7s steps(2, end) infinite;
+    animation: geo-blink 1.1s steps(2, end) infinite;
   }
 
   /* ─── POLL widget ─── */
@@ -3620,6 +4059,7 @@ const awards = [
   }
   .stage-geocities .mit-banner-title {
     margin: 0;
+    font-weight: 900;
     font-family: 'Impact', 'Arial Black', sans-serif;
     font-size: 30px;
     line-height: 1;
@@ -3801,44 +4241,76 @@ const awards = [
   /* ─── Bottom marquee margin ─── */
   .stage-geocities .bot-marquee { margin-top: 24px; }
 
-  @media (prefers-reduced-motion: reduce) {
-    .stage-geocities .starfield,
-    .stage-geocities .track,
-    .stage-geocities .blink,
-    .stage-geocities .gdl-btn,
-    .stage-geocities .hazard-tape,
-    .stage-geocities .heart,
-    .stage-geocities .b-blink,
-    .stage-geocities .sep-flame,
-    .stage-geocities .sep-rainbow,
-    .stage-geocities .sep-lightning,
-    .stage-geocities .midi-bars span,
-    .stage-geocities .ad-bg,
-    .stage-geocities .ad-text-1,
-    .stage-geocities .ad-text-3,
-    .stage-geocities .ad-text-4,
-    .stage-geocities .ad-icon,
-    .stage-geocities .ad-cta,
-    .stage-geocities .lodge-ad-sc,
-    .stage-geocities .lodge-ad-marquee,
-    .stage-geocities .tree-svg .tree-paths,
-    .stage-geocities .tree-svg .tree-seph-tip,
-    .stage-geocities .mit-banner,
-    .stage-geocities .mit-banner-marquee,
-    .stage-geocities .mit-banner-burst,
-    .stage-geocities .mail-icon,
-    .stage-geocities .mail-h,
-    .stage-geocities .mail-new-sticker,
-    .stage-geocities .mail-link,
-    .stage-geocities .stat-dot,
-    .stage-geocities .stat-bw-fill,
-    .stage-geocities .stat-counter-led > span:last-child,
-    .stage-geocities .altar-sphere,
-    .stage-geocities .scry-rune,
-    .stage-geocities .scry-pupil,
-    .stage-geocities .crt-scan,
-    .stage-geocities .award-ribbon { animation: none; }
+  /* ─── "STOP DA FLASHING" + "STOP DA MUSIC" toggles : chunky 90s buttons (sidebar controls) ─── */
+  .stage-geocities .calm-bar {
+    position: relative;
+    z-index: 3;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    justify-content: center;
+    margin: 0 0 12px;
   }
+  .stage-geocities .calm-btn {
+    cursor: pointer;
+    width: 100%;
+    text-align: center;
+    line-height: 1.25;
+    font-family: 'Comic Neue', 'Comic Sans MS', cursive;
+    font-weight: 700;
+    font-size: 13px;
+    color: #1a0a08;
+    background: linear-gradient(180deg, #ffe08a 0%, #e8b840 100%);
+    border: 3px outset #ffd96a;
+    padding: 6px 12px;
+    box-shadow: 2px 2px 0 #000;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.4);
+  }
+  .stage-geocities .calm-btn:hover { filter: brightness(1.06); }
+  .stage-geocities .calm-btn:active {
+    border-style: inset;
+    transform: translate(1px, 1px);
+    box-shadow: 1px 1px 0 #000;
+  }
+  .stage-geocities .calm-btn:focus-visible { outline: 3px solid #5acafe; outline-offset: 2px; }
+  .stage-geocities .calm-label-off { display: none; }
+  .stage-geocities[data-calm] [data-calm-toggle] {
+    background: linear-gradient(180deg, #2c0e6a 0%, #1a0840 100%);
+    color: #ffd96a;
+    border-color: #9c7ae6;
+    text-shadow: none;
+  }
+  .stage-geocities[data-calm] .calm-label-on { display: none; }
+  .stage-geocities[data-calm] .calm-label-off { display: inline; }
+  /* Mute mirrors the calm button's quiet state, keyed off its own
+     aria-pressed instead of a stage attribute. */
+  .stage-geocities .mute-label-off { display: none; }
+  .stage-geocities .calm-btn--mute[aria-pressed="true"] {
+    background: linear-gradient(180deg, #2c0e6a 0%, #1a0840 100%);
+    color: #ffd96a;
+    border-color: #9c7ae6;
+    text-shadow: none;
+  }
+  .stage-geocities .calm-btn--mute[aria-pressed="true"] .mute-label-on { display: none; }
+  .stage-geocities .calm-btn--mute[aria-pressed="true"] .mute-label-off { display: inline; }
+
+  /*
+   * Motion off-switch. Two triggers, one behaviour: kill every loop in
+   * the stage. (1) the OS "reduce motion" preference, and (2) the in-page
+   * [data-calm] flag set by the "STOP DA FLASHING" toggle below. Uses a
+   * blanket universal selector (mirroring geo.css for the sub-pages)
+   * instead of the old hand-kept allowlist, which had drifted out of sync
+   * and missed live animations (e.g. it targeted .ad-bg but the stripes
+   * animate on .ad-bg-stripes, so they never actually stopped).
+   */
+  @media (prefers-reduced-motion: reduce) {
+    .stage-geocities *,
+    .stage-geocities *::before,
+    .stage-geocities *::after { animation: none !important; }
+  }
+  .stage-geocities[data-calm] *,
+  .stage-geocities[data-calm] *::before,
+  .stage-geocities[data-calm] *::after { animation: none !important; }
 
   /* ─── Tablet : collapse to 2 columns (content + stacked sidebars) ─── */
   @media (max-width: 1000px) {
@@ -3855,6 +4327,8 @@ const awards = [
       flex: 1 1 220px;
       min-width: 0;
     }
+    /* Keep the motion toggle on its own full-width line above the widgets. */
+    .stage-geocities .rail-left .calm-bar { flex-basis: 100%; }
   }
 
   @media (max-width: 720px) {
