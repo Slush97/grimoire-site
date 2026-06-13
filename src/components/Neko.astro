@@ -41,7 +41,10 @@
       sleeping: [[-2, 0], [-2, -1]],
       N: [[-1, -2], [-1, -3]],
       NE: [[0, -2], [0, -3]],
-      E: [[-3, 0], [-3, -1]],
+      // East = the West run mirrored (see setSprite). Many community skins
+      // leave the sheet's native E cells as a sitting pose, which glitched
+      // the horizontal run; deriving E from W is correct for every skin.
+      E: [[-4, -2], [-4, -3]],
       SE: [[-5, -1], [-5, -2]],
       S: [[-6, -3], [-7, -2]],
       SW: [[-5, -3], [-6, -1]],
@@ -109,6 +112,8 @@
     function setSprite(name: string, frame: number) {
       const sprite = spriteSets[name][frame % spriteSets[name].length];
       nekoEl.style.backgroundPosition = `${sprite[0] * 32}px ${sprite[1] * 32}px`;
+      // E reuses the West-run frames, so mirror them to face east.
+      nekoEl.style.transform = name === 'E' ? 'scaleX(-1)' : '';
     }
 
     function resetIdleAnimation() {
