@@ -118,6 +118,9 @@ GRIMOIRE(1)                      User Commands                      GRIMOIRE(1)
        <span class="li">profiles</span>   loadouts as short mp1: codes or .modprofile.json files
 
 <span class="hd">INSTALL</span>
+       Full download index, every platform and checksum:
+         <a class="cmd-link" href="/download">grimoiremods.com/download</a>
+
        Windows (recommended):
          <a class="cmd-link" href={dl.windowsInstaller?.browser_download_url ?? dl.releaseUrl}>{dl.windowsInstaller?.name ?? 'grimoire-setup.exe'}</a>
          ({sizeStr}, signed by GitHub Actions build attestation)
@@ -129,7 +132,7 @@ GRIMOIRE(1)                      User Commands                      GRIMOIRE(1)
          <span class="cmd">$ yay -S grimoire-bin</span>
 
        Debian / Ubuntu (apt, auto-updates):
-         <span class="cmd">$ # one-time repo setup at grimoiremods.com/download</span>
+         <span class="cmd">$ # one-time repo setup at <a class="cmd-link" href="/download">grimoiremods.com/download</a></span>
          <span class="cmd">$ sudo apt update &amp;&amp; sudo apt install grimoire</span>
 
        Debian / Ubuntu (.deb, manual):

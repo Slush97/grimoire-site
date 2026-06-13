@@ -184,6 +184,7 @@ const clouds = [
       <p class="micro">
         Free download. Windows and Linux. The experience is reimagined.
       </p>
+      <a class="aero-dl-link" href="/download">See all downloads and checksums &rsaquo;</a>
     </div>
   </section>
 
@@ -381,6 +382,7 @@ const clouds = [
         <span class="aqua-btn-text">Get Grimoire</span>
         <span class="aqua-btn-arrow" aria-hidden="true">›</span>
       </a>
+      <a class="aero-dl-link" href="/download">See all downloads and checksums &rsaquo;</a>
     </div>
   </section>
 </section>
@@ -549,6 +551,23 @@ const clouds = [
     color: rgba(255,255,255,0.85);
     font-weight: 400;
     text-shadow: 0 1px 1px rgba(0, 45, 100, 0.3);
+  }
+
+  /* Secondary "go to the download hub" link, both CTAs. */
+  .stage-aero .aero-dl-link {
+    display: inline-block;
+    margin-top: 14px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #eaf6ff;
+    text-shadow: 0 1px 2px rgba(0, 45, 100, 0.55);
+    text-decoration: underline;
+    text-decoration-color: rgba(234, 246, 255, 0.5);
+    text-underline-offset: 3px;
+  }
+  .stage-aero .aero-dl-link:hover,
+  .stage-aero .aero-dl-link:focus-visible {
+    text-decoration-color: #eaf6ff;
   }
 
   /* ─── Aqua button (the classic 2-stop gloss pill) ─── */

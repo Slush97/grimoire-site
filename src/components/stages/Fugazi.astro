@@ -276,6 +276,8 @@ const compliance = [
         ))}
       </ul>
 
+      <a class="fugazi-dl-link" href="/download">Browse all downloads and checksums &rarr;</a>
+
       <p class="micro">12,000+ developers · 47,000 mods deployed · MIT licensed</p>
     </div>
   </section>
@@ -760,6 +762,24 @@ const compliance = [
     color: #71717a;
     font-feature-settings: 'tnum';
   }
+  /* Secondary link to the full download hub, under the hero chips. */
+  .stage-fugazi .fugazi-dl-link {
+    display: inline-block;
+    margin-top: 16px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #52525b;
+    text-decoration: underline;
+    text-decoration-color: #d4d4d8;
+    text-underline-offset: 3px;
+    transition: color 140ms ease, text-decoration-color 140ms ease;
+  }
+  .stage-fugazi .fugazi-dl-link:hover,
+  .stage-fugazi .fugazi-dl-link:focus-visible {
+    color: #18181b;
+    text-decoration-color: #18181b;
+  }
+
   .stage-fugazi .plat-chips {
     margin: 22px auto 0;
     padding: 0;
