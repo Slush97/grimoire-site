@@ -10,6 +10,7 @@
 import '../styles/geo.css';
 import Neko from '../components/Neko.astro';
 import EraSwitcher from '../components/EraSwitcher.astro';
+import SeoJsonLd from '../components/SeoJsonLd.astro';
 
 interface Props {
   title?: string;
@@ -19,8 +20,8 @@ interface Props {
 }
 
 const {
-  title = 'Grimoire',
-  description = 'Mod manager for Deadlock. Browse and install mods from GameBanana, manage your library, swap profiles.',
+  title = 'Grimoire: a Free Deadlock Mod Manager',
+  description = 'Grimoire is a free, open-source Deadlock mod manager. Browse and install mods from GameBanana, manage your library, swap profiles.',
   marquee = "✦ WELCOME BACK 2 GRIMOIRE!!1! ✦ BEST VIEWED IN NETSCAPE NAVIGATOR 4.0 BY MOONLIGHT ✦ SIGN THE BOOK OF NAMES!!! ✦ ",
   ogImage = '/og.png',
 } = Astro.props;
@@ -75,6 +76,8 @@ const ogImageUrl = new URL(ogImage, Astro.site);
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={ogImageUrl} />
+
+    <SeoJsonLd />
   </head>
   <body>
     <a href="#geo-main" class="geo-skip">Skip to content</a>

@@ -9,6 +9,7 @@ import '../styles/museum.css';
 import Neko from '../components/Neko.astro';
 import EraSwitcher from '../components/EraSwitcher.astro';
 import Lightbox from '../components/Lightbox.astro';
+import SeoJsonLd from '../components/SeoJsonLd.astro';
 
 interface Props {
   title?: string;
@@ -17,8 +18,8 @@ interface Props {
 }
 
 const {
-  title = 'Grimoire',
-  description = 'Mod manager for Deadlock. Browse and install mods from GameBanana, manage your library, swap profiles.',
+  title = 'Grimoire: a Free Deadlock Mod Manager',
+  description = 'Grimoire is a free, open-source Deadlock mod manager. Browse and one-click install mods from GameBanana, manage your library, run a Hero Locker, and swap mod profiles.',
   ogImage = '/og.png',
 } = Astro.props;
 
@@ -72,9 +73,20 @@ const ogImageUrl = new URL(ogImage, Astro.site);
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={ogImageUrl} />
+
+    <SeoJsonLd />
   </head>
   <body>
     <a href="#museum-main" class="museum-skip">Skip to content</a>
+    <!--
+      Stable crawlable heading. The six era stages each render their own
+      costume <h1> (and only one stage is shown at a time), but none of
+      them say "Deadlock mod manager" in plain text. This sr-only line is
+      always in the DOM, era-independent, and states the entity in the
+      words people actually search for. Visually hidden, not display:none,
+      so it stays crawlable.
+    -->
+    <h1 class="museum-seo-h1">Grimoire: a free, open-source Deadlock mod manager</h1>
     <main id="museum-main">
       <slot />
     </main>

@@ -1,0 +1,60 @@
+---
+/*
+ * SeoJsonLd.astro
+ * Structured data for search + AI engines. The site never says
+ * "Deadlock Mod Manager" in its visible costume copy (stages are
+ * costumes), so this is where we hand crawlers the plain-English
+ * entity facts that win the "deadlock mod manager" query: a free
+ * SoftwareApplication named Grimoire whose category is the thing
+ * people search for. No invented ratings (none to cite honestly).
+ *
+ * Emitted once per page from the layouts. brand is the single source
+ * of truth (data/content.ts); keep names in sync there.
+ */
+import { brand } from '../data/content';
+
+const site = `https://${brand.domain}`;
+
+const softwareApplication = {
+  '@type': 'SoftwareApplication',
+  '@id': `${site}/#app`,
+  name: brand.name,
+  alternateName: 'Grimoire Deadlock Mod Manager',
+  applicationCategory: 'GameApplication',
+  applicationSubCategory: 'Mod Manager',
+  operatingSystem: 'Windows, Linux',
+  url: site,
+  downloadUrl: `${site}/download`,
+  softwareHelp: brand.github,
+  description:
+    'Grimoire is a free, open-source mod manager for Deadlock. Browse and one-click install mods from GameBanana, manage your mod library, run a Hero Locker, and swap full mod-loadout profiles.',
+  license: brand.github,
+  isAccessibleForFree: true,
+  offers: {
+    '@type': 'Offer',
+    price: '0',
+    priceCurrency: 'USD',
+  },
+  sameAs: [brand.github, brand.discord, brand.gamebanana, brand.aur],
+};
+
+const website = {
+  '@type': 'WebSite',
+  '@id': `${site}/#website`,
+  url: site,
+  name: brand.name,
+  alternateName: 'Deadlock Mod Manager',
+  description: 'Grimoire: a free, open-source Deadlock mod manager.',
+  publisher: { '@id': `${site}/#app` },
+};
+
+const graph = {
+  '@context': 'https://schema.org',
+  '@graph': [softwareApplication, website],
+};
+---
+
+<script
+  type="application/ld+json"
+  set:html={JSON.stringify(graph)}
+/>
