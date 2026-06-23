@@ -43,7 +43,7 @@ const ogImageUrl = new URL(ogImage, Astro.site);
       (function () {
         var era = null;
         try { era = localStorage.getItem('grimoire.era'); } catch (e) {}
-        var ok = ['terminal', 'win95', 'geocities', 'aero', 'fugazi', 'grimoire'];
+        var ok = ['terminal', 'win95', 'geocities', 'aero', 'fugazi'];
         document.documentElement.dataset.era = ok.indexOf(era) >= 0 ? era : 'geocities';
       })();
     </script>

@@ -1,8 +1,8 @@
 /*
  * Era registry for the theme switcher. One entry per stage component in
  * src/components/stages/. Channel order is chronological(ish): the
- * switcher cycles through computing history and ends in the timeless
- * occult reading room.
+ * switcher cycles through computing history from the terminal era up to
+ * the present.
  *
  * The active era is persisted in localStorage (ERA_KEY) and mirrored on
  * <html data-era="...">:
@@ -18,7 +18,6 @@ export const ERAS = [
   { id: 'geocities', label: 'GEOCITIES', year: '1996', osd: 'UNDER CONSECRATION' },
   { id: 'aero',      label: 'AERO',      year: '2007', osd: 'THE WOW STARTS NOW' },
   { id: 'fugazi',    label: 'FUGAZI',    year: '2026', osd: 'SYNERGY UNLOCKED' },
-  { id: 'grimoire',  label: 'GRIMOIRE',  year: 'MMXXVI', osd: 'AS ABOVE SO BELOW' },
 ] as const;
 
 export type EraId = (typeof ERAS)[number]['id'];

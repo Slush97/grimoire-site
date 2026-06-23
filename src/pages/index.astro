@@ -1,6 +1,6 @@
 ---
 /*
- * Index. All six era stages mount here; only the one matching
+ * Index. All five era stages mount here; only the one matching
  * <html data-era> is displayed (rules in museum.css), and the
  * EraSwitcher remote (mounted by the Museum layout) zaps between them
  * with a CRT static burst. Default channel: GEOCITIES.
@@ -15,7 +15,6 @@ import Win95 from '../components/stages/Win95.astro';
 import Geocities from '../components/stages/Geocities.astro';
 import Aero from '../components/stages/Aero.astro';
 import Fugazi from '../components/stages/Fugazi.astro';
-import Grimoire from '../components/stages/Grimoire.astro';
 
 import { getDownloadUrls } from '../data/content';
 
@@ -28,5 +27,4 @@ const dl = await getDownloadUrls();
   <Geocities {...dl} />
   <Aero {...dl} />
   <Fugazi {...dl} />
-  <Grimoire {...dl} />
 </Museum>

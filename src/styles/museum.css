@@ -140,8 +140,7 @@ html[data-era="terminal"]  .stage-terminal,
 html[data-era="win95"]     .stage-win95,
 html[data-era="geocities"] .stage-geocities,
 html[data-era="aero"]      .stage-aero,
-html[data-era="fugazi"]    .stage-fugazi,
-html[data-era="grimoire"]  .stage-grimoire { display: block; }
+html[data-era="fugazi"]    .stage-fugazi { display: block; }
 
 /*
  * The stage's "stage frame" : used by transitions to capture a fixed

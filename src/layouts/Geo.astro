@@ -28,6 +28,11 @@ const {
 
 const canonicalUrl = new URL(Astro.url.pathname, Astro.site);
 const ogImageUrl = new URL(ogImage, Astro.site);
+
+// The chrome carries one primary install action on every sub-page so the
+// download is never more than one obvious click away. We hide it on
+// /download itself, where the page IS the installer.
+const isDownloadPage = Astro.url.pathname.replace(/\/$/, '') === '/download';
 ---
 
 <html lang="en">
@@ -46,7 +51,7 @@ const ogImageUrl = new URL(ogImage, Astro.site);
       (function () {
         var era = null;
         try { era = localStorage.getItem('grimoire.era'); } catch (e) {}
-        var ok = ['terminal', 'win95', 'geocities', 'aero', 'fugazi', 'grimoire'];
+        var ok = ['terminal', 'win95', 'geocities', 'aero', 'fugazi'];
         document.documentElement.dataset.era = ok.indexOf(era) >= 0 ? era : 'geocities';
       })();
     </script>
@@ -92,13 +97,20 @@ const ogImageUrl = new URL(ogImage, Astro.site);
       </div>
 
       <main id="geo-main" class="geo-page">
-        <nav class="geo-crumbs" aria-label="Breadcrumb">
-          <a href="/">🏠 HOMEPAGE</a>
-          <span class="geo-crumb-sep" aria-hidden="true">»</span>
-          <a href="/tools">⚒ TOOLS</a>
-          <span class="geo-crumb-sep" aria-hidden="true">»</span>
-          <a href="/download">💾 DOWNLOADS</a>
-        </nav>
+        <div class="geo-topbar">
+          <nav class="geo-crumbs" aria-label="Breadcrumb">
+            <a href="/">🏠 HOMEPAGE</a>
+            <span class="geo-crumb-sep" aria-hidden="true">»</span>
+            <a href="/tools">⚒ TOOLS</a>
+            <span class="geo-crumb-sep" aria-hidden="true">»</span>
+            <a href="/download">💾 DOWNLOADS</a>
+          </nav>
+          {!isDownloadPage && (
+            <a class="geo-btn geo-btn--gold geo-install-cta" href="/download">
+              <span class="geo-btn-arrow">▼</span><span>INSTALL GRIMOIRE</span>
+            </a>
+          )}
+        </div>
 
         <slot />
       </main>

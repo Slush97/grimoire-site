@@ -51,11 +51,6 @@ export const ERA_STATIONS: Record<string, EraRadioStation[]> = {
     { id: 'lofi',  label: 'Lofi',  url: 'https://stream.laut.fm/lofi' },
     { id: 'fluid', label: 'Fluid', url: 'https://ice1.somafm.com/fluid-128-mp3' },
   ],
-  grimoire: [
-    { id: 'doomed',    label: 'Doomed',        url: 'https://ice1.somafm.com/doomed-128-mp3' },
-    { id: 'dronezone', label: 'Drone Zone',    url: 'https://ice1.somafm.com/dronezone-128-mp3' },
-    { id: 'darkzone',  label: 'The Dark Zone', url: 'https://ice1.somafm.com/darkzone-128-mp3' },
-  ],
 };
 
 /* Not too loud: the music is set dressing, not the show. */

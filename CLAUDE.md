@@ -2,7 +2,7 @@
 
 Marketing site for [Grimoire](https://github.com/Slush97/grimoire). Lives at `grimoiremods.com` and `www.grimoiremods.com`. Astro on a Cloudflare Worker.
 
-The site is an "era museum": six complete visual themes (era stages) render the same product facts, and a fixed TIME MACHINE remote (bottom right) zaps between them with a CRT static burst. Default channel is GEOCITIES, a 1996 homepage reskinned as a candlelit chaos-magick lodge. The chosen era persists in localStorage and follows the visitor onto the sub-pages, which reskin their shared chrome per era.
+The site is an "era museum": five complete visual themes (era stages) render the same product facts, and a fixed TIME MACHINE remote (bottom right) zaps between them with a CRT static burst. Default channel is GEOCITIES, a 1996 homepage reskinned as a candlelit chaos-magick lodge. The chosen era persists in localStorage and follows the visitor onto the sub-pages, which reskin their shared chrome per era.
 
 ## Stack
 
@@ -18,7 +18,7 @@ The site is an "era museum": six complete visual themes (era stages) render the 
 ```
 src/
   pages/
-    index.astro          mounts all six era stages; EraSwitcher swaps them
+    index.astro          mounts all five era stages; EraSwitcher swaps them
     download.astro       /download (live GitHub release data, Windows-first)
     tools.astro          /tools (repo, mp1 spec, vpkmerge showcase)
     404.astro            themed dead-link page
@@ -26,8 +26,8 @@ src/
     EraSwitcher.astro    TIME MACHINE remote + static burst + html[data-era]
                          + the master ♪ sound toggle (era radio engine)
     Neko.astro           cursor-chasing cat (skins in public/neko/)
-    stages/              six era stages: Terminal, Win95, Geocities, Aero,
-                         Fugazi, Grimoire. Each is self-contained
+    stages/              five era stages: Terminal, Win95, Geocities, Aero,
+                         Fugazi. Each is self-contained
                          (markup + scoped styles + scripts) and renders
                          the shared facts from data/content.ts
     transitions/         legacy scroll transitions, currently unmounted
