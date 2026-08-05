@@ -146,6 +146,7 @@
     text-transform: uppercase;
   }
   .star { font-size: 14px; }
+  .free-line .fl { display: inline-flex; align-items: center; gap: 14px; white-space: nowrap; }
   .cta-row { display: flex; justify-content: center; gap: 18px; flex-wrap: wrap; margin-top: 34px; }
   .btn {
     display: inline-block;
@@ -171,6 +172,83 @@
     text-transform: uppercase;
     color: rgba(43, 36, 28, 0.7);
     font-variant-numeric: tabular-nums;
+  }
+
+  /* Fortune cards: a fanned deck dealt beside the CTA copy */
+  .b-cta .band-inner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(28px, 6vw, 72px);
+    flex-wrap: wrap;
+  }
+  .cta-copy { flex: 0 1 560px; min-width: 300px; }
+  .fortune-stack {
+    position: relative;
+    flex: 0 0 auto;
+    width: 420px;
+    height: 380px;
+  }
+  .fcard {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 204px;
+    height: 310px;
+    margin: -160px 0 0 -102px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 14px 16px;
+    background: #f4edd8;
+    border: 2px solid rgba(43, 36, 28, 0.85);
+    box-shadow: 6px 6px 0 rgba(43, 36, 28, 0.3);
+    transform-origin: 50% 130%;
+    transition: transform 0.35s;
+  }
+  .fcard::before {
+    content: '';
+    position: absolute;
+    inset: 7px;
+    border: 1px solid rgba(43, 36, 28, 0.5);
+    pointer-events: none;
+  }
+  .fcard-1 { transform: rotate(-16deg); z-index: 1; }
+  .fcard-2 { transform: rotate(0deg) translateY(-8px); z-index: 2; }
+  .fcard-3 { transform: rotate(16deg); z-index: 3; }
+  .fortune-stack:hover .fcard-1 { transform: rotate(-22deg) translateY(-6px); }
+  .fortune-stack:hover .fcard-2 { transform: rotate(0deg) translateY(-20px); }
+  .fortune-stack:hover .fcard-3 { transform: rotate(22deg) translateY(-6px); }
+  @media (prefers-reduced-motion: reduce) { .fcard { transition: none; } }
+  .fcard-num {
+    font-family: 'Oswald', sans-serif;
+    font-weight: 500;
+    font-size: 13px;
+    letter-spacing: 0.3em;
+    color: var(--brick);
+  }
+  .fcard-art { width: 104px; height: 104px; color: var(--ink); }
+  .fcard-3 .fcard-art { color: var(--brick); }
+  .fcard-label { display: flex; flex-direction: column; align-items: center; gap: 5px; text-align: center; }
+  .fcard-name {
+    font-family: 'Ultra', serif;
+    font-size: 18px;
+    line-height: 1.1;
+    text-transform: uppercase;
+    color: var(--ink);
+  }
+  .fcard-sub {
+    font-family: 'Oswald', sans-serif;
+    font-size: 11px;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--brick);
+  }
+  @media (max-width: 480px) {
+    .fortune-stack { width: 310px; height: 330px; }
+    .fcard { width: 180px; height: 274px; margin: -142px 0 0 -90px; }
+    .fcard-art { width: 88px; height: 88px; }
   }
 
   /* ---------- Feature bands ---------- */
@@ -382,16 +460,60 @@
 <!-- Band 2: hero CTA -->
 <section class="band b-cta">
   <div class="band-inner">
-    <h2 class="sign">Mod Manager for Deadlock</h2>
-    <p class="free-line">
-      <span class="star">✷</span> Free installing <span class="star">✷</span>
-      no charge <span class="star">✷</span> no obligation <span class="star">✷</span>
-    </p>
-    <div class="cta-row">
-      <a class="btn btn-brick" href="https://github.com/Slush97/grimoire/releases/download/v1.25.0/Grimoire-Setup-1.25.0.exe">Download for Windows</a>
-      <a class="btn btn-paper" href="#bazaar">All platforms</a>
+    <div class="cta-copy">
+      <h2 class="sign">Mod Manager for Deadlock</h2>
+      <p class="free-line">
+        <span class="fl"><span class="star">✷</span> Free installing</span>
+        <span class="fl"><span class="star">✷</span> no charge</span>
+        <span class="fl"><span class="star">✷</span> no obligation <span class="star">✷</span></span>
+      </p>
+      <div class="cta-row">
+        <a class="btn btn-brick" href="https://github.com/Slush97/grimoire/releases/download/v1.25.0/Grimoire-Setup-1.25.0.exe">Download for Windows</a>
+        <a class="btn btn-paper" href="#bazaar">All platforms</a>
+      </div>
+      <p class="ver">v1.25.0 · July 28, 2026 · Windows and Linux</p>
     </div>
-    <p class="ver">v1.25.0 · July 28, 2026 · Windows and Linux</p>
+    <div class="fortune-stack" aria-hidden="true">
+      <div class="fcard fcard-1">
+        <span class="fcard-num">✷ I ✷</span>
+        <svg class="fcard-art" viewBox="0 0 120 120" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M60 38 C50 30 34 28 22 32 V92 C34 88 50 90 60 98 C70 90 86 88 98 92 V32 C86 28 70 30 60 38 Z"/>
+          <path d="M60 38 V98"/>
+          <path d="M32 46 C40 44 48 46 52 49 M32 58 C40 56 48 58 52 61 M32 70 C40 68 48 70 52 73" stroke-width="2.5"/>
+          <path d="M88 46 C80 44 72 46 68 49 M88 58 C80 56 72 58 68 61 M88 70 C80 68 72 70 68 73" stroke-width="2.5"/>
+          <path d="M60 8 l2.6 5.6 5.8 0.9 -4.2 4.1 1 6 -5.2 -2.9 -5.2 2.9 1 -6 -4.2 -4.1 5.8 -0.9 Z" fill="currentColor" stroke="none"/>
+        </svg>
+        <span class="fcard-label">
+          <span class="fcard-name">The Catalog</span>
+          <span class="fcard-sub">One-Click Install</span>
+        </span>
+      </div>
+      <div class="fcard fcard-2">
+        <span class="fcard-num">✷ II ✷</span>
+        <svg class="fcard-art" viewBox="0 0 120 120" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M60 48 V42 C60 36 68 35 68 27 A8 8 0 1 0 52 27"/>
+          <path d="M60 48 L17 80 Q13 86 21 86 H99 Q107 86 103 80 Z"/>
+          <path d="M44 98 h32 M50 106 h20" stroke-width="2.5"/>
+        </svg>
+        <span class="fcard-label">
+          <span class="fcard-name">The Locker</span>
+          <span class="fcard-sub">One Skin Per Hero</span>
+        </span>
+      </div>
+      <div class="fcard fcard-3">
+        <span class="fcard-num">✷ III ✷</span>
+        <svg class="fcard-art" viewBox="0 0 120 120" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M60 44 C42 44 28 60 25 64 C28 68 42 84 60 84 C78 84 92 68 95 64 C92 60 78 44 60 44 Z"/>
+          <circle cx="60" cy="64" r="11"/>
+          <circle cx="60" cy="64" r="4" fill="currentColor" stroke="none"/>
+          <path d="M60 32 V20 M82 38 l7 -10 M38 38 l-7 -10 M96 52 l11 -5 M24 52 l-11 -5" stroke-width="3"/>
+        </svg>
+        <span class="fcard-label">
+          <span class="fcard-name">Good Fortune</span>
+          <span class="fcard-sub">Free of Charge</span>
+        </span>
+      </div>
+    </div>
   </div>
 </section>
 
