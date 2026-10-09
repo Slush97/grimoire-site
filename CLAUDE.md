@@ -86,12 +86,13 @@ pnpm wrangler deploy  # deploy to Cloudflare
 
 - Deploys as **Workers with Assets**, same pattern as `grimoire-admin/`. Use `wrangler deploy`, NOT `wrangler pages deploy`.
 - Custom domain bindings live in `wrangler.jsonc`. Domains attached 2026-05-15.
+- **CI deploys `main`.** `.github/workflows/deploy.yml` builds and runs `wrangler deploy` on every push to `main`, and on `workflow_dispatch`, which the `site-redeploy` job in `Slush97/grimoire`'s release workflow fires after each release. Repo secret `CLOUDFLARE_API_TOKEN` ("Edit Cloudflare Workers" template, scoped to the one account). Work that isn't on `main` doesn't ship.
 
 ## Env
 
 | Var | Where | Purpose |
 |---|---|---|
-| `GITHUB_TOKEN_SITE` | local `.env` or Worker secret | **Optional.** Authenticates the build-time fetch of the latest release for `/download`. Skips the anonymous 60/hr GitHub rate limit. Fine-grained PAT, Contents: Read-only on `Slush97/grimoire`. |
+| `GITHUB_TOKEN_SITE` | local `.env` or Worker secret (CI passes the job's `github.token`) | **Optional.** Authenticates the build-time fetch of the latest release for `/download`. Skips the anonymous 60/hr GitHub rate limit. Fine-grained PAT, Contents: Read-only on `Slush97/grimoire`. |
 
 ## Conventions
 
@@ -99,7 +100,7 @@ pnpm wrangler deploy  # deploy to Cloudflare
 - **Stages are costumes, not components.** No shared visual tokens between era stages; each owns its world. Shared facts come only from `data/content.ts`.
 - **Windows-first download ordering.** Most users are on Windows; surface that asset first.
 - **No telemetry, no analytics scripts.** Counters/polls/preferences are localStorage only.
-- **`/download` is build-time data.** On each Grimoire release: bump `PINNED_RELEASE` in `data/content.ts` and redeploy this site.
+- **`/download` is build-time data.** Each Grimoire release redeploys this site automatically (see Deploy notes). Bumping `PINNED_RELEASE` in `data/content.ts` is still manual.
 - **Screenshots changed?** Re-run `pnpm gen:assets` and commit the outputs (thumbs + og.png).
 - **Accessibility escape hatches are load-bearing.** STOP DA FLASHING (calm mode), STOP DA MUSIC, prefers-reduced-motion handling, and the static-burst skip under calm/reduced-motion must survive any redesign.
 

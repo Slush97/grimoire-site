@@ -1,0 +1,51 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  # Also fired by Slush97/grimoire's release workflow (site-redeploy job):
+  # /download bakes the latest release in at build time, so every Grimoire
+  # release needs a rebuild.
+  workflow_dispatch:
+
+concurrency: deploy
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          # pnpm-workspace.yaml uses pnpm 11's allowBuilds; pnpm 10 would skip
+          # the esbuild/workerd install scripts and the build would fail.
+          version: 11
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # The job token instead of a PAT: shared runner IPs burn through the
+      # anonymous 60/hr limit, and Astro inlines import.meta.env into the
+      # Worker bundle, where this token is dead the moment the job ends.
+      - name: Build
+        env:
+          GITHUB_TOKEN_SITE: ${{ github.token }}
+        run: pnpm build
+
+      - name: Deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: pnpm exec wrangler deploy
