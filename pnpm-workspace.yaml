@@ -1,0 +1,8 @@
+# pnpm 10+ blocks postinstall scripts unless the package is listed here.
+# esbuild and workerd need theirs to fetch platform binaries (astro build and
+# wrangler both fail without them); sharp needs libvips for `pnpm gen:assets`.
+# Nothing else in the tree runs install scripts.
+allowBuilds:
+  esbuild: true
+  sharp: true
+  workerd: true
