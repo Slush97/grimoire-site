@@ -86,13 +86,16 @@ pnpm wrangler deploy  # deploy to Cloudflare
 
 - Deploys as **Workers with Assets**, same pattern as `grimoire-admin/`. Use `wrangler deploy`, NOT `wrangler pages deploy`.
 - Custom domain bindings live in `wrangler.jsonc`. Domains attached 2026-05-15.
-- **CI deploys `main`.** `.github/workflows/deploy.yml` builds and runs `wrangler deploy` on every push to `main`, and on `workflow_dispatch`, which the `site-redeploy` job in `Slush97/grimoire`'s release workflow fires after each release. Repo secret `CLOUDFLARE_API_TOKEN` ("Edit Cloudflare Workers" template, scoped to the one account). Work that isn't on `main` doesn't ship.
+- **GitHub Actions is the only deployer.** `.github/workflows/deploy.yml` builds every PR (no deploy) and builds + runs `wrangler deploy` on every push to `main` and on `workflow_dispatch`, which the `site-redeploy` job in `Slush97/grimoire`'s release workflow fires with the new tag after each release. The deploy step only runs for `refs/heads/main`, so work that isn't on `main` doesn't ship. Repo secret `CLOUDFLARE_API_TOKEN` ("Edit Cloudflare Workers" template, scoped to the one account).
+- **Cloudflare Workers Builds must stay disconnected.** It used to deploy on push too; two deployers race, and its anonymous release fetch could ship the `PINNED_RELEASE` fallback.
+- **The build fails if `/download` doesn't link the expected release** (the dispatched tag, else the latest), after three attempts. A failed release fetch no longer ships an old version silently.
 
 ## Env
 
 | Var | Where | Purpose |
 |---|---|---|
-| `GITHUB_TOKEN_SITE` | local `.env` or Worker secret (CI passes the job's `github.token`) | **Optional.** Authenticates the build-time fetch of the latest release for `/download`. Skips the anonymous 60/hr GitHub rate limit. Fine-grained PAT, Contents: Read-only on `Slush97/grimoire`. |
+| `GITHUB_TOKEN_SITE` | build env: local `.env`, or the job's `github.token` in CI | **Optional.** Authenticates the build-time fetch of the latest release for `/download`. Skips the anonymous 60/hr GitHub rate limit. Locally: fine-grained PAT, public repositories read-only. |
+| `GITHUB_TOKEN_SITE` | Worker secret (`wrangler secret put`) | **Optional.** Authenticates the runtime GitHub fetch in `/api/downloads-badge.json`. Read from the Worker env only, never `import.meta.env`, so a build token can't get inlined. |
 
 ## Conventions
 
