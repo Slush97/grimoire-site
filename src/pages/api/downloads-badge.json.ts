@@ -28,6 +28,7 @@ interface GhAsset {
   download_count: number;
 }
 interface GhRelease {
+  prerelease: boolean;
   assets: GhAsset[];
 }
 
@@ -78,6 +79,9 @@ export const GET: APIRoute = async () => {
 
     let installs = 0;
     for (const r of releases) {
+      // Nightlies are prereleases that get deleted as newer ones land, so
+      // counting them would make the total drop.
+      if (r.prerelease) continue;
       for (const a of r.assets ?? []) {
         if (isInstaller(a.name)) installs += a.download_count;
       }
