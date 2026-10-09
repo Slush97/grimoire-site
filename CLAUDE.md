@@ -86,12 +86,16 @@ pnpm wrangler deploy  # deploy to Cloudflare
 
 - Deploys as **Workers with Assets**, same pattern as `grimoire-admin/`. Use `wrangler deploy`, NOT `wrangler pages deploy`.
 - Custom domain bindings live in `wrangler.jsonc`. Domains attached 2026-05-15.
+- **GitHub Actions is the only deployer.** `.github/workflows/deploy.yml` builds every PR (no deploy) and builds + runs `wrangler deploy` on every push to `main` and on `workflow_dispatch`, which the `site-redeploy` job in `Slush97/grimoire`'s release workflow fires with the new tag after each release. The deploy step only runs for `refs/heads/main`, so work that isn't on `main` doesn't ship. Repo secret `CLOUDFLARE_API_TOKEN` ("Edit Cloudflare Workers" template, scoped to the one account).
+- **Cloudflare Workers Builds must stay disconnected.** It used to deploy on push too; two deployers race, and its anonymous release fetch could ship the `PINNED_RELEASE` fallback.
+- **The build fails if `/download` doesn't link the expected release** (the dispatched tag, else the latest), after three attempts. A failed release fetch no longer ships an old version silently.
 
 ## Env
 
 | Var | Where | Purpose |
 |---|---|---|
-| `GITHUB_TOKEN_SITE` | local `.env` or Worker secret | **Optional.** Authenticates the build-time fetch of the latest release for `/download`. Skips the anonymous 60/hr GitHub rate limit. Fine-grained PAT, Contents: Read-only on `Slush97/grimoire`. |
+| `GITHUB_TOKEN_SITE` | build env: local `.env`, or the job's `github.token` in CI | **Optional.** Authenticates the build-time fetch of the latest release for `/download`. Skips the anonymous 60/hr GitHub rate limit. Locally: fine-grained PAT, public repositories read-only. |
+| `GITHUB_TOKEN_SITE` | Worker secret (`wrangler secret put`) | **Optional.** Authenticates the runtime GitHub fetch in `/api/downloads-badge.json`. Read from the Worker env only, never `import.meta.env`, so a build token can't get inlined. |
 
 ## Conventions
 
@@ -99,7 +103,7 @@ pnpm wrangler deploy  # deploy to Cloudflare
 - **Stages are costumes, not components.** No shared visual tokens between era stages; each owns its world. Shared facts come only from `data/content.ts`.
 - **Windows-first download ordering.** Most users are on Windows; surface that asset first.
 - **No telemetry, no analytics scripts.** Counters/polls/preferences are localStorage only.
-- **`/download` is build-time data.** On each Grimoire release: bump `PINNED_RELEASE` in `data/content.ts` and redeploy this site.
+- **`/download` is build-time data.** Each Grimoire release redeploys this site automatically (see Deploy notes). Bumping `PINNED_RELEASE` in `data/content.ts` is still manual.
 - **Screenshots changed?** Re-run `pnpm gen:assets` and commit the outputs (thumbs + og.png).
 - **Accessibility escape hatches are load-bearing.** STOP DA FLASHING (calm mode), STOP DA MUSIC, prefers-reduced-motion handling, and the static-burst skip under calm/reduced-motion must survive any redesign.
 
