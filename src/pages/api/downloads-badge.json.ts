@@ -54,12 +54,11 @@ function isInstaller(name: string): boolean {
 }
 
 export const GET: APIRoute = async () => {
-  // Optional token lifts the anonymous 60/hr GitHub limit (shared across all CF
-  // egress IPs) to 5000/hr. Same secret the build-time release fetch uses.
-  const token =
-    env.GITHUB_TOKEN_SITE ??
-    import.meta.env.GITHUB_TOKEN_SITE ??
-    process.env.GITHUB_TOKEN_SITE;
+  // Optional Worker secret lifts the anonymous 60/hr GitHub limit (shared
+  // across all CF egress IPs) to 5000/hr. Runtime env only: import.meta.env
+  // would inline the build's token, and CI builds with a job token that dies
+  // when the job ends.
+  const token = env.GITHUB_TOKEN_SITE;
   const headers: Record<string, string> = {
     Accept: 'application/vnd.github+json',
     'User-Agent': 'grimoire-site-badge',
