@@ -32,7 +32,6 @@ const nav = [
   { href: '/#features', label: 'Features', wide: true },
   { href: '/download', label: 'Download', wide: true },
   { href: '/docs', label: 'Docs' },
-  { href: '/tools', label: 'Tools', wide: true },
   { href: brand.discord, label: 'Discord', wide: true },
 ];
 const current = (href: string) => (href !== '/' && (path === href || path.startsWith(`${href}/`)) ? 'page' : undefined);
@@ -121,7 +120,6 @@ const badges: { src: string; alt: string; href?: string; title?: string }[] = [
           <a href={brand.discord}>Discord</a>
           <a href={brand.gamebanana}>GameBanana</a>
           <a href="/docs">Docs</a>
-          <a href="/tools">Tools</a>
           <a href="/privacy">Privacy</a>
           <a href="/1996">The 1996 version</a>
         </nav>

@@ -8,7 +8,7 @@
  * column width.
  */
 import Site from '../layouts/Site.astro';
-import Ambient from '../components/ambient/Ambient.astro';
+import Beam from '../components/Beam.astro';
 import DownloadPanel from '../components/DownloadPanel.astro';
 import { brand, getDownloadUrls, getReach } from '../data/content';
 import { atLeast, commas } from '../lib/reach';
@@ -113,7 +113,7 @@ const pulse = [
 ---
 
 <Site>
-  <Ambient slot="ambient" />
+  <Beam slot="ambient" />
 
   <section class="hero">
     <div class="wrap hero-grid">
@@ -189,7 +189,6 @@ const pulse = [
         {pulse.length > 0 && <a class="pulse-how" href="/privacy#numbers">Where these numbers come from</a>}
       </div>
       <div class="hero-shot">
-        <div class="ribbon" aria-hidden="true"></div>
         <picture>
           <source media="(max-width: 719px)" srcset={shot('hero-sm')} width="610" height="530" />
           <img
@@ -305,26 +304,6 @@ const pulse = [
   }
   .hero-shot {
     position: relative;
-  }
-  .ribbon {
-    display: none;
-    position: absolute;
-    z-index: -1;
-    left: 0;
-    top: calc(100% - 60px);
-    width: 3200px;
-    height: 160px;
-    transform: translate(-50%, -50%) rotate(-22deg);
-    background: linear-gradient(
-      #3f2a78 0 20%,
-      #5a3aa6 20% 40%,
-      #7652c9 40% 60%,
-      #9a7fd6 60% 80%,
-      #c29b4c 80%
-    );
-  }
-  :global(html[data-amb='ribbon']) .ribbon {
-    display: block;
   }
   .hero-grid {
     display: grid;
@@ -613,9 +592,6 @@ const pulse = [
     .hero-grid {
       grid-template-columns: minmax(0, 1fr);
       gap: 48px;
-    }
-    .ribbon {
-      display: none !important;
     }
     .open {
       grid-template-columns: minmax(0, 1fr);

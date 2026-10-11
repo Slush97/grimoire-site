@@ -21,7 +21,8 @@ src/
     index.astro          homepage: hero, stats strip, features, download
     1996.astro           the era museum; EraSwitcher swaps the five stages
     download.astro       /download (live GitHub release data, Windows-first)
-    tools.astro          /tools (repo, mp1 spec, vpkmerge showcase)
+    tools.astro          /tools (repo, mp1 spec, vpkmerge showcase); not in
+                         the nav, linked from the 1996 Geocities stage
     privacy.astro        /privacy, the WEBSITE's policy (the app's lives in
                          the synced guide at /docs/privacy)
     docs/index.astro     /docs (player guide index)
@@ -34,10 +35,8 @@ src/
     DownloadPanel.astro  per-OS download tabs, shared by / and /download
     BrandSprite.astro    simple-icons SVG symbols (#i-github, #i-windows...)
     EasterEgg.astro      footer egg; static burst, then /1996
-    ambient/             PROTOTYPE background variants behind the homepage
-                         hero, picked with ?bg=<id>. Once one wins, mount it
-                         directly, delete Ambient.astro and the losers, and
-                         drop the grimoire.amb.proto line from /privacy
+    Beam.astro           homepage background: a GPU-painted galactic band
+                         with stars and dust (CSS gradient fallback)
     EraSwitcher.astro    TIME MACHINE remote + static burst + html[data-era]
                          + the master ♪ sound toggle (era radio engine)
     Lightbox.astro       shared screenshot overlay (prefers the .webp beside

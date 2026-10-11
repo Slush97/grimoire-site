@@ -39,7 +39,7 @@ const vars = [
 ].join(';');
 ---
 
-<div class="amb" data-amb="beam" aria-hidden="true" data-beam={JSON.stringify({ angle, len, fade, core, halo })}>
+<div class="beam" aria-hidden="true" data-beam={JSON.stringify({ angle, len, fade, core, halo })}>
   <div class="rig">
     <i class="glow" style={`background:${glow}`}></i>
     <div class="shaft" style={vars}>
@@ -53,7 +53,12 @@ const vars = [
 
 <style>
   /* Screen over an opaque base so faint gradient tails can never round darker than the page and leave a seam. */
-  .amb {
+  .beam {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    pointer-events: none;
     background: var(--bg);
   }
   .rig,
@@ -149,7 +154,7 @@ const vars = [
     lh: number;
   };
 
-  const root = document.querySelector<HTMLElement>('.amb[data-amb="beam"]')!;
+  const root = document.querySelector<HTMLElement>('[data-beam]')!;
   const cfg: Cfg = JSON.parse(root.dataset.beam!);
   const rig = root.querySelector<HTMLElement>('.rig')!;
   const shaft = root.querySelector<HTMLElement>('.shaft')!;
@@ -159,7 +164,6 @@ const vars = [
   const band = root.querySelector<HTMLCanvasElement>('.band')!;
   const canvas = root.querySelector<HTMLCanvasElement>('.dust')!;
   const ctx = canvas.getContext('2d')!;
-  const html = document.documentElement;
   const still = matchMedia('(prefers-reduced-motion: reduce)');
 
   const rad = (cfg.angle * Math.PI) / 180;
@@ -606,7 +610,7 @@ void main() {
 
   const start = () => {
     stop();
-    if (html.dataset.amb !== 'beam' || document.hidden) return;
+    if (document.hidden) return;
     if (still.matches) {
       shift = 0;
       rig.style.transform = '';
@@ -627,7 +631,6 @@ void main() {
     clearTimeout(resizeTimer);
     resizeTimer = window.setTimeout(start, 150);
   });
-  document.addEventListener('amb:change', (e) => ((e as CustomEvent<string>).detail === 'beam' ? start() : stop()));
   document.addEventListener('visibilitychange', () => (document.hidden ? stop() : start()));
   still.addEventListener('change', start);
   start();
