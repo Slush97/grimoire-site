@@ -89,7 +89,6 @@ const channels = [
     label: 'downloads on GameBanana',
     icon: 'gamebanana',
   },
-  reach.aptInstalls !== null && { n: reach.aptInstalls, label: 'apt setups since Aug 2026', icon: 'debian' },
 ].filter(Boolean) as { n: number; label: string; icon: string }[];
 const total = channels.reduce((sum, c) => sum + c.n, 0);
 

@@ -307,7 +307,6 @@ export async function getReachLine(): Promise<string | null> {
   if (reach.githubInstalls !== null) {
     parts.push(`${commas(reach.githubInstalls)} downloads from GitHub`);
   }
-  if (reach.aptInstalls !== null) parts.push(`${commas(reach.aptInstalls)} apt installs`);
   if (reach.gamebananaDownloads !== null) {
     parts.push(`${commas(reach.gamebananaDownloads)} from GameBanana`);
   }
