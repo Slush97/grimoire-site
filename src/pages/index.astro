@@ -1,30 +1,672 @@
 ---
 /*
- * Index. All five era stages mount here; only the one matching
- * <html data-era> is displayed (rules in museum.css), and the
- * EraSwitcher remote (mounted by the Museum layout) zaps between them
- * with a CRT static burst. Default channel: GEOCITIES.
- *
- * Every stage renders the same product facts from data/content.ts in
- * its own visual language, and all of them share one build-time GitHub
- * release fetch.
+ * Homepage. Screenshots are 1:1 crops of the 1528x924 captures, cut on
+ * card edges. Scaling a whole window down to a column blurs the text, so
+ * feature shots run off the sheet and the page edge instead; the side next
+ * to the copy is what always shows. They float on a soft shadow so the
+ * overlap reads as depth, not a seam. Phones get the tight -sm crops at
+ * column width.
  */
-import Museum from '../layouts/Museum.astro';
-import Terminal from '../components/stages/Terminal.astro';
-import Win95 from '../components/stages/Win95.astro';
-import Geocities from '../components/stages/Geocities.astro';
-import Aero from '../components/stages/Aero.astro';
-import Fugazi from '../components/stages/Fugazi.astro';
-
-import { getDownloadUrls } from '../data/content';
+import Site from '../layouts/Site.astro';
+import Beam from '../components/Beam.astro';
+import DownloadPanel from '../components/DownloadPanel.astro';
+import { brand, getDownloadUrls, getReach } from '../data/content';
+import { atLeast, commas } from '../lib/reach';
 
 const dl = await getDownloadUrls();
+const reach = await getReach();
+
+const shot = (name: string) => `/shots/${name}.webp`;
+const assets = dl.release?.assets ?? [];
+const dmg = assets.find((a) => a.name.toLowerCase().endsWith('.dmg')) ?? null;
+
+const features = [
+  {
+    title: 'Browse GameBanana',
+    body: 'Search the Deadlock catalog and install mods without leaving the app. Archives are extracted for you, and 1-Click Install links on GameBanana open in Grimoire.',
+    img: 'browse',
+    alt: 'Browse view: mod cards with like and view counts and an Install button on each',
+    w: 1528,
+    h: 658,
+    sm: [637, 584],
+    docs: [{ href: '/docs/installing-mods', label: 'Installing mods' }],
+  },
+  {
+    title: 'Load order and conflicts',
+    body: 'Enable, disable and reorder your mods. Grimoire warns you when two mods replace the same game files.',
+    img: 'installed',
+    alt: 'Installed view: enabled mods numbered in load order, each with a toggle',
+    w: 1281,
+    h: 626,
+    sm: [628, 548],
+    docs: [
+      { href: '/docs/load-order', label: 'Load order' },
+      { href: '/docs/conflicts', label: 'Conflicts' },
+    ],
+  },
+  {
+    title: 'Hero Locker',
+    body: 'Keep every skin you download and choose one per hero. The others stay installed, so switching takes a click.',
+    img: 'locker',
+    alt: "Celeste's locker page listing five installed skins",
+    w: 1281,
+    h: 772,
+    sm: [568, 752],
+    docs: [{ href: '/docs/locker', label: 'The Locker' }],
+  },
+  {
+    title: 'Cursors, HUDs and more',
+    body: "Cosmetics that aren't tied to a hero get their own categories: soul containers, cursors, HUDs, announcers, killstreak music.",
+    img: 'general',
+    alt: 'The General shelf: categories on the left, cursor sets on the right',
+    w: 688,
+    h: 644,
+    sm: [684, 630],
+    docs: [{ href: '/docs/locker-global', label: 'General cosmetics' }],
+  },
+];
+
+const built = [
+  { icon: 'electron', name: 'Electron', href: 'https://www.electronjs.org' },
+  { icon: 'react', name: 'React', href: 'https://react.dev' },
+  { icon: 'typescript', name: 'TypeScript', href: 'https://www.typescriptlang.org' },
+  { icon: 'sqlite', name: 'SQLite', href: 'https://sqlite.org' },
+];
+
+const more = [
+  { title: 'Profiles', body: 'Save a loadout, switch setups without reinstalling, share it as a code.', href: '/docs/profiles' },
+  { title: 'Launch vanilla', body: 'Play one session with your mods off, without uninstalling anything.', href: '/docs/launching' },
+  { title: 'Autoexec', body: 'Console commands that run at game start, plus Steam launch options.', href: '/docs/autoexec' },
+  { title: 'Ability colors', body: "Recolor a hero's ability effects: one color, a gradient, or rainbow.", href: '/docs/locker-effects' },
+  { title: 'Ability sounds', body: 'One sound mod per ability, with its own volume and pitch.', href: '/docs/locker-sounds' },
+  { title: 'Snapshots', body: 'Recovery points taken before risky operations, so you can undo them.', href: '/docs/snapshots' },
+];
+
+/*
+ * Every public counter we have, each one independently failable. A channel
+ * that fails to fetch drops out of both the total and the breakdown, so
+ * the headline never includes a number we couldn't read (see lib/reach.ts).
+ * GameBanana hosts its own copies of the installers, so its count does not
+ * overlap GitHub's asset tally.
+ */
+const channels = [
+  reach.githubInstalls !== null && { n: reach.githubInstalls, label: 'downloads on GitHub', icon: 'github' },
+  reach.gamebananaDownloads !== null && {
+    n: reach.gamebananaDownloads,
+    label: 'downloads on GameBanana',
+    icon: 'gamebanana',
+  },
+].filter(Boolean) as { n: number; label: string; icon: string }[];
+const total = channels.reduce((sum, c) => sum + c.n, 0);
+
+const pulse = [
+  channels.length > 0 && {
+    n: atLeast(total),
+    label: 'downloads',
+    title: `${channels.map((c) => `${commas(c.n)} ${c.label}`).join(', ')}. GitHub's count includes in-app updates.`,
+  },
+  reach.weekly && {
+    n: atLeast(reach.weekly.users),
+    label: 'weekly users',
+    title: `${commas(reach.weekly.users)} machines installed or updated to ${reach.weekly.tag} in the ${reach.weekly.days} days it was the newest release`,
+  },
+  reach.launchesPerDay && {
+    n: atLeast(reach.launchesPerDay),
+    label: 'daily launches',
+    title: `${commas(reach.launchesPerDay)} a day, from update checks on GitHub. The app checks twice when it starts and never otherwise`,
+  },
+].filter(Boolean) as { n: string; label: string; title: string }[];
 ---
 
-<Museum>
-  <Terminal {...dl} />
-  <Win95 {...dl} />
-  <Geocities {...dl} />
-  <Aero {...dl} />
-  <Fugazi {...dl} />
-</Museum>
+<Site>
+  <Beam slot="ambient" />
+
+  <section class="hero">
+    <div class="wrap hero-grid">
+      <div class="hero-copy">
+        <h1>Grimoire</h1>
+        <p class="lede">
+          A free, open-source mod manager for Deadlock. Browse and install mods from
+          GameBanana, set load order, and choose which skin each hero wears.
+        </p>
+        <div class="cta" data-platform="windows">
+          <a class="btn btn-accent btn-lg" href={dl.primaryHref}>
+            <svg width="18" height="18" aria-hidden="true"><use href="#i-windows" /></svg>
+            Download for Windows
+          </a>
+          <a class="btn btn-ghost btn-lg" href="#download">Other platforms</a>
+        </div>
+        {dmg && (
+          <div class="cta" data-platform="macos" hidden>
+            <a class="btn btn-accent btn-lg" href={dmg.browser_download_url}>
+              <svg width="18" height="18" aria-hidden="true"><use href="#i-apple" /></svg>
+              Download for macOS
+            </a>
+            <a class="btn btn-ghost btn-lg" href="#download">Mac requirements</a>
+          </div>
+        )}
+        {dl.linuxAppImage && (
+          <div class="cta" data-platform="linux" hidden>
+            <a class="btn btn-accent btn-lg" href={dl.linuxAppImage.browser_download_url}>
+              <svg width="18" height="18" aria-hidden="true"><use href="#i-linux" /></svg>
+              Download for Linux
+            </a>
+            <a class="btn btn-ghost btn-lg" href="#download">Other packages</a>
+          </div>
+        )}
+        <div class="cta" data-platform="other" hidden>
+          <a class="btn btn-accent btn-lg" href="#download">See downloads</a>
+        </div>
+        <script is:inline>
+          (() => {
+            // Swap the hero download for the visitor's OS before paint.
+            // Nothing leaves the browser; without JS, Windows stays.
+            const hint = navigator.userAgentData;
+            const p = (hint && hint.platform) || navigator.platform || '';
+            let os = '';
+            if ((hint && hint.mobile) || /Android|iPhone|iPad|iPod|CrOS/.test(navigator.userAgent) || (/Mac/.test(p) && navigator.maxTouchPoints > 1)) os = 'other';
+            else if (/Win/.test(p)) os = 'windows';
+            else if (/Mac/.test(p)) os = 'macos';
+            else if (/Linux|X11/.test(p)) os = 'linux';
+            if (!os) return;
+            document.documentElement.dataset.os = os;
+            const groups = [...document.querySelectorAll('[data-platform]')];
+            const pick = groups.find((g) => g.dataset.platform === os);
+            if (!pick) return;
+            groups.forEach((g) => (g.hidden = g !== pick));
+            const href = pick.querySelector('a').href;
+            document.querySelectorAll('[data-primary]').forEach((a) => (a.href = href));
+          })();
+        </script>
+        <p class="meta">
+          {dl.version && <a href={dl.releaseUrl}>v{dl.version} release notes</a>}
+          <span>{brand.license} licensed</span>
+        </p>
+        {pulse.length > 0 && (
+          <dl class="pulse">
+            {pulse.map((p) => (
+              <div title={p.title}>
+                <dt>{p.label}</dt>
+                <dd>{p.n}</dd>
+              </div>
+            ))}
+          </dl>
+        )}
+        {pulse.length > 0 && <a class="pulse-how" href="/privacy#numbers">Where these numbers come from</a>}
+      </div>
+      <div class="hero-shot">
+        <picture>
+          <source media="(max-width: 719px)" srcset={shot('hero-sm')} width="610" height="530" />
+          <img
+            src={shot('hero')}
+            alt="The Hero Locker: Deadlock heroes in a grid, each card showing the skin it's wearing"
+            width="1528"
+            height="700"
+            fetchpriority="high"
+          />
+        </picture>
+      </div>
+    </div>
+  </section>
+
+  <div class="sheet">
+    <section id="features" class="features" aria-labelledby="features-h">
+      <h2 id="features-h" class="wrap">Features</h2>
+      <div class="rows">
+        {features.map((f, i) => (
+          <article class:list={['wrap', 'row', { flip: i % 2 === 1 }]}>
+            <div class="row-copy">
+              <h3>{f.title}</h3>
+              <p>{f.body}</p>
+              <p class="docs">
+                {f.docs.map((d) => (
+                  <a href={d.href}>{d.label} <span aria-hidden="true">→</span></a>
+                ))}
+              </p>
+            </div>
+            <div class="row-shot">
+              <picture>
+                <source media="(max-width: 719px)" srcset={shot(`${f.img}-sm`)} width={f.sm[0]} height={f.sm[1]} />
+                <img src={shot(f.img)} alt={f.alt} width={f.w} height={f.h} loading="lazy" decoding="async" />
+              </picture>
+            </div>
+          </article>
+        ))}
+      </div>
+    </section>
+
+    <section class="wrap more" aria-labelledby="more-h">
+      <h2 id="more-h">More features</h2>
+      <ul>
+        {more.map((m) => (
+          <li>
+            <a href={m.href}>
+              <strong>{m.title}</strong>
+              <span>{m.body}</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </section>
+
+    <section class="wrap open" aria-labelledby="open-h">
+      <div>
+        <h2 id="open-h">Free and open source</h2>
+        <p>
+          MIT licensed and built in the open on GitHub. The docs list
+          <a href="/docs/privacy">every network request</a> the app makes.
+        </p>
+        <div class="cta">
+          <a class="btn btn-ghost" href={brand.github}>
+            <svg width="18" height="18" aria-hidden="true"><use href="#i-github" /></svg>
+            Slush97/grimoire
+          </a>
+          <a class="btn btn-ghost" href={brand.discord}>
+            <svg width="18" height="18" aria-hidden="true"><use href="#i-discord" /></svg>
+            Discord
+          </a>
+        </div>
+        <div class="built">
+          <p>Built with</p>
+          <div class="cta">
+            {built.map((b) => (
+              <a class="btn btn-ghost btn-sm" href={b.href}>
+                <svg width="16" height="16" aria-hidden="true"><use href={`#i-${b.icon}`} /></svg>
+                {b.name}
+              </a>
+            ))}
+          </div>
+        </div>
+      </div>
+      {channels.length > 0 && (
+        <dl class="stats panel">
+          {channels.map((s) => (
+            <div>
+              <dt>
+                <svg width="16" height="16" aria-hidden="true"><use href={`#i-${s.icon}`} /></svg>
+                {s.label}
+              </dt>
+              <dd title={commas(s.n)}>{atLeast(s.n)}</dd>
+            </div>
+          ))}
+        </dl>
+      )}
+    </section>
+
+    <section id="download" class="wrap get" aria-labelledby="get-h">
+      <div class="get-head">
+        <h2 id="get-h">Download</h2>
+        <p class="sub">
+          {dl.version && <>Version {dl.version}{dl.releaseDate && `, released ${dl.releaseDate}`}. </>}
+          Needs Deadlock installed through Steam.
+        </p>
+      </div>
+
+      <DownloadPanel />
+
+      <p class="get-links">
+        <a href={dl.releaseUrl}>Release notes</a>
+        {dl.sha256Sums && <a href={dl.sha256Sums.browser_download_url}>SHA256SUMS</a>}
+        <a href={`${brand.github}/releases`}>All releases</a>
+        <a href="/download">Install guide</a>
+      </p>
+    </section>
+  </div>
+</Site>
+
+<style>
+  .hero {
+    padding: 88px 0 120px;
+    isolation: isolate;
+  }
+  .hero-shot {
+    position: relative;
+  }
+  .hero-grid {
+    display: grid;
+    grid-template-columns: 430px minmax(0, 1fr);
+    gap: 64px;
+    align-items: center;
+  }
+  h1 {
+    margin: 0 0 20px;
+    font: 600 88px/0.95 'Cormorant Garamond', Georgia, serif;
+    letter-spacing: -0.015em;
+  }
+  .lede {
+    margin: 0 0 32px;
+    font-size: 19px;
+    color: var(--body);
+  }
+  .meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 0;
+    margin: 20px 0 0;
+    font-size: 14px;
+    color: var(--dim);
+  }
+  .meta a {
+    color: var(--muted);
+  }
+  .meta a:hover {
+    color: var(--text);
+  }
+  .meta > * + *::before {
+    content: '·';
+    margin: 0 10px;
+    color: var(--dim);
+  }
+  .pulse {
+    display: grid;
+    grid-template-columns: repeat(3, auto);
+    justify-content: start;
+    margin: 36px 0 0;
+    padding-top: 24px;
+    border-top: 1px solid var(--line);
+  }
+  .pulse div {
+    display: flex;
+    flex-direction: column-reverse;
+    justify-content: flex-end;
+    gap: 2px;
+    padding-right: 28px;
+  }
+  .pulse div + div {
+    padding-left: 28px;
+    border-left: 1px solid var(--line);
+  }
+  .pulse dd {
+    margin: 0;
+    color: var(--text);
+    font-size: 26px;
+    line-height: 1.15;
+    font-weight: 650;
+    letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums;
+  }
+  .pulse dt {
+    color: var(--muted);
+    font-size: 13px;
+  }
+  .pulse-how {
+    display: inline-block;
+    margin-top: 12px;
+    color: var(--dim);
+    font-size: 13px;
+  }
+  .pulse-how:hover {
+    color: var(--text);
+  }
+  .hero-shot img {
+    width: 1528px;
+    max-width: none;
+    border-radius: 8px;
+    outline: 1px solid var(--line-strong);
+    outline-offset: -1px;
+  }
+
+  /* ─── Features ─── */
+  .rows {
+    display: grid;
+    gap: 140px;
+    margin-top: 64px;
+  }
+  .row {
+    display: grid;
+    width: 100%;
+    grid-template-columns: minmax(0, 400px) minmax(0, 1fr);
+    gap: 56px;
+    align-items: center;
+  }
+  .row.flip {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 400px);
+  }
+  .row.flip .row-copy {
+    order: 2;
+  }
+  .row-copy h3 {
+    font-size: 28px;
+    line-height: 1.2;
+    margin-bottom: 14px;
+  }
+  .row-copy p {
+    margin: 0;
+    color: var(--body);
+  }
+  .row-copy .docs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 20px;
+    margin-top: 18px;
+    font-size: 15px;
+    font-weight: 500;
+  }
+  .row-shot {
+    position: relative;
+    display: flex;
+  }
+  .row.flip .row-shot {
+    justify-content: flex-end;
+  }
+  .hero-shot img,
+  .row-shot img {
+    box-shadow:
+      0 2px 6px rgba(0, 0, 0, 0.3),
+      0 24px 64px -16px rgba(0, 0, 0, 0.7);
+  }
+  .row-shot img {
+    max-width: none;
+    border-radius: 8px;
+    outline: 1px solid var(--line-strong);
+    outline-offset: -1px;
+  }
+
+  /* ─── More ─── */
+  .more {
+    margin-top: 160px;
+  }
+  .more ul {
+    list-style: none;
+    margin: 32px 0 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+  }
+  .more li a {
+    display: grid;
+    align-content: start;
+    gap: 4px;
+    height: 100%;
+    padding: 20px 22px 22px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--surface);
+    color: var(--muted);
+    font-size: 15px;
+    line-height: 1.55;
+    transition: border-color 0.15s, background-color 0.15s;
+  }
+  .more li a:hover {
+    border-color: var(--line-strong);
+    background: var(--surface-hi);
+  }
+  .more li a strong {
+    color: var(--text);
+    font-size: 16px;
+    font-weight: 600;
+  }
+
+  /* ─── Open ─── */
+  .open {
+    margin-top: 140px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 64px;
+    align-items: center;
+  }
+  .open p {
+    margin: 16px 0 28px;
+    color: var(--body);
+    max-width: 52ch;
+  }
+  .open .built p {
+    margin: 0 0 10px;
+  }
+  .open p a {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    text-decoration-color: rgba(167, 139, 250, 0.4);
+  }
+  .stats {
+    margin: 0;
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: 1fr;
+  }
+  .stats div {
+    display: flex;
+    flex-direction: column-reverse;
+    justify-content: flex-end;
+    gap: 8px;
+    padding: 24px 26px;
+  }
+  .stats div + div {
+    border-left: 1px solid var(--line);
+  }
+  .stats dd {
+    margin: 0;
+    font-size: 40px;
+    line-height: 1.1;
+    font-weight: 650;
+    letter-spacing: -0.025em;
+    font-variant-numeric: tabular-nums;
+  }
+  .stats dt {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    color: var(--muted);
+    font-size: 14px;
+    line-height: 22px;
+  }
+  .stats dt svg {
+    flex: none;
+    margin-top: 3px;
+    fill: currentColor;
+  }
+
+  /* ─── Download ─── */
+  .get {
+    margin-top: 160px;
+  }
+  .get-head {
+    text-align: center;
+  }
+  .sub {
+    margin: 10px 0 0;
+    color: var(--muted);
+  }
+  .get-links {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px 28px;
+    margin: 24px 0 0;
+    font-size: 14px;
+  }
+  .get-links a {
+    color: var(--muted);
+  }
+  .get-links a:hover {
+    color: var(--text);
+  }
+
+  @media (max-width: 1180px) {
+    .row,
+    .row.flip {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 32px;
+    }
+    .row.flip .row-copy {
+      order: 0;
+    }
+    .row.flip .row-shot {
+      justify-content: flex-start;
+    }
+    .row-copy {
+      max-width: 620px;
+    }
+    .rows {
+      gap: 96px;
+    }
+    .stats dd {
+      font-size: 32px;
+    }
+  }
+  @media (max-width: 960px) {
+    .hero {
+      padding: 56px 0 80px;
+    }
+    .hero-grid {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 48px;
+    }
+    .open {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 40px;
+    }
+    .more ul {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  @media (max-width: 719px) {
+    h1 {
+      font-size: 68px;
+    }
+    .pulse div {
+      padding-right: 16px;
+    }
+    .pulse div + div {
+      padding-left: 16px;
+    }
+    .pulse dd {
+      font-size: 22px;
+    }
+    .meta {
+      gap: 4px 16px;
+    }
+    .meta > * + *::before {
+      content: none;
+    }
+    .hero-shot img,
+    .row-shot img {
+      width: 100%;
+    }
+    .row-shot {
+      display: block;
+    }
+    .row-copy h3 {
+      font-size: 24px;
+    }
+    .more ul {
+      grid-template-columns: 1fr;
+    }
+    .more,
+    .open,
+    .get {
+      margin-top: 96px;
+    }
+    .stats {
+      grid-auto-flow: row;
+    }
+    .stats div + div {
+      border-left: 0;
+      border-top: 1px solid var(--line);
+    }
+    .stats div {
+      padding: 20px 22px;
+    }
+  }
+</style>

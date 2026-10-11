@@ -1,0 +1,23 @@
+88x31 buttons in the site footer.
+
+Made for this site (grimoire-candle, vpkmerge, mit-licensed, open-source),
+same license as the site. The *-still.png files are single frames of the
+animated buttons, shown under prefers-reduced-motion.
+
+
+pacman.gif      pacman --version. Ylaenelle, CC BY-SA 4.0
+                (https://creativecommons.org/licenses/by-sa/4.0/).
+                https://commons.wikimedia.org/wiki/File:Pacman-arch-88x31.gif
+                The Arch Linux logo is a trademark of Arch Linux.
+linux.png       Powered by Linux. ZyMOS (Open Icon Library), public domain.
+                https://commons.wikimedia.org/wiki/File:Webpage_icon-powered_by_linux.png
+                Tux by Larry Ewing, made with The GIMP.
+anybrowser.png  Viewable With Any Browser. Public domain.
+                https://commons.wikimedia.org/wiki/File:88x31_anybrowser4b.png
+discord.gif     Discord: JOIN NOW. Author unknown, from the cyber.dabamos.de
+dark-mode.gif   88x31 archive (https://cyber.dabamos.de/88x31/), which collects
+magic.gif       old-web buttons and asks that they be copied, not hotlinked.
+                The Discord logo is a trademark of Discord Inc.
+
+If you made one of these and want credit or want it removed, open an issue at
+https://github.com/Slush97/grimoire/issues or ask in the Discord.

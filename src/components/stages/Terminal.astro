@@ -306,11 +306,9 @@ profiles.png   conflicts.png  variants.png
     font-size: 14px;
     line-height: 1.5;
     /*
-     * Top padding deliberately tight: the upstream GrimoireToTerminal
-     * transition ends with `$ _` mid-viewport, and any large gap here
-     * reads as dead space between the CRT powering on and the MOTD
-     * actually arriving. 16px lands the MOTD just under the transition's
-     * cursor when you scroll across the boundary.
+     * Top padding deliberately tight. A real terminal starts printing at
+     * the top edge; any large gap here reads as dead space rather than
+     * as a CRT that has just come up with the MOTD already on it.
      */
     padding: 16px 0 96px;
     min-height: 100vh;

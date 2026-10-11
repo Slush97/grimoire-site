@@ -5,11 +5,9 @@
  * the present.
  *
  * The active era is persisted in localStorage (ERA_KEY) and mirrored on
- * <html data-era="...">:
- *   - on / (the museum), CSS in museum.css shows only the matching stage
- *   - on /download, /tools and /404, geo.css reskins the shared chrome
- * Both layouts set the attribute with a pre-paint inline script so there
- * is no flash of the wrong century.
+ * <html data-era="...">, where museum.css shows only the matching stage.
+ * The museum lives at /1996; its layout sets the attribute with a
+ * pre-paint inline script so there is no flash of the wrong century.
  */
 
 export const ERAS = [

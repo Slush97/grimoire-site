@@ -1,0 +1,106 @@
+---
+/*
+ * /docs : index of the player guide, synced from the app repo by
+ * scripts/sync-docs.mjs. Grouping lives in data/docs.ts.
+ */
+import Site from '../../layouts/Site.astro';
+import { getDocSections } from '../../data/docs';
+
+const sections = await getDocSections();
+---
+
+<Site
+  title="User Guide · Grimoire Deadlock Mod Manager"
+  description="How to install Deadlock mods with Grimoire, fix mods that stopped loading, manage the Locker, share profiles, and more. Every page answers in the first sentence."
+>
+  <header class="wrap page-head">
+    <p class="kicker">User guide</p>
+    <h1>Docs</h1>
+    <p>
+      One page per question, with the answer in the first sentence. Mods stopped loading?
+      Start with <a href="/docs/troubleshooting">fixing mods that do not load</a>.
+    </p>
+  </header>
+
+  <div class="sheet">
+    {sections.map((s, i) => (
+      <section class="wrap group" aria-labelledby={`g-${i}`}>
+        <h2 id={`g-${i}`}>{s.title}</h2>
+        <ul>
+          {s.pages.map((p) => (
+            <li>
+              <a href={`/docs/${p.data.slug}`}>
+                <strong>{p.data.title}</strong>
+                <span>{p.data.description}</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </section>
+    ))}
+  </div>
+</Site>
+
+<style>
+  .page-head a {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    text-decoration-color: rgba(167, 139, 250, 0.4);
+  }
+  .sheet {
+    padding: 64px 0 88px;
+  }
+  .group + .group {
+    margin-top: 72px;
+  }
+  .group h2 {
+    font-size: 26px;
+  }
+  .group ul {
+    list-style: none;
+    margin: 20px 0 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+  }
+  .group li a {
+    display: grid;
+    align-content: start;
+    gap: 4px;
+    height: 100%;
+    padding: 18px 20px 20px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--surface);
+    color: var(--muted);
+    font-size: 14.5px;
+    line-height: 1.55;
+    transition: border-color 0.15s, background-color 0.15s;
+  }
+  .group li a:hover {
+    border-color: var(--line-strong);
+    background: var(--surface-hi);
+  }
+  .group li a strong {
+    color: var(--text);
+    font-size: 16px;
+    font-weight: 600;
+  }
+  @media (max-width: 960px) {
+    .group ul {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  @media (max-width: 719px) {
+    .sheet {
+      padding: 48px 0 64px;
+    }
+    .group + .group {
+      margin-top: 56px;
+    }
+    .group ul {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

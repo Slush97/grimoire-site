@@ -1,0 +1,191 @@
+---
+/*
+ * /privacy : the website's privacy policy. The app's own network behavior
+ * is documented in the synced guide at /docs/privacy; this page covers
+ * grimoiremods.com and apt.grimoiremods.com. Every claim here must stay
+ * true of the code: if you add a storage key, a third-party request, or a
+ * Worker route, update this page in the same change. The bot check section
+ * describes Cloudflare's Bot Fight Mode; drop it if that is ever turned off.
+ */
+import Site from '../layouts/Site.astro';
+import { brand } from '../data/content';
+
+const EFFECTIVE = '11 October 2026';
+
+const storage = [
+  ['grimoire.era', 'which version of the 1996 site you were last on'],
+  ['grimoire.sound', 'whether the 1996 radio is on or off'],
+  ['geo-muted', 'whether you pressed STOP DA MUSIC'],
+  ['geo-calm', 'whether you pressed STOP DA FLASHING'],
+  ['grimoire-kitty', 'which cat chases your cursor'],
+  ['geo-souls', 'the visit counter on the 1996 page (it only counts your own visits)'],
+];
+---
+
+<Site title="Privacy Policy · Grimoire" description="What grimoiremods.com collects (nothing of its own), what Cloudflare sees, and what stays in your browser.">
+  <article class="wrap policy prose">
+    <p class="kicker">Effective {EFFECTIVE}</p>
+    <h1>Privacy policy</h1>
+
+    <p>
+      This page covers the website (grimoiremods.com) and the apt repo (apt.grimoiremods.com).
+      The Grimoire app has its own page, <a href="/docs/privacy">what leaves your machine</a>,
+      which lists every request the app can make.
+    </p>
+
+    <h2>The short version</h2>
+    <ul>
+      <li>We don't run analytics, ads or tracking scripts, and the site has no accounts or forms.</li>
+      <li>Cloudflare hosts the site, so it sees your requests, like any web host would.</li>
+      <li>Cloudflare adds a bot check to each page, and it sets one short-lived cookie.</li>
+      <li>The 1996 version of the site saves a few settings in your browser. They stay there.</li>
+      <li>The numbers on the homepage come from public download counts, not from you.</li>
+      <li>We don't sell or share anything.</li>
+    </ul>
+
+    <h2>What we collect</h2>
+    <p>
+      Nothing of our own. There's no analytics, no tracking pixel, no form and no account. The
+      pages are plain files.
+    </p>
+
+    <h2>What Cloudflare sees</h2>
+    <p>
+      The site and the apt repo run on Cloudflare. Every request goes through them, so they see
+      your IP address, your browser's user agent and the page you asked for.
+      <a href="https://www.cloudflare.com/privacypolicy/">Cloudflare's privacy policy</a> covers
+      what they do with it.
+    </p>
+    <p>Through Cloudflare, we can see two things:</p>
+    <ul>
+      <li>
+        <strong>Traffic totals:</strong> how many requests, how much data, and which countries
+        they came from. These are totals, not a list of visitors.
+      </li>
+      <li>
+        <strong>Request logs</strong> for the few parts of the site that run code: the download
+        badges, the "page not found" page and the apt repo. Each log entry has the address that
+        was asked for, the response code, the request headers (which include your IP address and
+        user agent) and the country and city Cloudflare thinks the request came from. Ordinary page
+        views are plain files and don't create these logs. Cloudflare deletes the logs within 7
+        days. We only use them to fix problems.
+      </li>
+    </ul>
+
+    <h2 id="bot-check">The bot check</h2>
+    <p>
+      Cloudflare's Bot Fight Mode is on for this site. It adds a small Cloudflare script to every
+      page, loaded from grimoiremods.com/cdn-cgi/challenge-platform/. The script checks that your
+      browser acts like a real browser and not a bot, then saves the result in a cookie called
+      <code>cf_clearance</code>, which lasts about 15 minutes. This is Cloudflare's script, not
+      ours. We don't get the data it collects. It's the only cookie the site sets.
+    </p>
+
+    <h2>What the apt repo counts</h2>
+    <p>
+      The apt repo keeps one set of totals per day: how many times its signing key was downloaded
+      (a new setup), how many update checks came in, how many times the package list was
+      downloaded, and how many packages were downloaded (split by version and CPU type). It looks
+      at the user agent only to leave bots out of the count, and doesn't save it. It never saves
+      IP addresses or anything else about a single request.
+    </p>
+
+    <h2>What's saved in your browser</h2>
+    <p>
+      The 1996 version of the site, and the egg in the footer that takes you there, save a few
+      settings in your browser's local storage. They stay on your device and are never sent to a
+      server. Clearing this site's data in your browser removes them.
+    </p>
+    <ul>
+      {storage.map(([key, what]) => (
+        <li><code>{key}</code>: {what}</li>
+      ))}
+    </ul>
+
+    <h2>Other sites your browser talks to</h2>
+    <p>
+      The site doesn't load anything from other sites. Fonts are hosted here, and there are no
+      embeds and no CDNs. Your browser only contacts another site when you do something that
+      needs it:
+    </p>
+    <ul>
+      <li>
+        <strong>Downloads</strong> come from GitHub or from apt.grimoiremods.com. GitHub keeps a
+        public download count for each file.
+      </li>
+      <li>
+        <strong>Links</strong> to GitHub, Discord, GameBanana and the AUR take you to those sites,
+        and their own privacy policies apply there.
+      </li>
+      <li>
+        <strong>The 1996 radio.</strong> On the 1996 version, sound starts after your first click
+        or key press. The music streams straight from the station: SomaFM, Kohina, laut.fm,
+        Nightride or Plaza One. While Plaza One is playing, the page also asks Plaza which song is
+        on. The station sees your IP address, like any stream would. Turn the sound off with the ♪
+        button or STOP DA MUSIC, and nothing is requested.
+      </li>
+    </ul>
+
+    <h2 id="numbers">Where the homepage numbers come from</h2>
+    <p>
+      The app doesn't send us usage data. The numbers on the homepage come from public counters
+      that GitHub and GameBanana keep, and the site reads them when it's built.
+      None of them are about you. The homepage rounds each one down, so 108k+ means at least
+      108,000. Hover over a number to see it in full.
+    </p>
+    <ul>
+      <li>
+        <strong>Downloads</strong> adds up GitHub's download count for every installer and
+        GameBanana's download count. GitHub's count
+        includes the installer the app downloads when it updates itself, so this counts downloads,
+        not people.
+      </li>
+      <li>
+        <strong>Weekly users</strong> takes a recent release that was the newest version for about
+        a week (4 to 10 days) and counts how many times its installers were downloaded. Each
+        machine downloads a version once, whether it's a new install or an update, so this is
+        roughly the number of machines that opened Grimoire that week. It misses apt, AUR and
+        Flatpak installs (they update through their package manager) and anyone who didn't update,
+        so the real number is higher.
+      </li>
+      <li>
+        <strong>Daily launches</strong> comes from the update check. Each time the app starts, it
+        downloads a small file from GitHub that says what the latest version is. It does this
+        twice per start, and GitHub counts every download. We take that count for the newest
+        release, divide by the days since it came out, divide by two, and round down to the nearest
+        hundred. This counts launches, not people.
+      </li>
+    </ul>
+
+    <h2>Changes</h2>
+    <p>
+      If anything here changes, we'll update this page and the date at the top.
+    </p>
+
+    <h2>Contact</h2>
+    <p>
+      Questions, or something here looks wrong? Open an issue on
+      <a href={`${brand.github}/issues`}>GitHub</a> or ask in the <a href={brand.discord}>Discord</a>.
+    </p>
+  </article>
+</Site>
+
+<style>
+  .policy {
+    max-width: 808px;
+    padding-top: 72px;
+    padding-bottom: 120px;
+  }
+  .policy h1 {
+    font-size: 64px;
+  }
+  @media (max-width: 719px) {
+    .policy {
+      padding-top: 48px;
+      padding-bottom: 80px;
+    }
+    .policy h1 {
+      font-size: 48px;
+    }
+  }
+</style>

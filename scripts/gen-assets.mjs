@@ -34,6 +34,29 @@ async function genThumbs() {
   }
 }
 
+/* ─── 1b. Full-size WebP for the lightbox ────────────────────────── */
+
+/*
+ * The stages link screenshots as .png so the plain link still hands a
+ * universally-openable file to no-JS visitors and to anyone who saves
+ * one. The lightbox, which additionally prefetches both neighbours of
+ * whatever you opened, swaps in the .webp beside it (see Lightbox.astro)
+ * and falls back to the PNG if it 404s. Some of these shots are UI
+ * screenshots with large flat regions where PNG does badly: browse.png
+ * is 1.2 MB, so opening the gallery used to cost ~3.5 MB.
+ *
+ * Quality 88 rather than the thumbnails' 82: these are viewed full-size,
+ * and text in a UI screenshot is where WebP artifacts show first.
+ */
+async function genFullWebp() {
+  const files = (await readdir(SHOTS_DIR)).filter((f) => f.endsWith('.png'));
+  for (const f of files) {
+    const out = path.join(SHOTS_DIR, f.replace(/\.png$/, '.webp'));
+    await sharp(path.join(SHOTS_DIR, f)).webp({ quality: 88 }).toFile(out);
+    console.log('full: ', path.relative(ROOT, out));
+  }
+}
+
 /* ─── 2. OG card ─────────────────────────────────────────────────── */
 
 const W = 1200;
@@ -148,4 +171,5 @@ async function genOg() {
 }
 
 await genThumbs();
+await genFullWebp();
 await genOg();

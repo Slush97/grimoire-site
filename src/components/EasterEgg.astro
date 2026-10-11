@@ -1,0 +1,140 @@
+---
+/*
+ * The way back into the era museum. A 16x20 pixel egg in the footer.
+ * Click: it cracks, the screen tunes to static, and you land in 1996.
+ * Calm/reduced-motion visitors skip the static.
+ */
+import '../styles/fonts.css';
+
+interface Props {
+  class?: string;
+  size?: number;
+  label?: string;
+}
+const { class: cls = '', size = 20, label = 'A small egg' } = Astro.props;
+---
+
+<button type="button" class:list={['egg', cls]} aria-label={label} style={`--egg:${size}px`}>
+  <img src="/egg.png" alt="" width="16" height="20" draggable="false" />
+</button>
+
+<style>
+  .egg {
+    all: unset;
+    display: inline-block;
+    width: var(--egg);
+    height: calc(var(--egg) * 1.25);
+    cursor: pointer;
+    line-height: 0;
+  }
+  .egg img {
+    width: 100%;
+    height: 100%;
+    image-rendering: pixelated;
+    transform-origin: 50% 90%;
+  }
+  .egg:hover img,
+  .egg:focus-visible img {
+    animation: egg-wobble 0.5s steps(4) infinite alternate;
+  }
+  .egg:focus-visible {
+    outline: 2px dashed currentColor;
+    outline-offset: 3px;
+  }
+  @keyframes egg-wobble {
+    from { transform: rotate(-9deg); }
+    to { transform: rotate(9deg); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .egg:hover img,
+    .egg:focus-visible img {
+      animation: none;
+    }
+  }
+</style>
+
+<style is:global>
+  .egg-static {
+    position: fixed;
+    inset: 0;
+    z-index: 2147483647;
+    background: #000;
+    display: grid;
+    place-items: center;
+  }
+  .egg-static canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    image-rendering: pixelated;
+  }
+  .egg-static::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.35) 0 2px, transparent 2px 4px);
+    pointer-events: none;
+  }
+  .egg-static-osd {
+    position: relative;
+    z-index: 1;
+    font: 700 clamp(28px, 6vw, 64px) / 1 'JetBrains Mono', ui-monospace, monospace;
+    color: #7CFF6B;
+    text-shadow: 0 0 12px rgba(124, 255, 107, 0.7), 3px 0 0 rgba(255, 0, 80, 0.5);
+    letter-spacing: 0.08em;
+  }
+</style>
+
+<script>
+  const ERA_KEY = 'grimoire.era';
+
+  function quiet(): boolean {
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return true;
+    try {
+      return localStorage.getItem('geo-calm') === '1';
+    } catch {
+      return false;
+    }
+  }
+
+  function tuneOut(onDone: () => void) {
+    const wrap = document.createElement('div');
+    wrap.className = 'egg-static';
+    const canvas = document.createElement('canvas');
+    canvas.width = 192;
+    canvas.height = 108;
+    const osd = document.createElement('div');
+    osd.className = 'egg-static-osd';
+    osd.textContent = 'CH 03 · 1996';
+    wrap.append(canvas, osd);
+    document.body.append(wrap);
+    const ctx = canvas.getContext('2d')!;
+    const img = ctx.createImageData(canvas.width, canvas.height);
+    const start = performance.now();
+    const frame = (now: number) => {
+      for (let i = 0; i < img.data.length; i += 4) {
+        const v = (Math.random() * 255) | 0;
+        img.data[i] = img.data[i + 1] = img.data[i + 2] = v;
+        img.data[i + 3] = 255;
+      }
+      ctx.putImageData(img, 0, 0);
+      if (now - start < 750) requestAnimationFrame(frame);
+      else onDone();
+    };
+    requestAnimationFrame(frame);
+  }
+
+  document.querySelectorAll<HTMLButtonElement>('.egg').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const img = btn.querySelector('img');
+      if (img) img.src = '/egg-cracked.png';
+      try {
+        localStorage.setItem(ERA_KEY, 'geocities');
+      } catch {}
+      const go = () => location.assign('/1996');
+      if (quiet()) setTimeout(go, 200);
+      else setTimeout(() => tuneOut(go), 260);
+    });
+  });
+</script>

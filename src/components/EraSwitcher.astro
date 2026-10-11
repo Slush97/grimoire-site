@@ -2,19 +2,19 @@
 /*
  * EraSwitcher.astro
  * The TIME MACHINE: a universal-remote-looking fixed panel (bottom
- * right) that zaps between the six era themes like TV channels. Mounted
- * by both layouts so the chosen era follows the visitor across pages.
+ * right) that zaps between the five era themes like TV channels. Mounted
+ * by the Museum layout on /1996.
  *
  * Swap mechanics:
- *   - sets <html data-era="..."> (museum CSS swaps stages; geo.css
- *     reskins sub-page chrome) and persists to localStorage
+ *   - sets <html data-era="..."> (museum CSS swaps stages) and persists
+ *     to localStorage
  *   - plays a ~480ms CRT static burst with a green channel OSD, skipped
  *     under prefers-reduced-motion or the Geocities calm switch
  *   - dispatches `era:change` on document so stages can react (the
  *     Geocities radio pauses itself when you leave 1996)
  *
  * The remote deliberately looks like a chunky black TV remote in every
- * era. A remote is anachronistic in all six timelines, which is the bit.
+ * era. A remote is anachronistic in all five timelines, which is the bit.
  */
 import { ERAS } from '../data/eras';
 ---

@@ -11,6 +11,8 @@
     "preview": "astro preview",
     "astro": "astro",
     "gen:assets": "node scripts/gen-assets.mjs",
+    "gen:fonts": "node scripts/gen-fonts.mjs",
+    "sync:docs": "node scripts/sync-docs.mjs",
     "generate-types": "wrangler types"
   },
   "dependencies": {

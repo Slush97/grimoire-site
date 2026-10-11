@@ -2,7 +2,7 @@
 /*
  * Museum.astro
  * Minimal HTML shell for the era-museum page. Holds no chrome of its
- * own; every stage component paints its own world. Fonts for all six
+ * own; every stage component paints its own world. Fonts for all five
  * eras are requested here so we only emit one stylesheet link.
  */
 import '../styles/museum.css';
@@ -38,13 +38,31 @@ const ogImageUrl = new URL(ogImage, Astro.site);
       Pre-paint era restore. Must run before first paint (inline, in
       head) so the saved channel shows with no flash of the default era.
       Keep the id list in sync with src/data/eras.ts.
+
+      It also starts the display face for the restored era. Only two eras
+      have one (the rest dress in system faces), and the map is allowed to
+      drift without breaking anything: a wrong entry costs one unused
+      preload, never a broken page. JetBrains Mono is preloaded in the
+      markup below instead, since every era's chrome uses it.
     -->
     <script is:inline>
       (function () {
         var era = null;
         try { era = localStorage.getItem('grimoire.era'); } catch (e) {}
         var ok = ['terminal', 'win95', 'geocities', 'aero', 'fugazi'];
-        document.documentElement.dataset.era = ok.indexOf(era) >= 0 ? era : 'geocities';
+        era = ok.indexOf(era) >= 0 ? era : 'geocities';
+        document.documentElement.dataset.era = era;
+
+        var face = { geocities: 'comic-neue-400-normal-latin', fugazi: 'inter-400-700-normal-latin' }[era];
+        if (face) {
+          var l = document.createElement('link');
+          l.rel = 'preload';
+          l.as = 'font';
+          l.type = 'font/woff2';
+          l.crossOrigin = 'anonymous';
+          l.href = '/fonts/' + face + '.woff2';
+          document.head.appendChild(l);
+        }
       })();
     </script>
 
@@ -55,11 +73,19 @@ const ogImageUrl = new URL(ogImage, Astro.site);
     <link rel="icon" type="image/png" href="/logo.png" />
     <link rel="apple-touch-icon" href="/logo.png" />
 
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <!--
+      Faces are self-hosted and declared in src/styles/fonts.css, which
+      Vite inlines into the page's stylesheet: no third-party origin, no
+      extra request. JetBrains Mono is the one face every era needs (the
+      TIME MACHINE remote is mounted on every page), so it starts here
+      rather than waiting for the CSS to parse.
+    -->
     <link
-      rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=UnifrakturMaguntia&family=Comic+Neue:wght@400;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap"
+      rel="preload"
+      as="font"
+      type="font/woff2"
+      href="/fonts/jetbrains-mono-400-700-normal-latin.woff2"
+      crossorigin
     />
 
     <meta property="og:type" content="website" />
@@ -79,7 +105,7 @@ const ogImageUrl = new URL(ogImage, Astro.site);
   <body>
     <a href="#museum-main" class="museum-skip">Skip to content</a>
     <!--
-      Stable crawlable heading. The six era stages each render their own
+      Stable crawlable heading. The five era stages each render their own
       costume <h1> (and only one stage is shown at a time), but none of
       them say "Deadlock mod manager" in plain text. This sr-only line is
       always in the DOM, era-independent, and states the entity in the

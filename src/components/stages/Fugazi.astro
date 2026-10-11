@@ -10,8 +10,18 @@
  * gets the binary.
  */
 import type { DownloadUrls } from '../../data/content';
-import { fmtBytes } from '../../data/content';
+import { fmtBytes, getReachLine } from '../../data/content';
 const dl = Astro.props as DownloadUrls;
+
+/*
+ * Social proof. The genre demands a number under the hero CTA, so this
+ * stage prints real public counters (GitHub installer downloads + apt
+ * installs + GameBanana) rather than the invented "12,000+ developers"
+ * it used to claim. The corporate framing is the joke; the figures are
+ * not. Null when every counter failed at build time, in which case the
+ * line is dropped instead of guessed.
+ */
+const reachLine = await getReachLine();
 
 /*
  * Platform chips under the hero CTA. Standard "select your runtime"
@@ -278,7 +288,7 @@ const compliance = [
 
       <a class="fugazi-dl-link" href="/download">Browse all downloads and checksums &rarr;</a>
 
-      <p class="micro">12,000+ developers · 47,000 mods deployed · MIT licensed</p>
+      <p class="micro">{reachLine ? `${reachLine} · MIT licensed` : 'Free and MIT licensed'}</p>
     </div>
   </section>
 

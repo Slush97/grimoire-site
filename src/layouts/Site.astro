@@ -1,0 +1,142 @@
+---
+/*
+ * Site.astro
+ * Shell for every page outside the /1996 museum: head meta, the top bar,
+ * the footer. Pages render their own <main> content into the slot; the
+ * `ambient` slot sits behind .page for the background art.
+ */
+import '../styles/fonts.css';
+import '../styles/site.css';
+import BrandSprite from '../components/BrandSprite.astro';
+import EasterEgg from '../components/EasterEgg.astro';
+import SeoJsonLd from '../components/SeoJsonLd.astro';
+import { brand } from '../data/content';
+
+interface Props {
+  title?: string;
+  description?: string;
+  ogImage?: string;
+}
+
+const {
+  title = 'Grimoire: a Free Deadlock Mod Manager',
+  description = 'Grimoire is a free, open-source Deadlock mod manager. Browse and one-click install mods from GameBanana, manage your library, run a Hero Locker, and swap mod profiles.',
+  ogImage = '/og.png',
+} = Astro.props;
+
+const canonicalUrl = new URL(Astro.url.pathname, Astro.site);
+const ogImageUrl = new URL(ogImage, Astro.site);
+
+const path = Astro.url.pathname.replace(/\/$/, '') || '/';
+const nav = [
+  { href: '/#features', label: 'Features', wide: true },
+  { href: '/download', label: 'Download', wide: true },
+  { href: '/docs', label: 'Docs' },
+  { href: brand.discord, label: 'Discord', wide: true },
+];
+const current = (href: string) => (href !== '/' && (path === href || path.startsWith(`${href}/`)) ? 'page' : undefined);
+
+// Self-hosted 88x31 buttons. Sources and licenses: public/badges/CREDITS.txt.
+// `still` is the frame shown instead of an animated GIF under prefers-reduced-motion.
+const badges: { src: string; alt: string; href?: string; title?: string; still?: string }[] = [
+  { src: 'grimoire-candle.gif', still: 'grimoire-candle-still.png', alt: 'Grimoire: free and MIT', href: brand.github },
+  { src: 'vpkmerge.png', alt: 'vpkmerge: merge VPKs', href: 'https://github.com/Slush97/vpkmerge' },
+  { src: 'mit-licensed.png', alt: 'Licensed MIT', href: `${brand.github}/blob/main/LICENSE` },
+  { src: 'open-source.png', alt: 'Open source', href: brand.github },
+  { src: 'pacman.gif', still: 'pacman-still.png', alt: 'pacman --version: Grimoire on the AUR', href: brand.aur, title: 'Button by Ylaenelle, CC BY-SA 4.0' },
+  { src: 'linux.png', alt: 'Powered by Linux', href: '/download' },
+  { src: 'discord.gif', still: 'discord-still.png', alt: 'Discord: join now', href: brand.discord },
+  { src: 'dark-mode.gif', alt: 'Made for dark mode' },
+  { src: 'anybrowser.png', alt: 'Viewable with any browser' },
+  { src: 'magic.gif', still: 'magic-still.png', alt: 'Magic' },
+];
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+    <meta name="color-scheme" content="dark" />
+    <meta name="theme-color" content="#0e0e11" />
+
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalUrl} />
+
+    <link rel="icon" href="/grimoire-mark.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/logo.png" />
+    <link rel="preload" as="font" type="font/woff2" href="/fonts/inter-400-700-normal-latin.woff2" crossorigin />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:image" content={ogImageUrl} />
+    <meta property="og:site_name" content="Grimoire" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImageUrl} />
+
+    <SeoJsonLd />
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to content</a>
+    <BrandSprite />
+    <slot name="ambient" />
+
+    <div class="page">
+      <header class="bar">
+        <div class="wrap bar-inner">
+          <a class="brand" href="/">
+            <img src="/grimoire-mark.svg" alt="" width="30" height="27" />
+            <span>Grimoire</span>
+          </a>
+          <nav aria-label="Main">
+            {nav.map((n) => (
+              <a class:list={{ wide: n.wide }} href={n.href} aria-current={current(n.href)}>{n.label}</a>
+            ))}
+          </nav>
+          <div class="bar-actions">
+            <a class="icon-btn" href={brand.github} aria-label="Source on GitHub">
+              <svg width="20" height="20" aria-hidden="true"><use href="#i-github" /></svg>
+            </a>
+            <a class="btn btn-accent" href="/download" data-primary>Download</a>
+          </div>
+        </div>
+      </header>
+
+      <main id="main">
+        <slot />
+      </main>
+
+      <footer class="foot">
+        <div class="badges">
+          {badges.map((b) => {
+            const img = (
+              <picture>
+                {b.still && <source srcset={`/badges/${b.still}`} media="(prefers-reduced-motion: reduce)" />}
+                <img src={`/badges/${b.src}`} alt={b.alt} title={b.title} width="88" height="31" loading="lazy" />
+              </picture>
+            );
+            return b.href ? <a href={b.href}>{img}</a> : img;
+          })}
+        </div>
+        <nav class="foot-links" aria-label="Footer">
+          <a href={brand.github}>GitHub</a>
+          <a href={brand.discord}>Discord</a>
+          <a href={brand.gamebanana}>GameBanana</a>
+          <a href="/docs">Docs</a>
+          <a href="/privacy">Privacy</a>
+          <a href="/1996">The 1996 version</a>
+        </nav>
+        <p class="fine">
+          Not affiliated with Valve.
+          <EasterEgg size={12} label="A small egg" />
+        </p>
+      </footer>
+    </div>
+  </body>
+</html>

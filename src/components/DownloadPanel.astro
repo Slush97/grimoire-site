@@ -1,0 +1,491 @@
+---
+/*
+ * The per-OS download panel, shared by the homepage and /download.
+ * Tabs are radio inputs so it works without JS; the script only preselects
+ * the visitor's OS (from html[data-os], set by the homepage hero script or
+ * by the inline one below) and wires the copy buttons.
+ */
+import { brand, fmtBytes, getDownloadUrls, type ReleaseAsset } from '../data/content';
+
+const dl = await getDownloadUrls();
+const assets = dl.release?.assets ?? [];
+const find = (suffix: string) => assets.find((a) => a.name.toLowerCase().endsWith(suffix)) ?? null;
+const dmg = find('.dmg');
+const macZip = find('-mac.zip');
+const flatpak = find('.flatpak');
+
+type FileRow = { label: string; ext: string; noun: string; name: string; href: string; size: string };
+const file = (label: string, a: ReleaseAsset | null, ext = '', noun = label) =>
+  a && { label, ext, noun, name: a.name, href: a.browser_download_url, size: fmtBytes(a.size) };
+const rows = (...r: (FileRow | null)[]) => r.filter(Boolean) as FileRow[];
+
+const platforms = [
+  {
+    id: 'windows',
+    name: 'Windows',
+    icon: 'windows',
+    files: rows(
+      file('Installer', dl.windowsInstaller, '.exe', 'the installer'),
+      file('Portable', dl.windowsPortable, '.exe', 'the portable .exe'),
+    ),
+  },
+  {
+    id: 'macos',
+    name: 'macOS',
+    icon: 'apple',
+    files: rows(file('Disk image', dmg, '.dmg', 'the disk image'), file('Zip archive', macZip, '.zip', 'the zip')),
+  },
+  {
+    id: 'linux',
+    name: 'Linux',
+    icon: 'linux',
+    files: rows(
+      file('AppImage', dl.linuxAppImage, '', 'the AppImage'),
+      file('Debian package', dl.linuxDeb, '.deb', 'the .deb'),
+      file('Flatpak', flatpak, '', 'the Flatpak'),
+    ),
+  },
+].filter((p) => p.files.length > 0);
+
+const APT = [
+  'sudo install -d -m 0755 /etc/apt/keyrings',
+  'curl -fsSL https://apt.grimoiremods.com/grimoire.gpg | sudo tee /etc/apt/keyrings/grimoire.gpg >/dev/null',
+  'echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/grimoire.gpg] https://apt.grimoiremods.com stable main" | sudo tee /etc/apt/sources.list.d/grimoire.list >/dev/null',
+  'sudo apt update && sudo apt install grimoire',
+].join('\n');
+const pms = [
+  { icon: 'archlinux', name: 'Arch Linux', via: 'AUR', cmd: 'yay -S grimoire-bin', href: brand.aur },
+  { icon: 'debian', name: 'Debian and Ubuntu', via: 'apt repo', cmd: APT, href: '/download#apt' },
+  {
+    icon: 'nixos',
+    name: 'Nix and NixOS',
+    via: 'flake',
+    cmd: 'inputs.grimoire.url = "github:Slush97/grimoire";',
+    href: `${brand.github}#nix--nixos-flake`,
+  },
+];
+---
+
+<svg width="0" height="0" aria-hidden="true" style="position:absolute">
+  <symbol id="download" viewBox="0 0 24 24">
+    <path d="M12 4v11m0 0-4.5-4.5M12 15l4.5-4.5M5 20h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+  </symbol>
+</svg>
+
+<div class="dl panel">
+  {platforms.map((p, i) => (
+    <input class="sr-only" type="radio" name="os" id={`os-${p.id}`} checked={i === 0} />
+  ))}
+  <div class="os-tabs" role="presentation">
+    {platforms.map((p) => (
+      <label for={`os-${p.id}`}>
+        <svg aria-hidden="true"><use href={`#i-${p.icon}`} /></svg>
+        {p.name}
+        <span class="yours" aria-hidden="true"></span>
+      </label>
+    ))}
+  </div>
+
+  <div class="panes">
+    {platforms.map((p) => {
+      const [lead, ...alts] = p.files;
+      return (
+        <div class="pane" data-pane={p.id}>
+          <div class="pane-main">
+            <a class="big" href={lead.href}>
+              <svg class="big-ico" aria-hidden="true"><use href="#download" /></svg>
+              <span class="big-txt">
+                <strong>Download {lead.noun}</strong>
+                <span>{lead.name} · {lead.size}</span>
+              </span>
+            </a>
+            {alts.length > 0 && (
+              <>
+                <p class="cap">Also available</p>
+                <ul class="files">
+                  {alts.map((f) => (
+                    <li>
+                      <a class="file" href={f.href}>
+                        <span class="file-name">{f.label}{f.ext && <code>{f.ext}</code>}</span>
+                        <span class="size">{f.size}</span>
+                        <svg class="dl-ico" aria-hidden="true"><use href="#download" /></svg>
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </>
+            )}
+          </div>
+
+          <div class="pane-side">
+            {p.id === 'windows' && (
+              <dl class="notes">
+                <div>
+                  <dt>Installer</dt>
+                  <dd>The usual pick.</dd>
+                </div>
+                {dl.windowsPortable && (
+                  <div>
+                    <dt>Portable</dt>
+                    <dd>A single executable, the same app as the installer. No install step.</dd>
+                  </div>
+                )}
+                <div>
+                  <dt>Requirements</dt>
+                  <dd>Deadlock installed through Steam.</dd>
+                </div>
+              </dl>
+            )}
+            {p.id === 'macos' && (
+              <div class="caution">
+                <p class="cap">Experimental</p>
+                <p>
+                  Apple Silicon only. Deadlock has no Mac build, so it needs to run in a CrossOver
+                  bottle. The app isn't signed, so macOS asks you to confirm the first launch.
+                </p>
+                <a href={`${brand.github}/blob/main/docs/macos.md`}>Setup notes <span aria-hidden="true">→</span></a>
+              </div>
+            )}
+            {p.id === 'linux' && (
+              <div class="pms">
+                <p class="cap">Package managers</p>
+                {pms.map((m) => (
+                  <div class="pm">
+                    <div class="pm-head">
+                      <svg aria-hidden="true"><use href={`#i-${m.icon}`} /></svg>
+                      <a href={m.href}>{m.name}</a>
+                      <span class="pm-via">{m.via}</span>
+                      <button class="copy" type="button" data-copy={m.cmd} hidden>Copy</button>
+                    </div>
+                    <pre><code>{m.cmd.split('\n').map((l) => <span>{l}</span>)}</code></pre>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      );
+    })}
+  </div>
+</div>
+
+<script is:inline>
+  (() => {
+    const root = document.documentElement;
+    if (!root.dataset.os) {
+      const hint = navigator.userAgentData;
+      const p = (hint && hint.platform) || navigator.platform || '';
+      if (/Win/.test(p)) root.dataset.os = 'windows';
+      else if (/Mac/.test(p) && navigator.maxTouchPoints <= 1) root.dataset.os = 'macos';
+      else if (/Linux|X11/.test(p) && !/Android/.test(navigator.userAgent)) root.dataset.os = 'linux';
+    }
+    const radio = root.dataset.os && document.getElementById('os-' + root.dataset.os);
+    if (radio) radio.checked = true;
+    document.querySelectorAll('.copy').forEach((b) => {
+      b.hidden = false;
+      b.addEventListener('click', () => {
+        navigator.clipboard.writeText(b.dataset.copy).then(() => {
+          b.textContent = 'Copied';
+          b.classList.add('done');
+          setTimeout(() => {
+            b.textContent = 'Copy';
+            b.classList.remove('done');
+          }, 1600);
+        });
+      });
+    });
+  })();
+</script>
+
+<style>
+  .dl {
+    max-width: 1000px;
+    margin: 36px auto 0;
+  }
+  .os-tabs {
+    display: flex;
+    gap: 4px;
+    width: max-content;
+    margin: 28px auto 0;
+    padding: 4px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: var(--bg);
+  }
+  .os-tabs label {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    height: 40px;
+    padding: 0 18px;
+    border-radius: 999px;
+    color: var(--muted);
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: color 0.15s, background-color 0.15s;
+  }
+  .os-tabs label:hover {
+    color: var(--text);
+  }
+  .os-tabs svg {
+    width: 16px;
+    height: 16px;
+    fill: currentColor;
+  }
+  #os-windows:checked ~ .os-tabs [for='os-windows'],
+  #os-macos:checked ~ .os-tabs [for='os-macos'],
+  #os-linux:checked ~ .os-tabs [for='os-linux'] {
+    color: var(--text);
+    background: var(--surface-hi);
+  }
+  #os-windows:focus-visible ~ .os-tabs [for='os-windows'],
+  #os-macos:focus-visible ~ .os-tabs [for='os-macos'],
+  #os-linux:focus-visible ~ .os-tabs [for='os-linux'] {
+    outline: 2px solid var(--accent-soft);
+    outline-offset: 2px;
+  }
+  .yours {
+    display: none;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent-soft);
+  }
+  :global(html[data-os='windows']) [for='os-windows'] .yours,
+  :global(html[data-os='macos']) [for='os-macos'] .yours,
+  :global(html[data-os='linux']) [for='os-linux'] .yours {
+    display: block;
+  }
+  .pane {
+    display: none;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 48px;
+    padding: 36px 44px 44px;
+  }
+  #os-windows:checked ~ .panes [data-pane='windows'],
+  #os-macos:checked ~ .panes [data-pane='macos'],
+  #os-linux:checked ~ .panes [data-pane='linux'] {
+    display: grid;
+  }
+  .big {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 12px 30px 12px 24px;
+    border-radius: 999px;
+    color: #fff;
+    background: var(--accent);
+    transition: background-color 0.15s;
+  }
+  .big:hover {
+    color: #fff;
+    background: var(--accent-hover);
+  }
+  .big-ico {
+    flex: none;
+    width: 22px;
+    height: 22px;
+  }
+  .big-txt {
+    display: grid;
+    min-width: 0;
+  }
+  .big-txt strong {
+    font-size: 17px;
+    line-height: 1.35;
+  }
+  .big-txt span {
+    overflow: hidden;
+    color: rgba(255, 255, 255, 0.72);
+    font: 12.5px/1.5 'JetBrains Mono', ui-monospace, monospace;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .cap {
+    margin: 28px 0 10px;
+    color: var(--dim);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .files {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 8px;
+  }
+  .file {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    height: 46px;
+    padding: 0 16px;
+    border: 1px solid var(--line-strong);
+    border-radius: 6px;
+    background: var(--bg);
+    color: var(--text);
+    transition: background-color 0.15s;
+  }
+  .file:hover {
+    color: var(--text);
+    background: var(--surface-hi);
+  }
+  .file-name {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    font-size: 15px;
+    font-weight: 600;
+  }
+  .file-name code {
+    color: var(--dim);
+    font-weight: 400;
+    font-size: 13px;
+  }
+  .size {
+    margin-left: auto;
+    color: var(--muted);
+    font-size: 13px;
+    font-variant-numeric: tabular-nums;
+  }
+  .dl-ico {
+    width: 16px;
+    height: 16px;
+    flex: none;
+    color: var(--muted);
+  }
+  .pane-side {
+    padding-left: 48px;
+    border-left: 1px solid var(--line);
+  }
+  .notes {
+    display: grid;
+    gap: 18px;
+    margin: 0;
+  }
+  .notes dt {
+    color: var(--text);
+    font-size: 15px;
+    font-weight: 600;
+  }
+  .notes dd {
+    margin: 2px 0 0;
+    color: var(--muted);
+    font-size: 15px;
+    line-height: 1.55;
+  }
+  .caution .cap {
+    margin: 0 0 8px;
+    color: #fbbf24;
+  }
+  .caution p:not(.cap) {
+    margin: 0 0 12px;
+    color: var(--body);
+    font-size: 15px;
+    line-height: 1.6;
+  }
+  .caution a {
+    font-size: 15px;
+    font-weight: 500;
+  }
+  .pms {
+    display: grid;
+    gap: 14px;
+  }
+  .pms .cap {
+    margin: 0;
+  }
+  .pm {
+    min-width: 0;
+  }
+  .pm-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+    font-size: 14px;
+  }
+  .pm-head svg {
+    width: 15px;
+    height: 15px;
+    fill: var(--muted);
+  }
+  .pm-head a {
+    color: var(--text);
+    font-weight: 600;
+  }
+  .pm-head a:hover {
+    color: var(--accent-soft);
+  }
+  .pm-via {
+    color: var(--dim);
+  }
+  .copy {
+    margin-left: auto;
+    height: 26px;
+    padding: 0 10px;
+    border: 1px solid var(--line-strong);
+    border-radius: 999px;
+    background: var(--surface);
+    color: var(--muted);
+    font: 500 12px/1 'Inter', system-ui, sans-serif;
+    cursor: pointer;
+    transition: color 0.15s, background-color 0.15s;
+  }
+  .copy:hover {
+    color: var(--text);
+    background: var(--surface-hi);
+  }
+  .copy.done {
+    color: #4ade80;
+    border-color: rgba(74, 222, 128, 0.4);
+  }
+  .copy[hidden] {
+    display: none;
+  }
+  .pm pre {
+    margin: 0;
+    padding: 10px 14px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    background: var(--bg);
+    font-size: 12.5px;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+  .pm pre span {
+    display: block;
+    padding-left: 2ch;
+    text-indent: -2ch;
+  }
+
+  @media (max-width: 960px) {
+    .pane {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 32px;
+      padding: 28px;
+    }
+    .pane-side {
+      padding: 28px 0 0;
+      border-left: 0;
+      border-top: 1px solid var(--line);
+    }
+  }
+  @media (max-width: 719px) {
+    .os-tabs {
+      width: auto;
+      margin: 16px 16px 0;
+    }
+    .os-tabs label {
+      flex: 1;
+      justify-content: center;
+      padding: 0 8px;
+    }
+    .pane {
+      padding: 22px 18px 24px;
+    }
+  }
+</style>

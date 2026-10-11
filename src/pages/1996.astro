@@ -1,0 +1,34 @@
+---
+/*
+ * /1996 : the era museum, the site's original homepage. All five era
+ * stages mount here; only the one matching
+ * <html data-era> is displayed (rules in museum.css), and the
+ * EraSwitcher remote (mounted by the Museum layout) zaps between them
+ * with a CRT static burst. Default channel: GEOCITIES.
+ *
+ * Every stage renders the same product facts from data/content.ts in
+ * its own visual language, and all of them share one build-time GitHub
+ * release fetch.
+ */
+import Museum from '../layouts/Museum.astro';
+import Terminal from '../components/stages/Terminal.astro';
+import Win95 from '../components/stages/Win95.astro';
+import Geocities from '../components/stages/Geocities.astro';
+import Aero from '../components/stages/Aero.astro';
+import Fugazi from '../components/stages/Fugazi.astro';
+
+import { getDownloadUrls } from '../data/content';
+
+const dl = await getDownloadUrls();
+---
+
+<Museum
+  title="Grimoire, 1996 edition: the Deadlock mod manager in five eras"
+  description="The original Grimoire homepage: the same free Deadlock mod manager, told five times as a 1979 terminal, Windows 95, a 1996 Geocities page, Aero and a parody SaaS site."
+>
+  <Terminal {...dl} />
+  <Win95 {...dl} />
+  <Geocities {...dl} />
+  <Aero {...dl} />
+  <Fugazi {...dl} />
+</Museum>

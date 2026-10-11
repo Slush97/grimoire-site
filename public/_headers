@@ -1,0 +1,25 @@
+# Cache policy for unhashed static assets.
+#
+# Astro's own output under /_astro/ is content-hashed and already served
+# immutable by the Workers Assets runtime. Everything below is hand-named,
+# so it needs an explicit policy.
+#
+# Fonts and neko sprites are versioned by filename in practice: a new face
+# or skin lands under a new name (see scripts/gen-fonts.mjs), so a year of
+# immutable caching is safe and keeps repeat visits off the network.
+/fonts/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/neko/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/badges/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# Screenshots DO get overwritten in place on `pnpm gen:assets`, so they
+# take a shorter cache with revalidation rather than immutable.
+/screenshots/*
+  Cache-Control: public, max-age=86400, stale-while-revalidate=604800
+
+/og.png
+  Cache-Control: public, max-age=86400

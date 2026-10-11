@@ -173,16 +173,34 @@
       return href.startsWith('/screenshots/') && href.endsWith('.png');
     };
 
+    /*
+     * Stage links point at the .png so the bare link (and "save image as")
+     * still hands over a universally-openable file. In here we display the
+     * .webp generated beside it by `pnpm gen:assets`, which is ~80% smaller
+     * on these UI screenshots: it matters because opening one shot also
+     * prefetches both neighbours. If a .webp is ever missing, onerror
+     * drops that one back to the PNG.
+     */
+    const webpFor = (href: string) => href.replace(/\.png$/, '.webp');
+
+    img.addEventListener('error', () => {
+      // Guard on dlg.open: clearing src on close can itself fire error,
+      // and we must not pull a PNG for a dialog nobody is looking at.
+      if (!dlg.open) return;
+      const png = shots[idx]?.href;
+      if (png && img.getAttribute('src') !== png) img.src = png;
+    });
+
     function show() {
       const s = shots[idx];
-      img.src = s.href;
+      img.src = webpFor(s.href);
       img.alt = s.alt;
       caption.textContent = s.alt;
       counter.textContent = `${idx + 1} / ${shots.length}`;
       // Warm the cache for the neighbors so paging feels instant
       const n = shots.length;
       for (const i of [(idx + 1) % n, (idx - 1 + n) % n]) {
-        if (i !== idx) new Image().src = shots[i].href;
+        if (i !== idx) new Image().src = webpFor(shots[i].href);
       }
     }
 
