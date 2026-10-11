@@ -1,0 +1,106 @@
+---
+/*
+ * /code-signing : the code signing policy SignPath Foundation requires
+ * (signpath.org/terms). The footer links here as "Code signing policy" on
+ * every page, which covers their "home page and download page" rule. Keep the
+ * attribution line and team roles exactly true. Drop the "not signed yet"
+ * paragraph once the first signed release ships.
+ */
+import Site from '../layouts/Site.astro';
+import { brand } from '../data/content';
+
+const EFFECTIVE = '11 October 2026';
+const maintainer = 'https://github.com/Slush97';
+---
+
+<Site title="Code Signing Policy · Grimoire" description="How the Windows builds of Grimoire get signed, who approves a signature, and where the privacy details live.">
+  <article class="wrap policy prose">
+    <p class="kicker">Effective {EFFECTIVE}</p>
+    <h1>Code signing policy</h1>
+
+    <p>
+      Free code signing provided by <a href="https://about.signpath.io/">SignPath.io</a>,
+      certificate by <a href="https://signpath.org/">SignPath Foundation</a>.
+    </p>
+
+    <p>
+      Signing starts with the first release after SignPath Foundation accepts the project. Until
+      then the Windows builds are unsigned, and Windows warns about an unknown publisher the first
+      time you run one.
+    </p>
+
+    <h2>What gets signed</h2>
+    <p>
+      The Windows builds: the installer (<code>Grimoire-Setup-&lt;version&gt;.exe</code>), the
+      portable <code>Grimoire-Portable-&lt;version&gt;.exe</code>, and the <code>Grimoire.exe</code>
+      inside them. GitHub Actions builds them from a tagged commit in
+      <a href={brand.github}>Slush97/grimoire</a>, then hands them to SignPath. Nothing built on
+      someone's own machine gets signed.
+    </p>
+    <p>
+      The installer also carries <code>vpkmerge.exe</code>, the open source tool Grimoire uses to
+      read and write game files. GitHub Actions builds it from
+      <a href="https://github.com/Slush97/vpkmerge">Slush97/vpkmerge</a>.
+    </p>
+    <p>
+      Linux and macOS builds aren't covered here. Every release ships a <code>SHA256SUMS</code>
+      file and build provenance attestations for all platforms, and the
+      <a href="/download">download page</a> shows how to check them.
+    </p>
+
+    <h2>Who can sign</h2>
+    <p>Grimoire has one maintainer, who holds every role.</p>
+    <ul>
+      <li>
+        <strong>Committers and reviewers:</strong> <a href={maintainer}>Slush97</a>. Changes from
+        anyone else get reviewed before they're merged.
+      </li>
+      <li>
+        <strong>Approvers:</strong> <a href={maintainer}>Slush97</a>. Every release is approved by
+        hand before SignPath signs it.
+      </li>
+    </ul>
+
+    <h2>Privacy</h2>
+    <p>
+      Grimoire has no telemetry. Every request the app can make, who receives it, and how to turn it
+      off is on <a href="/docs/privacy">what leaves your machine</a>, along with links to the
+      privacy policies of the services it talks to. This website has
+      <a href="/privacy">its own privacy policy</a>.
+    </p>
+
+    <h2>Checking a signature</h2>
+    <p>
+      Right-click the <code>.exe</code>, open <strong>Properties</strong>, then the
+      <strong>Digital Signatures</strong> tab. A signed Grimoire build lists SignPath Foundation
+      as the signer.
+    </p>
+
+    <h2>Something looks wrong?</h2>
+    <p>
+      If a signed file doesn't match a release, or you think this policy was broken, open an issue
+      on <a href={`${brand.github}/issues`}>GitHub</a> or say so in the
+      <a href={brand.discord}>Discord</a>.
+    </p>
+  </article>
+</Site>
+
+<style>
+  .policy {
+    max-width: 808px;
+    padding-top: 72px;
+    padding-bottom: 120px;
+  }
+  .policy h1 {
+    font-size: 64px;
+  }
+  @media (max-width: 719px) {
+    .policy {
+      padding-top: 48px;
+      padding-bottom: 80px;
+    }
+    .policy h1 {
+      font-size: 48px;
+    }
+  }
+</style>
