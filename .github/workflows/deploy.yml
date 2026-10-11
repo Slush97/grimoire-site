@@ -1,0 +1,82 @@
+name: Deploy
+
+# The only deployer for grimoiremods.com. Cloudflare Workers Builds is
+# disconnected on purpose: its build fetched the release anonymously from
+# shared IPs and could silently ship the PINNED_RELEASE fallback.
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  # Also fired by Slush97/grimoire's release workflow (site-redeploy job) with
+  # the new tag: /download bakes the latest release in at build time, so every
+  # Grimoire release needs a rebuild.
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag /download must link. Defaults to the latest release.'
+        required: false
+        type: string
+
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          # pnpm-workspace.yaml uses pnpm 11's allowBuilds; pnpm 10 would skip
+          # the esbuild/workerd install scripts and the build would fail.
+          version: 11
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # The job token instead of a PAT: shared runner IPs burn through the
+      # anonymous 60/hr limit. The badge route reads its token from the Worker
+      # env only, so this one never reaches the deployed bundle's runtime path.
+      #
+      # A failed release fetch falls back to PINNED_RELEASE and still exits 0,
+      # so check /download links the expected tag and rebuild a few times
+      # (the API can lag a release published seconds ago) before giving up.
+      - name: Build and check /download
+        env:
+          GITHUB_TOKEN_SITE: ${{ github.token }}
+          GH_TOKEN: ${{ github.token }}
+          EXPECTED_TAG: ${{ inputs.tag }}
+        run: |
+          set -euo pipefail
+          TAG="${EXPECTED_TAG:-$(gh api repos/Slush97/grimoire/releases/latest --jq .tag_name)}"
+          for attempt in 1 2 3; do
+            pnpm build
+            if grep -qF "releases/download/${TAG}/" dist/client/download/index.html; then
+              echo "/download links ${TAG}"
+              exit 0
+            fi
+            echo "/download does not link ${TAG} (attempt ${attempt}/3)"
+            if [ "$attempt" -lt 3 ]; then sleep 30; fi
+          done
+          exit 1
+
+      - name: Deploy
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: pnpm exec wrangler deploy
