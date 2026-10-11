@@ -1,0 +1,332 @@
+---
+const GOLD = '#c29b4c';
+const VIOLET = '#a78bfa';
+const TAU = Math.PI * 2;
+const f = (n: number) => Math.round(n * 100) / 100;
+const at = (r: number, deg: number) => {
+  const a = ((deg - 90) * Math.PI) / 180;
+  return `${f(Math.cos(a) * r)} ${f(Math.sin(a) * r)}`;
+};
+const ring = (r: number) => `M0 ${-r}A${r} ${r} 0 1 1 0 ${r}A${r} ${r} 0 1 1 0 ${-r}`;
+const gcd = (a: number, b: number): number => (b ? gcd(b, a % b) : a);
+const star = (r: number, n: number, k: number, rot = 0) => {
+  const g = gcd(n, k);
+  const per = n / g;
+  const step = 360 / n;
+  let d = '';
+  for (let s = 0; s < g; s++) {
+    for (let i = 0; i < per; i++) d += `${i ? 'L' : 'M'}${at(r, rot + ((s + i * k) % n) * step)}`;
+    d += 'Z';
+  }
+  return d;
+};
+const place = (r: number, deg: number, s: number) => `rotate(${f(deg)}) translate(0 ${-r}) scale(${s})`;
+
+// Tick rings are one dashed circle each: the stroke width is the tick length.
+const ticks = (r: number, len: number, n: number, w = 1.5) => {
+  const frac = Math.round((w * n * 1000) / (TAU * r)) * 0.001;
+  return { r, 'stroke-width': len, pathLength: n, 'stroke-dasharray': `${frac} ${f(1 - frac)}`, 'stroke-dashoffset': frac / 2 };
+};
+
+const G: Record<string, string> = {
+  sun: 'M8 0a8 8 0 1 1-16 0a8 8 0 1 1 16 0M1.4 0a1.4 1.4 0 1 1-2.8 0a1.4 1.4 0 1 1 2.8 0',
+  moon: 'M3-8.5A9 9 0 1 0 3 8.5A10 10 0 0 1 3-8.5Z',
+  mercury: 'M-4-11.5a4 4 0 0 0 8 0M4.5-2.5a4.5 4.5 0 1 1-9 0a4.5 4.5 0 1 1 9 0M0 2v9.5M-3.5 7h7',
+  venus: 'M5.5-4.5a5.5 5.5 0 1 1-11 0a5.5 5.5 0 1 1 11 0M0 1v10M-4 6.5h8',
+  mars: 'M3.5 2.5a6 6 0 1 1-12 0a6 6 0 1 1 12 0M1.7-1.7L8-8M2.5-8H8V-2.5',
+  jupiter: 'M-6.5-6C-6.5-10.5 1.5-10.5 0-4.5C-1-1.5-4 .5-6.5 3H7.5M3.5-9.5v19',
+  saturn: 'M-3.5-11v19M-6.5-7h6M-3.5 0c2.5-4.5 8.5-4 7.5 1c-.7 3.2-3.6 5-1.5 9',
+  sulfur: 'M0-10.5L6.5 0H-6.5ZM0 0v10.5M-4 5.5h8',
+  salt: 'M8 0a8 8 0 1 1-16 0a8 8 0 1 1 16 0M-8 0h16',
+  fire: 'M0-8.5L8.5 6.5H-8.5Z',
+  water: 'M0 8.5L8.5-6.5H-8.5Z',
+  air: 'M0-8.5L8.5 6.5H-8.5ZM-9 1h18',
+  earth: 'M0 8.5L8.5-6.5H-8.5ZM-9-1h18',
+  antimony: 'M6 4a6 6 0 1 1-12 0a6 6 0 1 1 12 0M0-2v-10M-4-8h8',
+  aries: 'M0 10V-2M0-2C0-9-7-11-8.5-4.5M0-2C0-9 7-11 8.5-4.5',
+  taurus: 'M5.5 3.5a5.5 5.5 0 1 1-11 0a5.5 5.5 0 1 1 11 0M-9-9c2.5 0 3.5 4 9 4s6.5-4 9-4',
+  quint: 'M0-9v18M-7.8-4.5l15.6 9M-7.8 4.5l15.6-9',
+  book: 'M0-5C-3-7.5-7-7.5-10-6.5v13c3-1 7-1 10 1.5c3-2.5 7-2.5 10-1.5v-13C7-7.5 3-7.5 0-5ZM0-5v14',
+};
+
+const zodiac = ['sun', 'aries', 'fire', 'mercury', 'salt', 'taurus', 'moon', 'sulfur', 'water', 'antimony', 'quint', 'air'];
+const planets = ['saturn', 'jupiter', 'mars', 'sun', 'venus', 'mercury', 'moon'];
+const elements = ['fire', 'sulfur', 'air', 'mercury', 'water', 'salt', 'earth', 'antimony'];
+
+const inscription = Array(3)
+  .fill('LIBER GRIMORII · SOLVE ET COAGULA · ORDO ONERIS · ARMARIUM HEROUM · NIHIL DOMUM NUNTIAT · ')
+  .join('');
+const INS_R = 902;
+const oct = f(500 * Math.cos((3 * Math.PI) / 8));
+
+const layers = [
+  { cls: 'sg-a', e: 1004 },
+  { cls: 'sg-b', e: 940 },
+  { cls: 'sg-c', e: 874 },
+  { cls: 'sg-d', e: 790 },
+  { cls: 'sg-e', e: 640 },
+];
+const box = (e: number) => `${-e} ${-e} ${e * 2} ${e * 2}`;
+const size = (e: number) => `--e:${e}`;
+---
+
+<div class="amb sg-root" data-amb="sigils" aria-hidden="true">
+  <div class="sg-field">
+    <div class="sg sg-big">
+      <div class="sg-glow"></div>
+
+      <svg class="sg-l sg-a" viewBox={box(layers[0].e)} style={size(layers[0].e)}>
+        <circle r="1000" stroke-opacity=".1" />
+        <circle r="991" stroke-opacity=".06" />
+        <circle class="tk" {...ticks(985, 12, 360)} stroke-opacity=".09" />
+        <circle class="tk" {...ticks(980, 22, 72)} stroke-opacity=".1" />
+        <circle class="tk" {...ticks(975, 32, 36)} stroke-opacity=".1" />
+        <circle r="952" stroke-opacity=".07" />
+      </svg>
+
+      <svg class="sg-l sg-b" viewBox={box(layers[1].e)} style={size(layers[1].e)}>
+        <defs><path id="sigils-ins" d={ring(INS_R)} /></defs>
+        <circle r="936" stroke-opacity=".06" />
+        <text class="sg-ins">
+          <textPath href="#sigils-ins" textLength={f(TAU * INS_R)} lengthAdjust="spacing">{inscription}</textPath>
+        </text>
+        <circle r="886" stroke-opacity=".08" />
+      </svg>
+
+      <svg class="sg-l sg-c" viewBox={box(layers[2].e)} style={size(layers[2].e)}>
+        <circle r="871" stroke-opacity=".1" />
+        <circle r="864" stroke-opacity=".05" />
+        <circle class="tk" {...ticks(827, 74, 12)} stroke-opacity=".08" />
+        <g stroke-opacity=".13">
+          {zodiac.map((g, i) => <path d={G[g]} transform={place(827, 15 + i * 30, 1.45)} />)}
+        </g>
+        <circle r="790" stroke-opacity=".1" />
+      </svg>
+
+      <svg class="sg-l sg-d" viewBox={box(layers[3].e)} style={size(layers[3].e)}>
+        <circle r="760" stroke-opacity=".06" />
+        <path d={star(760, 7, 2)} stroke-opacity=".075" />
+        <path d={star(760, 7, 3)} stroke-opacity=".045" />
+        {planets.map((g, i) => (
+          <g transform={place(760, (i * 360) / 7, 1)}>
+            <circle r="26" fill="#0e0e11" stroke-opacity=".1" />
+            <path d={G[g]} transform="scale(1.1)" stroke-opacity=".14" />
+          </g>
+        ))}
+      </svg>
+
+      <svg class="sg-l sg-e" viewBox={box(layers[4].e)} style={size(layers[4].e)}>
+        <circle r="636" stroke-opacity=".05" />
+        <circle class="tk" {...ticks(626, 20, 72)} stroke-opacity=".07" />
+        <circle r="616" stroke-opacity=".06" />
+        <circle r="560" stroke={VIOLET} stroke-opacity=".11" pathLength="240" stroke-dasharray=".45 .55" />
+        <path d={star(500, 8, 3)} stroke-opacity=".05" />
+        <circle r="500" stroke-opacity=".05" />
+        <circle r={oct} stroke-opacity=".06" />
+        <path d={G.book} transform="scale(5.5)" stroke-opacity=".1" />
+      </svg>
+    </div>
+  </div>
+
+  <div class="sg sg-echo">
+    <svg class="sg-l sg-f" viewBox={box(1004)} style={size(1004)}>
+      <circle r="1000" stroke-opacity=".08" />
+      <circle class="tk" {...ticks(984, 26, 72, 3)} stroke-opacity=".08" />
+      <circle r="968" stroke-opacity=".05" />
+      <g stroke-opacity=".12">
+        {elements.map((g, i) => <path d={G[g]} transform={place(900, i * 45, 2.4)} />)}
+      </g>
+      <g fill={GOLD} fill-opacity=".12" stroke="none">
+        {elements.map((_, i) => <circle r="5" transform={place(900, i * 45 + 22.5, 1)} />)}
+      </g>
+      <circle r="832" stroke-opacity=".07" />
+    </svg>
+    <svg class="sg-l sg-g" viewBox={box(790)} style={size(790)}>
+      <circle r="780" stroke-opacity=".06" />
+      <path d={star(780, 6, 2)} stroke-opacity=".07" />
+      <circle r="390" stroke-opacity=".06" />
+      <circle r="372" stroke={VIOLET} stroke-opacity=".1" pathLength="120" stroke-dasharray=".4 .6" />
+      <path d={G.sun} transform="scale(6)" stroke-opacity=".1" />
+    </svg>
+  </div>
+</div>
+
+<style>
+  /* --copy is the right edge of the hero's 430px copy column inside the 1200px .wrap. */
+  .sg-field {
+    --copy: max(454px, calc(50% - 146px));
+    position: absolute;
+    inset: 0;
+    mask-image: linear-gradient(
+      to right,
+      transparent var(--copy),
+      rgba(0, 0, 0, 0.08) calc(var(--copy) + 40px),
+      rgba(0, 0, 0, 0.32) calc(var(--copy) + 100px),
+      rgba(0, 0, 0, 0.68) calc(var(--copy) + 170px),
+      rgba(0, 0, 0, 0.92) calc(var(--copy) + 230px),
+      #000 calc(var(--copy) + 280px)
+    );
+  }
+  .sg {
+    position: absolute;
+    width: var(--d);
+    height: var(--d);
+    will-change: transform;
+  }
+  .sg-big {
+    --d: clamp(1040px, 94vw, 1560px);
+    left: calc(50% + 400px - var(--d) / 2);
+    top: calc(540px - var(--d) / 2);
+  }
+  .sg-echo {
+    --d: clamp(380px, 34vw, 620px);
+    left: calc(7% - var(--d) / 2);
+    top: calc(84% - var(--d) / 2);
+    transform: translate3d(0, 62vh, 0);
+  }
+  .sg-glow {
+    position: absolute;
+    inset: 12%;
+    border-radius: 50%;
+    background: radial-gradient(closest-side, rgba(124, 58, 237, 0.07), rgba(124, 58, 237, 0.025) 55%, transparent);
+  }
+  .sg-l {
+    position: absolute;
+    left: calc(50% - var(--e) * 0.05%);
+    top: calc(50% - var(--e) * 0.05%);
+    width: calc(var(--e) * 0.1%);
+    height: calc(var(--e) * 0.1%);
+    overflow: visible;
+    fill: none;
+    stroke: #c29b4c;
+    stroke-width: 1;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    animation: sigils-spin var(--t) linear var(--dl) infinite var(--dir, normal);
+  }
+  .sg-l :is(path, circle):not(.tk) {
+    vector-effect: non-scaling-stroke;
+  }
+  .tk {
+    stroke-linecap: butt;
+  }
+  .sg-ins {
+    fill: #c29b4c;
+    fill-opacity: 0.1;
+    stroke: none;
+    font: 500 24px 'Cormorant Garamond', Georgia, serif;
+    text-rendering: geometricPrecision;
+  }
+  .sg-a { --t: 720s; --dl: -130s; }
+  .sg-b { --t: 540s; --dl: -60s; --dir: reverse; }
+  .sg-c { --t: 420s; --dl: -200s; }
+  .sg-d { --t: 600s; --dl: -95s; --dir: reverse; }
+  .sg-e { --t: 480s; --dl: -310s; }
+  .sg-f { --t: 480s; --dl: -40s; --dir: reverse; }
+  .sg-g { --t: 360s; --dl: -170s; }
+
+  .sg-root.sg-hold .sg-l {
+    animation-play-state: paused;
+  }
+
+  @keyframes sigils-spin {
+    to {
+      transform: rotate(1turn);
+    }
+  }
+
+  /* Single column: the copy spans the width, so feather in below it instead.
+     --clear is the copy's bottom in page px; the stop is that, in .sg-big's own box. */
+  @media (max-width: 960px) {
+    .sg-field {
+      mask-image: none;
+    }
+    .sg-big {
+      --d: 200vw;
+      --cut: calc(var(--clear, 720px) - 720px + var(--d) / 2);
+      left: calc(64% - var(--d) / 2);
+      top: calc(720px - var(--d) / 2);
+      mask-image: linear-gradient(
+        to bottom,
+        transparent var(--cut),
+        rgba(0, 0, 0, 0.1) calc(var(--cut) + 28px),
+        rgba(0, 0, 0, 0.42) calc(var(--cut) + 70px),
+        rgba(0, 0, 0, 0.82) calc(var(--cut) + 118px),
+        #000 calc(var(--cut) + 160px)
+      );
+    }
+    .sg-echo {
+      --d: 110vw;
+      left: calc(4% - var(--d) / 2);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .sg-l {
+      animation-play-state: paused;
+    }
+    .sg-echo {
+      transform: none;
+      top: calc(100% - var(--d) * 0.32);
+      left: calc(-0.3 * var(--d));
+    }
+  }
+</style>
+
+<script>
+  const root = document.querySelector<HTMLElement>('.amb[data-amb="sigils"]')!;
+  const big = root.querySelector<HTMLElement>('.sg-big')!;
+  const echo = root.querySelector<HTMLElement>('.sg-echo')!;
+  const copy = document.querySelector<HTMLElement>('.hero-copy')!;
+  const motion = matchMedia('(prefers-reduced-motion: no-preference)');
+  new ResizeObserver(() => {
+    big.style.setProperty('--clear', `${Math.round(copy.getBoundingClientRect().bottom + scrollY)}px`);
+  }).observe(copy);
+  let live = false;
+  let raf = 0;
+  let max = 1;
+
+  const measure = () => {
+    max = Math.max(1, document.documentElement.scrollHeight - innerHeight);
+  };
+  const paint = () => {
+    raf = 0;
+    const y = scrollY;
+    const p = Math.min(1, y / max);
+    big.style.transform = `translate3d(0,${(-y * 0.22).toFixed(1)}px,0)`;
+    echo.style.transform = `translate3d(0,${((1 - p) * innerHeight * 0.62).toFixed(1)}px,0)`;
+  };
+  const onScroll = () => {
+    if (!raf) raf = requestAnimationFrame(paint);
+  };
+  const onResize = () => {
+    measure();
+    onScroll();
+  };
+
+  function sync() {
+    root.classList.toggle('sg-hold', document.hidden);
+    const want = document.documentElement.dataset.amb === 'sigils' && motion.matches;
+    if (want === live) return;
+    live = want;
+    if (want) {
+      measure();
+      paint();
+      addEventListener('scroll', onScroll, { passive: true });
+      addEventListener('resize', onResize, { passive: true });
+    } else {
+      removeEventListener('scroll', onScroll);
+      removeEventListener('resize', onResize);
+      cancelAnimationFrame(raf);
+      raf = 0;
+      big.style.transform = '';
+      echo.style.transform = '';
+    }
+  }
+
+  document.addEventListener('amb:change', sync);
+  document.addEventListener('visibilitychange', sync);
+  motion.addEventListener('change', sync);
+  addEventListener('load', () => live && onResize());
+  sync();
+</script>

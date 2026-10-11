@@ -440,10 +440,9 @@ const clouds = [
     isolation: isolate;
   }
   /*
-   * Top stop must equal the bottom of FugaziToAero (#87ceeb) so the
-   * stage→transition boundary disappears. The white radial near 20% Y
-   * still gives the "open sky overhead" lift without needing a paler
-   * starting color.
+   * Sky gradient starts at #87ceeb. The white radial near 20% Y gives
+   * the "open sky overhead" lift without needing a paler starting
+   * color, which would wash out the cloud layer.
    */
   .stage-aero .aero-sky {
     position: absolute;

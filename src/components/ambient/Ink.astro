@@ -1,0 +1,398 @@
+---
+---
+
+<div class="amb" data-amb="ink" aria-hidden="true">
+  <canvas></canvas>
+</div>
+
+<style>
+  .amb {
+    background:
+      radial-gradient(38% 46% at 47% 34%, rgba(124, 58, 237, 0.07), transparent 70%),
+      radial-gradient(60% 50% at 80% 8%, rgba(124, 58, 237, 0.06), transparent 72%),
+      radial-gradient(48% 55% at 98% 104%, rgba(194, 155, 76, 0.06), transparent 70%),
+      #0e0e11;
+  }
+  canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    transition: opacity 2.4s ease;
+  }
+  canvas.on {
+    opacity: 1;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    canvas {
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  const root = document.querySelector<HTMLElement>('.amb[data-amb="ink"]')!;
+  const canvas = root.querySelector('canvas')!;
+  const html = document.documentElement;
+  const still = matchMedia('(prefers-reduced-motion: reduce)');
+
+  const STEP = 1000 / 30;
+  const MAX_PX = 2.4e6;
+  const MAX_FIELD = 60000;
+
+  const VERT = `
+attribute vec2 a;
+void main() { gl_Position = vec4(a, 0.0, 1.0); }
+`;
+
+  const FIELD = `
+precision highp float;
+uniform vec2 u_fres;
+uniform vec2 u_view;
+uniform float u_scale;
+uniform float u_time;
+uniform float u_scroll;
+
+vec2 hash2(vec2 p) {
+  vec3 q = fract(p.xyx * vec3(0.1031, 0.1030, 0.0973));
+  q += dot(q, q.yzx + 33.33);
+  return fract((q.xx + q.yz) * q.zy) * 2.0 - 1.0;
+}
+float noise(vec2 p) {
+  vec2 i = floor(p);
+  vec2 f = p - i;
+  vec2 u = f * f * f * (f * (f * 6.0 - 15.0) + 10.0);
+  return mix(
+    mix(dot(hash2(i), f), dot(hash2(i + vec2(1.0, 0.0)), f - vec2(1.0, 0.0)), u.x),
+    mix(dot(hash2(i + vec2(0.0, 1.0)), f - vec2(0.0, 1.0)), dot(hash2(i + 1.0), f - 1.0), u.x),
+    u.y);
+}
+const mat2 M = mat2(1.6, 1.2, -1.2, 1.6);
+float fbm3(vec2 p) {
+  float s = 0.0;
+  float a = 0.5;
+  for (int i = 0; i < 3; i++) { s += a * noise(p); p = M * p + 7.3; a *= 0.5; }
+  return s;
+}
+float fbm5(vec2 p) {
+  float s = 0.0;
+  float a = 0.5;
+  for (int i = 0; i < 5; i++) { s += a * noise(p); p = M * p + 7.3; a *= 0.5; }
+  return s;
+}
+void main() {
+  vec2 uv = gl_FragCoord.xy / u_fres;
+  vec2 p = vec2(uv.x * u_view.x, (1.0 - uv.y) * u_view.y + u_scroll * 0.12) / u_scale;
+  float t = u_time;
+  p += vec2(-0.006, 0.012) * t;
+  vec2 q = vec2(fbm3(p + 0.010 * t), fbm3(p + vec2(5.2, 1.3) - 0.008 * t));
+  vec2 r = vec2(
+    fbm3(p + 2.0 * q + vec2(1.7, 9.2) + 0.018 * t),
+    fbm3(p + 2.0 * q + vec2(8.3, 2.8) - 0.015 * t));
+  float f = fbm5(p + 1.8 * r);
+  float env = smoothstep(-0.5, 0.25, fbm3(p * 0.45 + vec2(3.1, 7.7) + 0.6 * q - 0.006 * t));
+  float d = (0.2 * smoothstep(-0.4, 0.2, f) + 0.8 * smoothstep(-0.05, 0.55, f)) * env;
+  float tint = clamp(length(q) * 1.5, 0.0, 1.0);
+  gl_FragColor = vec4(d, tint, clamp(q.y + 0.5, 0.0, 1.0), 1.0);
+}
+`;
+
+  const PAINT = `
+precision highp float;
+uniform sampler2D u_field;
+uniform vec2 u_res;
+uniform vec2 u_view;
+uniform vec2 u_texel;
+uniform vec4 u_calm;
+uniform vec4 u_shot;
+uniform float u_time;
+
+const vec3 BG = vec3(14.0, 14.0, 17.0) / 255.0;
+const vec3 VIOLET = vec3(124.0, 58.0, 237.0) / 255.0;
+const vec3 SOFT = vec3(167.0, 139.0, 250.0) / 255.0;
+const vec3 GOLD = vec3(194.0, 155.0, 76.0) / 255.0;
+
+float box(vec2 p, vec4 r) {
+  vec2 h = 0.5 * (r.zw - r.xy);
+  vec2 d = abs(p - r.xy - h) - h;
+  return length(max(d, 0.0)) + min(max(d.x, d.y), 0.0);
+}
+float hash(vec2 p) {
+  vec3 q = fract(p.xyx * 0.1031);
+  q += dot(q, q.yzx + 33.33);
+  return fract((q.x + q.y) * q.z);
+}
+void main() {
+  vec2 uv = gl_FragCoord.xy / u_res;
+  vec2 px = vec2(uv.x * u_view.x, (1.0 - uv.y) * u_view.y);
+  vec3 s = texture2D(u_field, uv).rgb;
+
+  vec2 toCandle = u_view * vec2(0.97, 1.12) - px;
+  float far = length(toCandle) / length(u_view);
+  float flick = 0.93 + 0.045 * sin(u_time * 0.83) + 0.025 * sin(u_time * 2.17 + 1.7);
+  float warm = exp(-far * far * 3.2) * flick;
+  vec2 lit = normalize(toCandle) * vec2(1.0, -1.0) * u_texel * 2.5;
+  float rim = clamp((s.r - texture2D(u_field, uv + lit).r) * 4.0, 0.0, 1.0);
+
+  float hd = max(box(px, u_shot), 0.0) / 420.0;
+  float halo = exp(-hd * hd);
+  // An ellipse, not the copy's box: any straight run in the falloff reads as a seam.
+  vec2 e = (px - 0.5 * (u_calm.xy + u_calm.zw)) / (0.5 * (u_calm.zw - u_calm.xy) + 0.1 * max(u_view.x, u_view.y));
+  float calm = 1.0 - smoothstep(0.15, 1.2, length(e) + (s.b - 0.5) * 1.1 + (s.r - 0.4) * 0.5);
+  float w = mix(0.6, 1.0, halo) * (1.0 - 0.7 * calm) * mix(1.0, smoothstep(0.1, 0.6, s.r), calm);
+
+  vec3 body = mix(VIOLET, SOFT, s.g * 0.7);
+  vec3 col = BG
+    + w * s.r * body * (0.2 + 0.08 * warm)
+    + w * rim * GOLD * warm * 0.28
+    + GOLD * warm * 0.02 * (1.0 - calm);
+  col += (hash(gl_FragCoord.xy) + hash(gl_FragCoord.yx + 41.0) - 1.0) / 255.0;
+  gl_FragColor = vec4(col, 1.0);
+}
+`;
+
+  type Prog = { p: WebGLProgram; u: Record<string, WebGLUniformLocation | null> };
+  type Rect = { x0: number; y0: number; x1: number; y1: number };
+
+  let gl: WebGLRenderingContext | null = null;
+  let field: Prog;
+  let paint: Prog;
+  let tex: WebGLTexture | null = null;
+  let fbo: WebGLFramebuffer | null = null;
+  let broken = false;
+  let shown = false;
+  let raf = 0;
+  let pending = 0;
+  let last = 0;
+  let clock = 23;
+  let timer = 0;
+  let w = 0;
+  let h = 0;
+  let fw = 0;
+  let fh = 0;
+
+  const calm: Rect = { x0: -2e4, y0: -2e4, x1: -1e4, y1: -1e4 };
+  const shot: Rect = { x0: 0, y0: 0, x1: 0, y1: 0 };
+
+  function compile(type: number, src: string) {
+    const s = gl!.createShader(type)!;
+    gl!.shaderSource(s, src);
+    gl!.compileShader(s);
+    return s;
+  }
+
+  function program(src: string, names: string[]): Prog | null {
+    const p = gl!.createProgram()!;
+    gl!.attachShader(p, compile(gl!.VERTEX_SHADER, VERT));
+    gl!.attachShader(p, compile(gl!.FRAGMENT_SHADER, src));
+    gl!.bindAttribLocation(p, 0, 'a');
+    gl!.linkProgram(p);
+    if (!gl!.getProgramParameter(p, gl!.LINK_STATUS)) return null;
+    const u: Prog['u'] = {};
+    for (const n of names) u[n] = gl!.getUniformLocation(p, `u_${n}`);
+    return { p, u };
+  }
+
+  function init() {
+    gl = canvas.getContext('webgl', {
+      alpha: false,
+      antialias: false,
+      depth: false,
+      stencil: false,
+      premultipliedAlpha: false,
+      preserveDrawingBuffer: false,
+      powerPreference: 'low-power',
+      failIfMajorPerformanceCaveat: true,
+    });
+    if (!gl) return false;
+    // Without highp the noise lattice falls apart at octave 5; the CSS gradient is the better look.
+    if (!gl.getShaderPrecisionFormat(gl.FRAGMENT_SHADER, gl.HIGH_FLOAT)?.precision) return false;
+    const f = program(FIELD, ['fres', 'view', 'scale', 'time', 'scroll']);
+    const p = program(PAINT, ['field', 'res', 'view', 'texel', 'calm', 'shot', 'time']);
+    if (!f || !p) return false;
+    field = f;
+    paint = p;
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+    gl.enableVertexAttribArray(0);
+    gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+
+    tex = gl.createTexture();
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, tex);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+    fbo = gl.createFramebuffer();
+    gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
+    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, tex, 0);
+    if (gl.checkFramebufferStatus(gl.FRAMEBUFFER) !== gl.FRAMEBUFFER_COMPLETE) return false;
+
+    gl.useProgram(paint.p);
+    gl.uniform1i(paint.u.field, 0);
+    fw = fh = 0;
+    w = h = 0;
+    return true;
+  }
+
+  function rect(sel: string, out: Rect) {
+    const el = document.querySelector(sel);
+    if (!el) return false;
+    const r = el.getBoundingClientRect();
+    out.x0 = r.left;
+    out.x1 = r.right;
+    out.y0 = r.top + scrollY;
+    out.y1 = r.bottom + scrollY;
+    return true;
+  }
+
+  function measure() {
+    const cw = root.clientWidth;
+    const ch = root.clientHeight;
+    if (!cw || !ch || !gl) return;
+    let k = Math.min(devicePixelRatio || 1, 1);
+    if (cw * ch * k * k > MAX_PX) k = Math.sqrt(MAX_PX / (cw * ch));
+    const bw = Math.round(cw * k);
+    const bh = Math.round(ch * k);
+    if (canvas.width !== bw || canvas.height !== bh) {
+      canvas.width = bw;
+      canvas.height = bh;
+    }
+    const cell = Math.max(6, Math.sqrt((cw * ch) / MAX_FIELD));
+    const nfw = Math.ceil(cw / cell);
+    const nfh = Math.ceil(ch / cell);
+    if (nfw !== fw || nfh !== fh) {
+      fw = nfw;
+      fh = nfh;
+      gl.bindTexture(gl.TEXTURE_2D, tex);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, fw, fh, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+    }
+    w = cw;
+    h = ch;
+
+    gl.useProgram(field.p);
+    gl.uniform2f(field.u.fres, fw, fh);
+    gl.uniform2f(field.u.view, w, h);
+    gl.uniform1f(field.u.scale, Math.min(Math.max(Math.max(w, h) * 0.55, 380), 900));
+    gl.useProgram(paint.p);
+    gl.uniform2f(paint.u.res, bw, bh);
+    gl.uniform2f(paint.u.view, w, h);
+    gl.uniform2f(paint.u.texel, 1 / fw, 1 / fh);
+
+    rect('.hero-copy', calm);
+    if (!rect('.hero-shot img', shot)) {
+      shot.x0 = w * 0.5;
+      shot.x1 = w * 1.2;
+      shot.y0 = h * 0.15;
+      shot.y1 = h * 0.85;
+    }
+  }
+
+  function draw() {
+    const g = gl!;
+    const sy = scrollY;
+    g.bindFramebuffer(g.FRAMEBUFFER, fbo);
+    g.viewport(0, 0, fw, fh);
+    g.useProgram(field.p);
+    g.uniform1f(field.u.time, clock);
+    g.uniform1f(field.u.scroll, sy);
+    g.drawArrays(g.TRIANGLES, 0, 3);
+
+    g.bindFramebuffer(g.FRAMEBUFFER, null);
+    g.viewport(0, 0, canvas.width, canvas.height);
+    g.useProgram(paint.p);
+    g.uniform1f(paint.u.time, clock);
+    g.uniform4f(paint.u.calm, calm.x0, calm.y0 - sy, calm.x1, calm.y1 - sy);
+    g.uniform4f(paint.u.shot, shot.x0, shot.y0 - sy, shot.x1, shot.y1 - sy);
+    g.drawArrays(g.TRIANGLES, 0, 3);
+
+    if (!shown) {
+      shown = true;
+      canvas.classList.add('on');
+    }
+  }
+
+  function frame(now: number) {
+    raf = requestAnimationFrame(frame);
+    if (now - last < STEP - 4) return;
+    clock += Math.min(now - last, 100) / 1000;
+    last = now;
+    draw();
+  }
+
+  function stop() {
+    cancelAnimationFrame(raf);
+    raf = 0;
+  }
+
+  function start() {
+    if (broken) return;
+    if (!gl && !init()) {
+      broken = true;
+      gl = null;
+      return;
+    }
+    measure();
+    if (still.matches) {
+      stop();
+      draw();
+      return;
+    }
+    if (raf) return;
+    draw();
+    last = performance.now();
+    raf = requestAnimationFrame(frame);
+  }
+
+  function active() {
+    return html.dataset.amb === 'ink' && !document.hidden;
+  }
+
+  function sync() {
+    if (active()) start();
+    else stop();
+  }
+
+  function remeasure() {
+    clearTimeout(timer);
+    timer = window.setTimeout(() => {
+      if (!gl || !active()) return;
+      measure();
+      draw();
+    }, 150);
+  }
+
+  canvas.addEventListener('webglcontextlost', (e) => {
+    e.preventDefault();
+    stop();
+    canvas.classList.remove('on');
+    shown = false;
+  });
+  canvas.addEventListener('webglcontextrestored', () => {
+    gl = null;
+    sync();
+  });
+
+  addEventListener('resize', remeasure);
+  addEventListener(
+    'scroll',
+    () => {
+      if (raf || pending || !gl || !active()) return;
+      pending = requestAnimationFrame(() => {
+        pending = 0;
+        draw();
+      });
+    },
+    { passive: true },
+  );
+  const hero = document.querySelector('.hero');
+  if (hero) new ResizeObserver(remeasure).observe(hero);
+  document.addEventListener('amb:change', sync);
+  document.addEventListener('visibilitychange', sync);
+  still.addEventListener('change', sync);
+  sync();
+</script>

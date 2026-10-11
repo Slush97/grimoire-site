@@ -1,11 +1,8 @@
 ---
 /*
- * /tools : combined in-theme showcase for the three things the rail ads
- * point at: the open-source repo, the mp1 mod-profile spec slush designed,
- * and vpkmerge. Same candlelit-Geocities dressing as the landing stage,
- * via the shared Geo layout + geo.css.
+ * /tools : the open-source repo, the mp1 mod-profile spec, and vpkmerge.
  */
-import Geo from '../layouts/Geo.astro';
+import Site from '../layouts/Site.astro';
 import { brand } from '../data/content';
 
 const VPKMERGE_REPO = 'https://github.com/Slush97/vpkmerge';
@@ -13,179 +10,171 @@ const VPKMERGE_RELEASES = 'https://github.com/Slush97/vpkmerge/releases/latest';
 const SPEC_DOC = `${brand.github}/blob/main/docs/profile-spec.md`;
 const GB_ONECLICK = 'https://gamebanana.com/wikis/1999';
 
-const repoFeatures = [
-  { tag: 'MIT', text: 'MIT licensed, free forever. Fork it, read it, ship your own. No login, no subscription, the mods are yours.' },
-  { tag: 'OFF', text: 'Offline first. No telemetry, no heartbeat, no analytics, EVER. A fresh install phones home for NOTHING!!!' },
-  { tag: 'GB', text: 'Full GameBanana 1-Click install. Click the Grimoire button on any Deadlock mod page and it downloads, scans, extracts, and registers itself.' },
-  { tag: 'LIB', text: 'Library manager, Hero Locker, and shareable profiles all baked in. Electron + React on the desktop, better-sqlite3 underneath.' },
-];
-
-const specFeatures = [
-  { tag: 'mp1', text: 'Share a whole mod loadout as one tiny code: mp1:<base64url(gzip(json))>. A 30 mod profile squeezes down to 1 to 2 KB. Paste it in a Discord message!!!' },
-  { tag: 'JSON', text: 'Or save it as a .modprofile.json file (proposed MIME application/vnd.modprofile+json). Human readable, diff-able, archivable.' },
-  { tag: 'OPEN', text: 'Game AND manager agnostic by design. Any tool can read or write it: the spec is public, with full resolution rules + a conformance checklist + security notes.' },
-  { tag: 'v1.1', text: 'Schema version 1.1. Grimoire layers optional extensions on top (crosshair settings, autoexec commands) without breaking other readers.' },
-];
-
-const vpkFeatures = [
-  { tag: '100', text: 'Deadlock only mounts ~100 mod VPKs at once. vpkmerge fuses many VPKs into one, so you can run WAY more mods than the engine wants to allow!!!' },
-  { tag: 'GUI', text: 'Ships as a CLI binary AND a desktop GUI: drag and drop, reorderable mod priority, and a visual conflict resolver with Source 2 texture previews.' },
-  { tag: 'WIN', text: 'Three collision policies: LastWins (default), FirstWins, or Error (--strict, refuse to merge on any conflict). You decide who wins.' },
-  { tag: 'RS', text: 'Pure-Rust vpkmerge-core crate under the hood: inspect(), detect_conflicts(), merge(), split(). Reads chunked VPKs (_dir + _000, _001...) transparently.' },
+const tools = [
+  {
+    id: 'repo',
+    kicker: 'Slush97/grimoire',
+    title: 'The source',
+    body: 'The desktop client, the docs and the issue tracker all live in one public repo. Electron and React on the desktop, better-sqlite3 underneath.',
+    points: [
+      ['MIT', 'Fork it, read it, ship your own. No login, no subscription.'],
+      ['Works offline', 'Managing the mods you already have needs no internet. The docs list every request the app does make.'],
+      ['1-Click', 'The Grimoire button on a GameBanana mod page downloads, scans, extracts and registers the mod.'],
+    ],
+    code: null,
+    links: [
+      { href: brand.github, label: 'View on GitHub', icon: 'github', primary: true },
+      { href: GB_ONECLICK, label: 'GameBanana 1-Click wiki' },
+    ],
+  },
+  {
+    id: 'spec',
+    kicker: 'mp1',
+    title: 'The mod profile spec',
+    body: 'A mod profile is a whole loadout: every mod, in priority order, with its settings. The mp1 format makes one portable and readable by any tool, not only Grimoire.',
+    points: [
+      ['Share codes', 'mp1:<base64url(gzip(json))>. A 30-mod profile fits in 1 to 2 KB, small enough to paste in a Discord message.'],
+      ['Files', 'Or save it as .modprofile.json (proposed MIME application/vnd.modprofile+json). Readable and diffable.'],
+      ['Open', 'Game and manager agnostic. The spec is public, with resolution rules, a conformance checklist and security notes.'],
+      ['v1.1', 'Grimoire layers optional extensions on top (crosshair, autoexec) without breaking other readers.'],
+    ],
+    code: 'mp1:H4sIAAAA...<gzipped json>',
+    links: [{ href: SPEC_DOC, label: 'Read the spec', primary: true }],
+  },
+  {
+    id: 'vpkmerge',
+    kicker: 'Rust',
+    title: 'vpkmerge',
+    body: 'Combines a pile of .vpk files into one, or splits one back into many. Deadlock mounts roughly 100 mod VPKs at most, so pre-merging lets you run a stack the engine would otherwise refuse.',
+    points: [
+      ['CLI and GUI', 'A command-line binary and a desktop app with drag and drop, reorderable priority, and a conflict resolver with Source 2 texture previews.'],
+      ['Collisions', 'LastWins (the default), FirstWins, or Error (--strict) to refuse to merge on any conflict.'],
+      ['Library', 'The vpkmerge-core crate: inspect(), detect_conflicts(), merge(), split(). Reads chunked VPKs transparently.'],
+    ],
+    code: 'vpkmerge out_dir.vpk mod1_dir.vpk mod2_dir.vpk --verbose',
+    links: [
+      { href: VPKMERGE_RELEASES, label: 'Download binaries', primary: true },
+      { href: VPKMERGE_REPO, label: 'Source', icon: 'github' },
+    ],
+  },
 ];
 ---
 
-<Geo
-  title="Tools & Specs · Grimoire Deadlock Mod Manager"
+<Site
+  title="Tools and Specs · Grimoire Deadlock Mod Manager"
   description="The Grimoire open-source repo, the mp1 portable mod-profile spec, and vpkmerge: the VPK merging tool for Deadlock modding."
-  marquee="✦ NOW FEATURING!!! ✦ THE SOURCE CODE ✦ THE MOD PROFILE SPEC ✦ VPKMERGE ✦ ALL FREE!!! ALL OPEN!!! ✦ "
 >
-  <header class="geo-hero">
-    <h1 class="geo-wordart">THE TOOLBOX</h1>
-    <span class="geo-subtitle">✦ the source, the spec &amp; the merger ✦</span>
+  <header class="wrap page-head">
+    <p class="kicker">Tools</p>
+    <h1>The toolbox</h1>
+    <p>
+      Everything Grimoire is built on is open: the code, the format for trading mod loadouts,
+      and the companion tool that gets around Deadlock's mod limit.
+    </p>
   </header>
 
-  <p class="tools-intro">
-    Everything that makes Grimoire tick is <strong>open</strong> and <strong>free</strong>.
-    Here is the code, the format slush designed for trading mod loadouts, and the
-    companion tool that beats Deadlock's mod limit. <span class="blink">★</span>
-  </p>
-
-  <div class="geo-glyph-rule" aria-hidden="true">✶ ⚝ ☥ ⚝ ✶</div>
-
-  <!-- ─── REPO ─── -->
-  <section id="repo" class="tools-section">
-    <h2 class="geo-ribbon"><span class="blink">★</span> THE <em>SOURCE</em> CODE!!1! <span class="blink">★</span></h2>
-    <div class="geo-card">
-      <div class="geo-card-h">📜 Slush97/grimoire · the whole grimoire</div>
-      <div class="geo-card-body">
-        <p>
-          Grimoire is an <strong>open-source mod manager for Deadlock</strong>. The desktop
-          client, the docs, the issue tracker: all of it lives in one public repo. Star it,
-          fork it, file a bug, or just read how the sausage is made.
-        </p>
-        <ul class="geo-list">
-          {repoFeatures.map((f) => (
-            <li><span class="geo-bullet">{f.tag}</span><span>{f.text}</span></li>
-          ))}
-        </ul>
-        <div class="tools-cta">
-          <a class="geo-btn geo-btn--gold geo-btn--center" href="/download">
-            <span class="geo-btn-arrow">▼</span><span>DOWNLOAD &amp; INSTALL</span>
-          </a>
-          <a class="geo-btn geo-btn--green geo-btn--center" href={brand.github} target="_blank" rel="noopener">
-            <span class="geo-btn-arrow">▶</span><span>VIEW ON GITHUB</span>
-          </a>
-          <a class="geo-btn geo-btn--brass geo-btn--center" href={brand.gamebanana} target="_blank" rel="noopener">
-            <span class="geo-btn-arrow">▶</span><span>ON GAMEBANANA</span>
-          </a>
+  <div class="sheet">
+    {tools.map((t) => (
+      <section class="wrap tool" id={t.id} aria-labelledby={`${t.id}-h`}>
+        <div class="tool-head">
+          <p class="kicker">{t.kicker}</p>
+          <h2 id={`${t.id}-h`}>{t.title}</h2>
+          <p class="body">{t.body}</p>
+          <div class="cta">
+            {t.links.map((l) => (
+              <a class:list={['btn', l.primary ? 'btn-accent' : 'btn-ghost']} href={l.href}>
+                {l.icon && <svg width="18" height="18" aria-hidden="true"><use href={`#i-${l.icon}`} /></svg>}
+                {l.label}
+              </a>
+            ))}
+          </div>
         </div>
-      </div>
-    </div>
-  </section>
-
-  <div class="geo-sep geo-sep--flame" aria-hidden="true"></div>
-
-  <!-- ─── SPEC ─── -->
-  <section id="spec" class="tools-section">
-    <h2 class="geo-ribbon"><span class="blink">★</span> THE <em>MOD PROFILE</em> SPEC <span class="blink">★</span></h2>
-    <div class="geo-card">
-      <div class="geo-card-h">⚗ mp1 · the format slush designed</div>
-      <div class="geo-card-body">
-        <p>
-          A <strong>mod profile</strong> is your whole loadout: every mod, in priority order,
-          with its settings. The <strong>mp1 format</strong> makes one portable, shareable, and
-          readable by any tool, not just Grimoire. Built so a loadout outlives the app that made it.
-        </p>
-        <ul class="geo-list">
-          {specFeatures.map((f) => (
-            <li><span class="geo-bullet">{f.tag}</span><span>{f.text}</span></li>
-          ))}
-        </ul>
-        <p class="tools-aside">
-          <span class="geo-kicker">how a share code looks</span><br />
-          <code class="geo-code">mp1:H4sIAAAA...&lt;gzipped json&gt;</code>
-        </p>
-        <div class="tools-cta">
-          <a class="geo-btn geo-btn--brass geo-btn--center" href={SPEC_DOC} target="_blank" rel="noopener">
-            <span class="geo-btn-arrow">▶</span><span>READ THE SPEC</span>
-          </a>
-          <a class="geo-btn geo-btn--green geo-btn--center" href={GB_ONECLICK} target="_blank" rel="noopener">
-            <span class="geo-btn-arrow">▶</span><span>GB 1-CLICK WIKI</span>
-          </a>
+        <div class="tool-detail">
+          <dl class="points panel">
+            {t.points.map(([k, v]) => (
+              <div>
+                <dt>{k}</dt>
+                <dd>{v}</dd>
+              </div>
+            ))}
+          </dl>
+          {t.code && <pre><code>{t.code}</code></pre>}
         </div>
-      </div>
-    </div>
-  </section>
-
-  <div class="geo-sep geo-sep--rainbow" aria-hidden="true"></div>
-
-  <!-- ─── VPKMERGE ─── -->
-  <section id="vpkmerge" class="tools-section">
-    <h2 class="geo-ribbon"><span class="blink">★</span> <em>VPKMERGE</em> <span class="blink">★</span></h2>
-    <div class="geo-card">
-      <div class="geo-card-h">⚒ vpkmerge · beat the mod limit</div>
-      <div class="geo-card-body">
-        <p>
-          <strong>vpkmerge</strong> combines a pile of Valve Pak (<code class="geo-code">.vpk</code>)
-          files into one (or splits one back into many). Deadlock caps mounted mod VPKs at
-          roughly 100, so pre-merging lets you run a stack the engine would otherwise refuse.
-        </p>
-        <ul class="geo-list">
-          {vpkFeatures.map((f) => (
-            <li><span class="geo-bullet">{f.tag}</span><span>{f.text}</span></li>
-          ))}
-        </ul>
-        <p class="tools-aside">
-          <span class="geo-kicker">merge from the command line</span><br />
-          <code class="geo-code">vpkmerge out_dir.vpk mod1_dir.vpk mod2_dir.vpk --verbose</code>
-        </p>
-        <div class="tools-cta">
-          <a class="geo-btn geo-btn--green geo-btn--center" href={VPKMERGE_REPO} target="_blank" rel="noopener">
-            <span class="geo-btn-arrow">▶</span><span>VPKMERGE ON GITHUB</span>
-          </a>
-          <a class="geo-btn geo-btn--gold geo-btn--center" href={VPKMERGE_RELEASES} target="_blank" rel="noopener">
-            <span class="geo-btn-arrow">▶</span><span>DOWNLOAD BINARIES</span>
-          </a>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <div class="geo-glyph-rule" aria-hidden="true">☉ ⚝ ⚜ ⚝ ☉</div>
-</Geo>
+      </section>
+    ))}
+  </div>
+</Site>
 
 <style>
-  /* Era-aware: fonts/colors read the .geo variable contract from
-     src/styles/geo.css so this page reskins with html[data-era]. The
-     defaults reproduce the original geocities values exactly. */
-  .tools-intro {
-    max-width: 680px;
-    margin: 0 auto 6px;
-    text-align: center;
-    font-family: var(--geo-card-font);
-    font-size: 16px;
-    line-height: 1.6;
-    color: var(--geo-ink-muted);
-    text-shadow: var(--geo-shadow-hard);
+  .sheet {
+    padding: 72px 0 96px;
   }
-  .tools-intro strong { color: var(--geo-strong-ink); }
-  .tools-section { margin: 0 auto; max-width: 760px; }
-  .tools-section + .tools-section { margin-top: 0; }
-  .tools-cta {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
-    margin-top: 16px;
+  .tool {
+    display: grid;
+    grid-template-columns: minmax(0, 400px) minmax(0, 1fr);
+    gap: 56px;
+    align-items: start;
+    scroll-margin-top: 88px;
   }
-  .tools-cta .geo-btn { flex: 1 1 200px; }
-  .tools-aside {
-    margin: 14px 0 0;
-    padding: 10px 12px;
-    background: var(--geo-aside-bg);
-    border-left: 3px solid var(--geo-accent);
-    font-family: var(--geo-card-font);
-    line-height: 1.7;
+  .tool + .tool {
+    margin-top: 112px;
   }
-  .tools-aside .geo-code { word-break: break-all; }
+  .tool-head h2 {
+    margin-bottom: 14px;
+  }
+  .body {
+    margin: 0 0 24px;
+    color: var(--body);
+  }
+  .points {
+    margin: 0;
+  }
+  .points div {
+    display: grid;
+    grid-template-columns: 120px minmax(0, 1fr);
+    gap: 20px;
+    padding: 18px 22px;
+  }
+  .points div + div {
+    border-top: 1px solid var(--line);
+  }
+  .points dt {
+    color: var(--text);
+    font-size: 15px;
+    font-weight: 600;
+  }
+  .points dd {
+    margin: 0;
+    color: var(--muted);
+    font-size: 15px;
+    line-height: 1.55;
+  }
+  .tool-detail pre {
+    margin: 12px 0 0;
+    padding: 12px 16px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--bg);
+    font-size: 13px;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+  @media (max-width: 960px) {
+    .tool {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 28px;
+    }
+  }
+  @media (max-width: 719px) {
+    .sheet {
+      padding: 48px 0 64px;
+    }
+    .tool + .tool {
+      margin-top: 72px;
+    }
+    .points div {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 4px;
+    }
+  }
 </style>

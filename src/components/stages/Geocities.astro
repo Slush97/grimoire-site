@@ -1270,7 +1270,7 @@ const awards = [
     audio.preload = 'auto';
 
     /*
-     * Era gate. All six stages share one document now; the radio
+     * Era gate. All five stages share one document; the radio
      * belongs to 1996. Never gesture-autoplay while another channel
      * is showing, pause when the visitor zaps away, and treat zapping
      * back as the gesture that restarts the stream.
@@ -4395,9 +4395,8 @@ const awards = [
    * Motion off-switch. Two triggers, one behaviour: kill every loop in
    * the stage. (1) the OS "reduce motion" preference, and (2) the in-page
    * [data-calm] flag set by the "STOP DA FLASHING" toggle below. Uses a
-   * blanket universal selector (mirroring geo.css for the sub-pages)
-   * instead of the old hand-kept allowlist, which had drifted out of sync
-   * and missed live animations (e.g. it targeted .ad-bg but the stripes
+   * blanket universal selector instead of the old hand-kept allowlist,
+   * which had drifted out of sync and missed live animations (e.g. it targeted .ad-bg but the stripes
    * animate on .ad-bg-stripes, so they never actually stopped).
    */
   @media (prefers-reduced-motion: reduce) {

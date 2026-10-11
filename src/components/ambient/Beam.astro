@@ -1,0 +1,363 @@
+---
+const angle = 26;
+const len = 3600;
+const fade = [0, 1300, 3000, len];
+const core = { s: 0.22, p: 2.6 };
+const halo = { s: 0.5, p: 2 };
+
+const shape = (n: number, s: number, p: number) => Math.exp(-Math.pow(Math.abs(n / s), p));
+const taper = (n: number) => (1 - n * n) ** 2;
+const ease = (x: number) => x * x * (3 - 2 * x);
+const rays = (n: number) => 0.8 + 0.2 * (0.5 * Math.sin(n * 19 + 1.3) + 0.3 * Math.sin(n * 41 + 0.4) + 0.2 * Math.sin(n * 7.3 + 2.1));
+
+const across = (rgb: string, a: number, steps: number, f: (n: number) => number) =>
+  `linear-gradient(${Array.from({ length: steps + 1 }, (_, i) => {
+    const n = (2 * i) / steps - 1;
+    return `rgba(${rgb},${(a * f(n) * taper(n)).toFixed(4)}) ${((100 * i) / steps).toFixed(2)}%`;
+  }).join()})`;
+
+const glow = `radial-gradient(closest-side,${Array.from({ length: 21 }, (_, i) => {
+  const r = i / 20;
+  const k = ease(Math.min(1, Math.max(0, (r - 0.1) / 0.6)));
+  const rgb = [194 + (167 - 194) * k, 155 + (139 - 155) * k, 76 + (250 - 76) * k].map(Math.round).join(',');
+  return `rgba(${rgb},${(0.06 * Math.exp(-((r / 0.5) ** 2)) * taper(r)).toFixed(4)}) ${i * 5}%`;
+}).join()})`;
+
+const ramp = (from: number, to: number, rise: boolean) =>
+  Array.from({ length: 7 }, (_, i) => {
+    const k = ease(i / 6);
+    return `rgba(0,0,0,${(rise ? k : 1 - k).toFixed(3)}) ${Math.round(from + (to - from) * (i / 6))}px`;
+  });
+const mask = `linear-gradient(90deg,${[...ramp(fade[0], fade[1], true), ...ramp(fade[2], fade[3], false)].join()})`;
+
+const vars = [
+  `--tilt:${-angle}deg`,
+  `--len:${len}px`,
+  `--core:${across('194,155,76', 0.15, 80, (n) => shape(n, core.s, core.p) * rays(n))}`,
+  `--halo:${across('167,139,250', 0.04, 40, (n) => shape(n, halo.s, halo.p))},${across('124,58,237', 0.022, 40, (n) => shape(n, 0.8, 2))}`,
+  `--mask:${mask}`,
+].join(';');
+---
+
+<div class="amb" data-amb="beam" aria-hidden="true" data-beam={JSON.stringify({ angle, len, fade, core, halo })}>
+  <div class="rig">
+    <i class="glow" style={`background:${glow}`}></i>
+    <div class="shaft" style={vars}>
+      <i class="halo"></i>
+      <i class="core"></i>
+    </div>
+  </div>
+  <canvas></canvas>
+</div>
+
+<style>
+  /* Screen over an opaque base so faint gradient tails can never round darker than the page and leave a seam. */
+  .amb {
+    background: var(--bg);
+  }
+  .rig,
+  canvas {
+    mix-blend-mode: screen;
+  }
+  .rig {
+    position: absolute;
+    inset: 0;
+    animation: beam-warm 2.8s ease-out both;
+  }
+  .shaft {
+    position: absolute;
+    left: calc(50% - 82px);
+    top: min(730px, 82vh);
+    width: var(--len);
+    height: 680px;
+    transform: translate(-50%, -50%) rotate(var(--tilt));
+    mask-image: var(--mask);
+  }
+  .shaft i {
+    position: absolute;
+    inset: 0;
+    will-change: opacity;
+  }
+  .glow {
+    position: absolute;
+    right: -22vw;
+    top: -40vh;
+    width: 80vw;
+    height: 90vh;
+    will-change: opacity;
+  }
+  .core {
+    background: var(--core);
+  }
+  .halo {
+    background: var(--halo);
+  }
+  canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+  @keyframes beam-warm {
+    from {
+      opacity: 0;
+    }
+  }
+  @media (max-width: 960px) {
+    .shaft {
+      left: 50%;
+      top: min(600px, 72vh);
+      height: 480px;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .rig {
+      animation: none;
+    }
+  }
+</style>
+
+<script>
+  type Cfg = { angle: number; len: number; fade: number[]; core: { s: number; p: number }; halo: { s: number; p: number } };
+  type Mote = {
+    x: number;
+    y: number;
+    z: number;
+    d: number;
+    a: number;
+    soft: boolean;
+    flake: number;
+    p1: number;
+    p2: number;
+    spin: number;
+    w: number;
+    age: number;
+    lc: number;
+    lh: number;
+  };
+
+  const root = document.querySelector<HTMLElement>('.amb[data-amb="beam"]')!;
+  const cfg: Cfg = JSON.parse(root.dataset.beam!);
+  const rig = root.querySelector<HTMLElement>('.rig')!;
+  const shaft = root.querySelector<HTMLElement>('.shaft')!;
+  const coreEl = root.querySelector<HTMLElement>('.core')!;
+  const haloEl = root.querySelector<HTMLElement>('.halo')!;
+  const glowEl = root.querySelector<HTMLElement>('.glow')!;
+  const canvas = root.querySelector('canvas')!;
+  const ctx = canvas.getContext('2d')!;
+  const html = document.documentElement;
+  const still = matchMedia('(prefers-reduced-motion: reduce)');
+
+  const rad = (cfg.angle * Math.PI) / 180;
+  const cos = Math.cos(rad);
+  const sin = Math.sin(rad);
+  const tan = sin / cos;
+  const [, f1, f2, flen] = cfg.fade;
+  const TAU = Math.PI * 2;
+  const OPACITY = Array.from({ length: 65 }, (_, i) => (i / 64).toFixed(3));
+
+  const ease = (x: number) => (x <= 0 ? 0 : x >= 1 ? 1 : x * x * (3 - 2 * x));
+  const shape = (n: number, s: number, p: number) => Math.exp(-Math.pow(Math.abs(n / s), p));
+  const taper = (n: number) => (n >= 1 || n <= -1 ? 0 : (1 - n * n) * (1 - n * n));
+  const gauss = () => Math.sqrt(-2 * Math.log(1 - Math.random())) * Math.cos(TAU * Math.random());
+
+  const sprite = (size: number, stops: [number, string][]) => {
+    const c = document.createElement('canvas');
+    c.width = c.height = size;
+    const g = c.getContext('2d')!;
+    const r = size / 2;
+    const grad = g.createRadialGradient(r, r, 0, r, r, r);
+    for (const [o, col] of stops) grad.addColorStop(o, col);
+    g.fillStyle = grad;
+    g.fillRect(0, 0, size, size);
+    return c;
+  };
+  const GOLD = sprite(32, [
+    [0, 'rgba(255,247,228,1)'],
+    [0.16, 'rgba(255,228,176,0.8)'],
+    [0.42, 'rgba(226,184,104,0.2)'],
+    [1, 'rgba(194,155,76,0)'],
+  ]);
+  const LILAC = sprite(32, [
+    [0, 'rgba(244,238,255,1)'],
+    [0.16, 'rgba(206,190,255,0.75)'],
+    [0.42, 'rgba(167,139,250,0.18)'],
+    [1, 'rgba(167,139,250,0)'],
+  ]);
+  const GOLD_SOFT = sprite(64, [
+    [0, 'rgba(255,232,186,0.5)'],
+    [0.55, 'rgba(236,198,130,0.38)'],
+    [0.8, 'rgba(210,170,100,0.12)'],
+    [1, 'rgba(194,155,76,0)'],
+  ]);
+  const LILAC_SOFT = sprite(64, [
+    [0, 'rgba(226,214,255,0.5)'],
+    [0.55, 'rgba(190,168,252,0.36)'],
+    [0.8, 'rgba(167,139,250,0.1)'],
+    [1, 'rgba(167,139,250,0)'],
+  ]);
+
+  let W = 0;
+  let H = 0;
+  let ax = 0;
+  let ay = 0;
+  let half = 1;
+  let maxShift = 0;
+  let shift = 0;
+  let raf = 0;
+  let last = 0;
+  let t = 0;
+  let coreLvl = -1;
+  let haloLvl = -1;
+  const motes: Mote[] = [];
+
+  const light = (m: Mote) => {
+    const dx = m.x - ax;
+    const dy = m.y - ay;
+    const along = dx * cos - dy * sin + cfg.len / 2;
+    const n = (dx * sin + dy * cos) / half;
+    const f = (along < f1 ? ease(along / f1) : along > f2 ? ease((flen - along) / (flen - f2)) : 1) * taper(n);
+    m.lc = shape(n, cfg.core.s, cfg.core.p) * f;
+    m.lh = 0.3 * shape(n, cfg.halo.s, cfg.halo.p) * f;
+  };
+
+  const spawn = (m: Mote, age: number) => {
+    for (let i = 0; i < 12; i++) {
+      const x = Math.random() * W;
+      const v = gauss() * half * 0.3;
+      m.x = x + v * sin;
+      m.y = ay - (x - ax) * tan + v * cos;
+      const sy = m.y + shift;
+      if (sy > -20 && sy < H + 20) break;
+    }
+    m.z = Math.pow(Math.random(), 1.7);
+    m.soft = m.z > 0.9;
+    m.d = m.soft ? 16 + 150 * (m.z - 0.9) : 3 + 8 * m.z;
+    m.a = m.soft ? 0.3 : 0.3 + 0.7 * m.z;
+    m.flake = Math.random() < 0.5 ? 0.6 + 0.4 * Math.random() : 0.25 * Math.random();
+    m.p1 = Math.random() * TAU;
+    m.p2 = Math.random() * TAU;
+    m.spin = Math.random() * TAU;
+    m.w = 0.4 + Math.random() * 1.2;
+    m.age = age;
+    light(m);
+    return m;
+  };
+
+  const blank = (): Mote => ({ x: 0, y: 0, z: 0, d: 0, a: 0, soft: false, flake: 0, p1: 0, p2: 0, spin: 0, w: 0, age: 0, lc: 0, lh: 0 });
+
+  const measure = () => {
+    W = canvas.clientWidth;
+    H = canvas.clientHeight;
+    const dpr = Math.min(devicePixelRatio || 1, 1.5);
+    canvas.width = Math.round(W * dpr);
+    canvas.height = Math.round(H * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.globalCompositeOperation = 'lighter';
+    const r = shaft.getBoundingClientRect();
+    ax = r.left + r.width / 2;
+    ay = r.top + r.height / 2 - shift;
+    half = shaft.offsetHeight / 2;
+    maxShift = still.matches ? 0 : H * 0.35;
+    const want = Math.max(60, Math.min(150, Math.round(W / 9)));
+    while (motes.length < want) motes.push(spawn(blank(), -2 * Math.random()));
+    motes.length = want;
+  };
+
+  const update = (dt: number) => {
+    const lo = -shift - 80;
+    const hi = H - shift + 80;
+    for (let i = 0; i < motes.length; i++) {
+      const m = motes[i];
+      const sp = 0.35 + m.z;
+      m.x += (-1.6 + 5 * Math.sin(t * 0.21 + m.p1 + m.y * 0.006)) * sp * dt;
+      m.y += (1.1 + 4 * Math.sin(t * 0.17 + m.p2 + m.x * 0.005)) * sp * dt;
+      m.spin += m.w * dt;
+      m.age += dt;
+      light(m);
+      if (m.lc + m.lh < 0.006 || m.y < lo || m.y > hi || m.x < -80 || m.x > W + 80) spawn(m, 0);
+    }
+  };
+
+  const draw = (b: number, settled: boolean) => {
+    ctx.clearRect(0, 0, W, H);
+    for (let i = 0; i < motes.length; i++) {
+      const m = motes[i];
+      const life = settled ? 1 : ease(m.age / 3);
+      if (life === 0) continue;
+      const sy = m.y + shift * (0.85 + 0.3 * m.z);
+      if (sy < -40 || sy > H + 40) continue;
+      const g = Math.abs(Math.cos(m.spin));
+      const glint = g * g * g * g * g * g * g * g;
+      const tw = (1 - m.flake) * (0.75 + 0.25 * g) + m.flake * (0.3 + 1.1 * glint);
+      const a = m.a * tw * life * b;
+      const d = m.d * (1 + 0.25 * m.flake * glint);
+      const x = m.x - d / 2;
+      const y = sy - d / 2;
+      const ga = a * m.lc;
+      const va = a * m.lh;
+      if (ga > 0.003) {
+        ctx.globalAlpha = ga > 1 ? 1 : ga;
+        ctx.drawImage(m.soft ? GOLD_SOFT : GOLD, x, y, d, d);
+      }
+      if (va > 0.003) {
+        ctx.globalAlpha = va > 1 ? 1 : va;
+        ctx.drawImage(m.soft ? LILAC_SOFT : LILAC, x, y, d, d);
+      }
+    }
+  };
+
+  const tick = (now: number) => {
+    raf = requestAnimationFrame(tick);
+    const ms = now - last;
+    if (ms < 31) return;
+    last = now;
+    const dt = Math.min(ms / 1000, 0.1);
+    t += dt;
+    const s = -Math.round(Math.min(scrollY * 0.35, maxShift));
+    if (s !== shift) {
+      shift = s;
+      rig.style.transform = `translate3d(0,${s}px,0)`;
+    }
+    const b = 0.9 + 0.055 * Math.sin(t * 0.42) + 0.045 * Math.sin(t * 0.173 + 1.1);
+    const qc = Math.round(b * 64);
+    if (qc !== coreLvl) coreEl.style.opacity = glowEl.style.opacity = OPACITY[(coreLvl = qc)];
+    const qh = Math.round((0.95 + 0.05 * Math.sin(t * 0.29 + 2)) * 64);
+    if (qh !== haloLvl) haloEl.style.opacity = OPACITY[(haloLvl = qh)];
+    update(dt);
+    draw(b, false);
+  };
+
+  const stop = () => {
+    cancelAnimationFrame(raf);
+    raf = 0;
+  };
+
+  const start = () => {
+    stop();
+    if (html.dataset.amb !== 'beam' || document.hidden) return;
+    if (still.matches) {
+      shift = 0;
+      rig.style.transform = '';
+      coreEl.style.opacity = haloEl.style.opacity = glowEl.style.opacity = '';
+      coreLvl = haloLvl = -1;
+      measure();
+      for (let i = 0; i < motes.length; i++) spawn(motes[i], 3);
+      draw(1, true);
+      return;
+    }
+    measure();
+    last = performance.now();
+    raf = requestAnimationFrame(tick);
+  };
+
+  let resizeTimer = 0;
+  addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = window.setTimeout(start, 150);
+  });
+  document.addEventListener('amb:change', (e) => ((e as CustomEvent<string>).detail === 'beam' ? start() : stop()));
+  document.addEventListener('visibilitychange', () => (document.hidden ? stop() : start()));
+  still.addEventListener('change', start);
+  start();
+</script>
