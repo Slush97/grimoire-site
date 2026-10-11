@@ -1,7 +1,10 @@
 88x31 buttons in the site footer.
 
-mit.png         MIT license. ZyMOS, public domain.
-                https://commons.wikimedia.org/wiki/File:License_icon-mit-88x31.png
+Made for this site (grimoire-candle, vpkmerge, mit-licensed, open-source),
+same license as the site. The *-still.png files are single frames of the
+animated buttons, shown under prefers-reduced-motion.
+
+
 pacman.gif      pacman --version. Ylaenelle, CC BY-SA 4.0
                 (https://creativecommons.org/licenses/by-sa/4.0/).
                 https://commons.wikimedia.org/wiki/File:Pacman-arch-88x31.gif

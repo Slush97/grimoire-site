@@ -22,6 +22,12 @@ const tools = [
       ['1-Click', 'The Grimoire button on a GameBanana mod page downloads, scans, extracts and registers the mod.'],
     ],
     code: null,
+    built: [
+      { icon: 'electron', name: 'Electron', href: 'https://www.electronjs.org' },
+      { icon: 'react', name: 'React', href: 'https://react.dev' },
+      { icon: 'typescript', name: 'TypeScript', href: 'https://www.typescriptlang.org' },
+      { icon: 'sqlite', name: 'SQLite', href: 'https://sqlite.org' },
+    ],
     links: [
       { href: brand.github, label: 'View on GitHub', icon: 'github', primary: true },
       { href: GB_ONECLICK, label: 'GameBanana 1-Click wiki' },
@@ -39,6 +45,7 @@ const tools = [
       ['v1.1', 'Grimoire layers optional extensions on top (crosshair, autoexec) without breaking other readers.'],
     ],
     code: 'mp1:H4sIAAAA...<gzipped json>',
+    built: [] as { icon: string; name: string; href: string }[],
     links: [{ href: SPEC_DOC, label: 'Read the spec', primary: true }],
   },
   {
@@ -52,6 +59,10 @@ const tools = [
       ['Library', 'The vpkmerge-core crate: inspect(), detect_conflicts(), merge(), split(). Reads chunked VPKs transparently.'],
     ],
     code: 'vpkmerge out_dir.vpk mod1_dir.vpk mod2_dir.vpk --verbose',
+    built: [
+      { icon: 'rust', name: 'Rust', href: 'https://www.rust-lang.org' },
+      { icon: 'tauri', name: 'Tauri', href: 'https://tauri.app' },
+    ],
     links: [
       { href: VPKMERGE_RELEASES, label: 'Download binaries', primary: true },
       { href: VPKMERGE_REPO, label: 'Source', icon: 'github' },
@@ -88,6 +99,19 @@ const tools = [
               </a>
             ))}
           </div>
+          {t.built.length > 0 && (
+            <div class="built">
+              <p>Built with</p>
+              <div class="cta">
+                {t.built.map((b) => (
+                  <a class="btn btn-ghost btn-sm" href={b.href}>
+                    <svg width="16" height="16" aria-hidden="true"><use href={`#i-${b.icon}`} /></svg>
+                    {b.name}
+                  </a>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
         <div class="tool-detail">
           <dl class="points panel">

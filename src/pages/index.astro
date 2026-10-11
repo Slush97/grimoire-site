@@ -66,6 +66,13 @@ const features = [
   },
 ];
 
+const built = [
+  { icon: 'electron', name: 'Electron', href: 'https://www.electronjs.org' },
+  { icon: 'react', name: 'React', href: 'https://react.dev' },
+  { icon: 'typescript', name: 'TypeScript', href: 'https://www.typescriptlang.org' },
+  { icon: 'sqlite', name: 'SQLite', href: 'https://sqlite.org' },
+];
+
 const more = [
   { title: 'Profiles', body: 'Save a loadout, switch setups without reinstalling, share it as a code.', href: '/docs/profiles' },
   { title: 'Launch vanilla', body: 'Play one session with your mods off, without uninstalling anything.', href: '/docs/launching' },
@@ -258,6 +265,17 @@ const pulse = [
             <svg width="18" height="18" aria-hidden="true"><use href="#i-discord" /></svg>
             Discord
           </a>
+        </div>
+        <div class="built">
+          <p>Built with</p>
+          <div class="cta">
+            {built.map((b) => (
+              <a class="btn btn-ghost btn-sm" href={b.href}>
+                <svg width="16" height="16" aria-hidden="true"><use href={`#i-${b.icon}`} /></svg>
+                {b.name}
+              </a>
+            ))}
+          </div>
         </div>
       </div>
       {channels.length > 0 && (
@@ -492,6 +510,9 @@ const pulse = [
     margin: 16px 0 28px;
     color: var(--body);
     max-width: 52ch;
+  }
+  .open .built p {
+    margin: 0 0 10px;
   }
   .open p a {
     text-decoration: underline;

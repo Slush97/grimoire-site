@@ -263,6 +263,23 @@ h3 {
   padding: 0 26px;
   font-size: 16px;
 }
+.btn-sm {
+  height: 32px;
+  padding: 0 14px;
+  gap: 7px;
+  font-size: 14px;
+}
+.built {
+  margin-top: 28px;
+}
+.built p {
+  margin: 0 0 10px;
+  color: var(--dim);
+  font-size: 13px;
+}
+.built .cta {
+  gap: 8px;
+}
 .cta {
   display: flex;
   flex-wrap: wrap;
@@ -284,6 +301,7 @@ h3 {
   justify-content: center;
   gap: 6px;
 }
+.badges picture,
 .badges img {
   display: block;
   image-rendering: pixelated;

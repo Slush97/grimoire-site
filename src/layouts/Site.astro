@@ -37,14 +37,18 @@ const nav = [
 const current = (href: string) => (href !== '/' && (path === href || path.startsWith(`${href}/`)) ? 'page' : undefined);
 
 // Self-hosted 88x31 buttons. Sources and licenses: public/badges/CREDITS.txt.
-const badges: { src: string; alt: string; href?: string; title?: string }[] = [
-  { src: 'mit.png', alt: 'MIT license', href: `${brand.github}/blob/main/LICENSE` },
-  { src: 'pacman.gif', alt: 'pacman --version: Grimoire on the AUR', href: brand.aur, title: 'Button by Ylaenelle, CC BY-SA 4.0' },
+// `still` is the frame shown instead of an animated GIF under prefers-reduced-motion.
+const badges: { src: string; alt: string; href?: string; title?: string; still?: string }[] = [
+  { src: 'grimoire-candle.gif', still: 'grimoire-candle-still.png', alt: 'Grimoire: free and MIT', href: brand.github },
+  { src: 'vpkmerge.png', alt: 'vpkmerge: merge VPKs', href: 'https://github.com/Slush97/vpkmerge' },
+  { src: 'mit-licensed.png', alt: 'Licensed MIT', href: `${brand.github}/blob/main/LICENSE` },
+  { src: 'open-source.png', alt: 'Open source', href: brand.github },
+  { src: 'pacman.gif', still: 'pacman-still.png', alt: 'pacman --version: Grimoire on the AUR', href: brand.aur, title: 'Button by Ylaenelle, CC BY-SA 4.0' },
   { src: 'linux.png', alt: 'Powered by Linux', href: '/download' },
-  { src: 'discord.gif', alt: 'Discord: join now', href: brand.discord },
+  { src: 'discord.gif', still: 'discord-still.png', alt: 'Discord: join now', href: brand.discord },
   { src: 'dark-mode.gif', alt: 'Made for dark mode' },
   { src: 'anybrowser.png', alt: 'Viewable with any browser' },
-  { src: 'magic.gif', alt: 'Magic' },
+  { src: 'magic.gif', still: 'magic-still.png', alt: 'Magic' },
 ];
 ---
 
@@ -111,7 +115,12 @@ const badges: { src: string; alt: string; href?: string; title?: string }[] = [
       <footer class="foot">
         <div class="badges">
           {badges.map((b) => {
-            const img = <img src={`/badges/${b.src}`} alt={b.alt} title={b.title} width="88" height="31" loading="lazy" />;
+            const img = (
+              <picture>
+                {b.still && <source srcset={`/badges/${b.still}`} media="(prefers-reduced-motion: reduce)" />}
+                <img src={`/badges/${b.src}`} alt={b.alt} title={b.title} width="88" height="31" loading="lazy" />
+              </picture>
+            );
             return b.href ? <a href={b.href}>{img}</a> : img;
           })}
         </div>
