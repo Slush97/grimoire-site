@@ -7,14 +7,19 @@
  *   1. public/screenshots/thumbs/<name>.webp : 880w gallery thumbnails
  *      used by every era stage; full PNGs stay as the lightbox targets.
  *   2. public/og.png : 1200x630 social card (Discord/Twitter embeds).
- *      Candlelit-Geocities look: starfield, gold arched-ish wordmark,
- *      LED visitor counter, real app screenshot in a beveled frame.
+ *      The homepage hero in miniature: Cormorant wordmark, lede, the
+ *      download buttons, and the Hero Locker shot running off the edge.
+ *      Rendered by headless Chromium (CHROME, default `chromium`).
  */
-import { mkdir, readdir } from 'node:fs/promises';
+import { execFile } from 'node:child_process';
+import { mkdir, mkdtemp, readdir, rm, writeFile } from 'node:fs/promises';
+import os from 'node:os';
 import path from 'node:path';
+import { promisify } from 'node:util';
 import sharp from 'sharp';
 
 const ROOT = new URL('..', import.meta.url).pathname;
+const PUBLIC = path.join(ROOT, 'public');
 const SHOTS_DIR = path.join(ROOT, 'public/screenshots');
 const THUMBS_DIR = path.join(SHOTS_DIR, 'thumbs');
 const OG_OUT = path.join(ROOT, 'public/og.png');
@@ -59,114 +64,174 @@ async function genFullWebp() {
 
 /* ─── 2. OG card ─────────────────────────────────────────────────── */
 
+/*
+ * Drawn as a page and screenshotted rather than drawn as an SVG for
+ * sharp: sharp's bundled FreeType can't read woff2, so librsvg set the
+ * site's faces in tofu. Chromium reads the same files the site serves.
+ *
+ * No reach numbers on the card. It's a committed file, so any figure on
+ * it would go stale, which is the thing "never invent a number" rules out.
+ */
+
 const W = 1200;
 const H = 630;
+const SHOT_W = 917;
+const SHOT_H = Math.round((SHOT_W * 700) / 1528);
+const asset = (p) => `file://${path.join(PUBLIC, p)}`;
 
-function starfield(n, seed = 7) {
+function stars(n, seed = 7) {
   /* Deterministic LCG so the card is reproducible across runs. */
   let s = seed;
   const rnd = () => ((s = (s * 48271) % 2147483647) / 2147483647);
   let out = '';
   for (let i = 0; i < n; i++) {
-    const x = (rnd() * W).toFixed(1);
-    const y = (rnd() * H).toFixed(1);
-    const r = (0.6 + rnd() * 1.6).toFixed(2);
-    const o = (0.25 + rnd() * 0.75).toFixed(2);
-    out += `<circle cx="${x}" cy="${y}" r="${r}" fill="#fff8d4" opacity="${o}"/>`;
+    const x = Math.round(rnd() * W);
+    const y = Math.round(rnd() * H);
+    const d = (0.8 + rnd() * 1.6).toFixed(1);
+    const o = (0.12 + rnd() * 0.5).toFixed(2);
+    out += `<i style="left:${x}px;top:${y}px;width:${d}px;height:${d}px;opacity:${o}"></i>`;
   }
   return out;
 }
 
-function led(digits) {
-  const cells = [...digits]
-    .map(
-      (d, i) =>
-        `<g transform="translate(${i * 34},0)">
-           <rect width="30" height="44" rx="3" fill="#0a0618" stroke="#3a2a5a"/>
-           <text x="15" y="33" text-anchor="middle" font-family="Liberation Mono" font-size="30" font-weight="700" fill="#ff3a4a">${d}</text>
-         </g>`,
-    )
-    .join('');
-  return cells;
-}
-
-const ogSvg = `
-<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
-  <defs>
-    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#0b0624"/>
-      <stop offset="70%" stop-color="#140a30"/>
-      <stop offset="100%" stop-color="#241040"/>
-    </linearGradient>
-    <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#fff3b0"/>
-      <stop offset="45%" stop-color="#ffd96a"/>
-      <stop offset="55%" stop-color="#c8871a"/>
-      <stop offset="100%" stop-color="#ffdf80"/>
-    </linearGradient>
-    <linearGradient id="rainbow" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0%" stop-color="#ff2eb5"/><stop offset="25%" stop-color="#ff9933"/>
-      <stop offset="50%" stop-color="#ffd96a"/><stop offset="75%" stop-color="#50e878"/>
-      <stop offset="100%" stop-color="#5acafe"/>
-    </linearGradient>
-  </defs>
-
-  <rect width="${W}" height="${H}" fill="url(#sky)"/>
-  ${starfield(140)}
-
-  <!-- marquee strips -->
-  <rect x="0" y="0" width="${W}" height="38" fill="#07041a" stroke="#3a2a5a"/>
-  <text x="600" y="26" text-anchor="middle" font-family="Liberation Sans" font-weight="700" font-size="19" fill="#ffd96a" letter-spacing="2">✦ WELCOME TO GRIMOIRE'S HOMEPAGE!!1! ✦ BEST VIEWED BY MOONLIGHT ✦ NO TELEMETRY EVER!!! ✦</text>
-  <rect x="0" y="${H - 38}" width="${W}" height="38" fill="#07041a" stroke="#3a2a5a"/>
-  <text x="600" y="${H - 13}" text-anchor="middle" font-family="Liberation Sans" font-weight="700" font-size="19" fill="#b660e0" letter-spacing="2">★ FREE!! ★ MIT LICENSED!!1! ★ WINDOWS · LINUX · ARCH (BTW) ★ SIGN THE BOOK OF NAMES!!! ★</text>
-
-  <!-- wordmark -->
-  <g transform="translate(64,130)">
-    <text x="3" y="83" font-family="Liberation Sans" font-weight="700" font-size="92" letter-spacing="4" fill="#000" opacity="0.8">GRIMOIRE</text>
-    <text x="0" y="80" font-family="Liberation Sans" font-weight="700" font-size="92" letter-spacing="4" fill="url(#gold)" stroke="#5a3a10" stroke-width="2">GRIMOIRE</text>
-    <text x="2" y="122" font-family="Liberation Sans" font-weight="700" font-size="27" fill="#fff8d4">✦ MOD MANAGER 4 <tspan fill="#ffd96a">DEADLOCK</tspan>!!! ✦</text>
-    <rect x="2" y="148" width="430" height="6" fill="url(#rainbow)"/>
-  </g>
-
-  <!-- pitch lines -->
-  <g font-family="Liberation Sans" font-weight="700" font-size="24" fill="#fff5db" transform="translate(66,332)">
-    <text y="0">★ ONE-CLICK GAMEBANANA INSTALLS</text>
-    <text y="44">★ HERO LOCKER + SHAREABLE PROFILES</text>
-    <text y="88">★ NO TELEMETRY · NO LOGIN · NO ADWARE</text>
-  </g>
-
-  <!-- LED visitor counter -->
-  <g transform="translate(66,470)">
-    <rect x="-14" y="-32" width="350" height="104" rx="6" fill="#0f0a26" stroke="#3a2a5a" stroke-width="2"/>
-    <text x="161" y="-6" text-anchor="middle" font-family="Liberation Sans" font-weight="700" font-size="17" fill="#ffd96a" letter-spacing="3">★ SOULS BEHELD ★</text>
-    <g transform="translate(60,6)">${led('001337')}</g>
-  </g>
-
-  <!-- screenshot frame (image composited by sharp at 690,120; frame drawn here) -->
-  <g transform="translate(676,108)">
-    <rect x="0" y="0" width="468" height="370" fill="#1a1030" stroke="#ffd96a" stroke-width="3"/>
-    <rect x="0" y="0" width="468" height="34" fill="#241644" stroke="#ffd96a" stroke-width="3"/>
-    <text x="14" y="24" font-family="Liberation Sans" font-weight="700" font-size="17" fill="#fff8d4">Netscape: MY MOD MANAGER!!.exe</text>
-    <text x="440" y="25" text-anchor="middle" font-family="Liberation Sans" font-weight="700" font-size="18" fill="#ffd96a">✕</text>
-  </g>
-  <g transform="translate(640,500)">
-    <rect x="0" y="0" width="200" height="56" rx="8" fill="#c8243d" stroke="#fff8d4" stroke-width="3" transform="rotate(-3 100 28)"/>
-    <text x="100" y="36" text-anchor="middle" font-family="Liberation Sans" font-weight="700" font-size="24" fill="#fff8d4" transform="rotate(-3 100 28)">100% FREE!!</text>
-  </g>
-  <g transform="translate(880,494)">
-    <text x="0" y="24" font-family="Liberation Sans" font-weight="700" font-size="26" fill="#5acafe">grimoiremods.com</text>
-  </g>
-</svg>`;
+const ogHtml = `<!doctype html>
+<meta charset="utf-8" />
+<style>
+  @font-face {
+    font-family: 'Cormorant Garamond';
+    font-weight: 400 600;
+    font-display: block;
+    src: url('${asset('fonts/cormorant-garamond-400-600-normal-latin.woff2')}');
+  }
+  @font-face {
+    font-family: 'Inter';
+    font-weight: 400 700;
+    font-display: block;
+    src: url('${asset('fonts/inter-400-700-normal-latin.woff2')}');
+  }
+  html,
+  body {
+    margin: 0;
+    width: ${W}px;
+    height: ${H}px;
+    overflow: hidden;
+  }
+  body {
+    position: relative;
+    background: #0e0e11;
+    color: #f4f4f5;
+    font-family: 'Inter';
+    -webkit-font-smoothing: antialiased;
+  }
+  .band {
+    position: absolute;
+    left: -300px;
+    top: 430px;
+    width: 1500px;
+    height: 240px;
+    transform: rotate(-12deg);
+    background: radial-gradient(closest-side, rgba(194, 155, 76, 0.09), rgba(167, 139, 250, 0.04) 55%, transparent);
+    filter: blur(12px);
+  }
+  i {
+    position: absolute;
+    border-radius: 50%;
+    background: #fff6e6;
+  }
+  .copy {
+    position: absolute;
+    left: 76px;
+    top: 0;
+    bottom: 0;
+    width: 470px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  h1 {
+    margin: 0 0 22px;
+    font: 600 136px/0.9 'Cormorant Garamond';
+    letter-spacing: -0.015em;
+  }
+  p {
+    margin: 0 0 38px;
+    font-size: 30px;
+    line-height: 1.4;
+    color: #c9c9cf;
+    text-wrap: balance;
+  }
+  .btn {
+    align-self: flex-start;
+    display: flex;
+    align-items: center;
+    height: 62px;
+    padding: 0 32px;
+    border-radius: 999px;
+    background: #7c3aed;
+    font-size: 23px;
+    font-weight: 600;
+  }
+  .meta {
+    margin-top: 24px;
+    font-size: 20px;
+    color: #74747d;
+  }
+  .glow {
+    position: absolute;
+    left: 640px;
+    top: 20px;
+    width: 640px;
+    height: 320px;
+    background: radial-gradient(closest-side, rgba(124, 58, 237, 0.3), transparent);
+    filter: blur(48px);
+  }
+  .shot {
+    position: absolute;
+    left: 610px;
+    top: ${Math.round((H - SHOT_H) / 2)}px;
+    width: ${SHOT_W}px;
+    height: ${SHOT_H}px;
+    border: 1px solid #313139;
+    border-radius: 14px;
+    overflow: hidden;
+    background: #0b0b0d;
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.55);
+  }
+  .shot img {
+    display: block;
+    width: 100%;
+  }
+</style>
+<div class="band"></div>
+${stars(110)}
+<div class="copy">
+  <h1>Grimoire</h1>
+  <p>A free, open-source mod manager for Deadlock.</p>
+  <div class="btn">Free download</div>
+  <div class="meta">Windows · Linux · MIT licensed</div>
+</div>
+<div class="glow"></div>
+<div class="shot"><img src="${asset('shots/hero.webp')}" alt="" /></div>
+`;
 
 async function genOg() {
-  /* Screenshot pane: 462x330 region inside the drawn frame. */
-  const shot = await sharp(path.join(SHOTS_DIR, 'browse.png'))
-    .resize(462, 333, { fit: 'cover', position: 'top' })
-    .toBuffer();
-  await sharp(Buffer.from(ogSvg))
-    .composite([{ input: shot, left: 679, top: 145 }])
-    .png({ compressionLevel: 9 })
-    .toFile(OG_OUT);
+  const dir = await mkdtemp(path.join(os.tmpdir(), 'grimoire-og-'));
+  const html = path.join(dir, 'og.html');
+  const shot = path.join(dir, 'og.png');
+  await writeFile(html, ogHtml);
+  await promisify(execFile)(process.env.CHROME ?? 'chromium', [
+    '--headless',
+    '--hide-scrollbars',
+    '--allow-file-access-from-files',
+    '--force-device-scale-factor=1',
+    `--window-size=${W},${H}`,
+    /* Gives the woff2 faces and the screenshot time to land before capture. */
+    '--virtual-time-budget=5000',
+    `--screenshot=${shot}`,
+    `file://${html}`,
+  ]);
+  await sharp(shot).png({ compressionLevel: 9 }).toFile(OG_OUT);
+  await rm(dir, { recursive: true });
   console.log('og:', path.relative(ROOT, OG_OUT));
 }
 
