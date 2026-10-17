@@ -115,7 +115,7 @@ pnpm install
 pnpm dev              # astro dev
 pnpm build            # astro build
 pnpm preview          # astro preview
-pnpm gen:assets       # regenerate og.png + screenshot thumbs/webp (sharp)
+pnpm gen:assets       # regenerate og.png (headless chromium, CHROME=... to override) + screenshot thumbs/webp (sharp)
 pnpm gen:fonts        # re-vendor woff2 faces + styles/fonts.css (network)
 pnpm sync:docs        # re-sync the player guide from ../grimoire (commit the result)
                       # GRIMOIRE_REPO=../grimoire-wt-x pnpm sync:docs reads another checkout
