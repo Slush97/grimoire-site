@@ -11,12 +11,18 @@ import { brand, getDownloadUrls } from '../data/content';
 const dl = await getDownloadUrls();
 const appImage = dl.linuxAppImage;
 const deb = dl.linuxDeb;
+const rpm = dl.linuxRpm;
 
 const APT = [
   'sudo install -d -m 0755 /etc/apt/keyrings',
   'curl -fsSL https://apt.grimoiremods.com/grimoire.gpg | sudo tee /etc/apt/keyrings/grimoire.gpg >/dev/null',
   'echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/grimoire.gpg] https://apt.grimoiremods.com stable main" | sudo tee /etc/apt/sources.list.d/grimoire.list >/dev/null',
   'sudo apt update && sudo apt install grimoire',
+];
+
+const DNF = [
+  'sudo curl -fsSL -o /etc/yum.repos.d/grimoire.repo https://rpm.grimoiremods.com/grimoire.repo',
+  'sudo dnf install grimoire',
 ];
 
 const steps = [
@@ -36,6 +42,16 @@ const steps = [
     ],
     cmds: [APT.join('\n')],
     after: deb ? `Or install the .deb directly with sudo apt install ./${deb.name}, without the repo.` : undefined,
+  },
+  {
+    id: 'dnf',
+    title: 'Fedora',
+    body: [
+      'Add the dnf repo once and Grimoire updates with the rest of your system, from dnf upgrade or the software center. dnf asks you to accept the signing key on the first install. The in-app updater stays off, since dnf owns updates.',
+      'On Bazzite, Silverblue and other atomic Fedoras, use the AppImage instead. It updates itself.',
+    ],
+    cmds: [DNF.join('\n')],
+    after: rpm ? `Or install the .rpm directly with sudo dnf install ./${rpm.name}, without the repo.` : undefined,
   },
   {
     id: 'appimage',

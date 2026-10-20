@@ -42,6 +42,7 @@ const platforms = [
     files: rows(
       file('AppImage', dl.linuxAppImage, '', 'the AppImage'),
       file('Debian package', dl.linuxDeb, '.deb', 'the .deb'),
+      file('RPM package', dl.linuxRpm, '.rpm', 'the .rpm'),
       file('Flatpak', flatpak, '', 'the Flatpak'),
     ),
   },
@@ -53,9 +54,14 @@ const APT = [
   'echo "deb [arch=amd64 signed-by=/etc/apt/keyrings/grimoire.gpg] https://apt.grimoiremods.com stable main" | sudo tee /etc/apt/sources.list.d/grimoire.list >/dev/null',
   'sudo apt update && sudo apt install grimoire',
 ].join('\n');
+const DNF = [
+  'sudo curl -fsSL -o /etc/yum.repos.d/grimoire.repo https://rpm.grimoiremods.com/grimoire.repo',
+  'sudo dnf install grimoire',
+].join('\n');
 const pms = [
   { icon: 'archlinux', name: 'Arch Linux', via: 'AUR', cmd: 'yay -S grimoire-bin', href: brand.aur },
   { icon: 'debian', name: 'Debian and Ubuntu', via: 'apt repo', cmd: APT, href: '/download#apt' },
+  { icon: 'fedora', name: 'Fedora', via: 'dnf repo', cmd: DNF, href: '/download#dnf' },
   {
     icon: 'nixos',
     name: 'Nix and NixOS',

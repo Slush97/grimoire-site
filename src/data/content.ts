@@ -204,6 +204,7 @@ export interface DownloadUrls {
   windowsPortable: ReleaseAsset | null;
   linuxAppImage: ReleaseAsset | null;
   linuxDeb: ReleaseAsset | null;
+  linuxRpm: ReleaseAsset | null;
   sha256Sums: ReleaseAsset | null;
   /* Best single CTA target. Windows installer if available, then portable, then releases page. */
   primaryHref: string;
@@ -227,6 +228,7 @@ export async function getDownloadUrls(): Promise<DownloadUrls> {
   );
   const appImage = find((n) => n.endsWith('.appimage'));
   const deb = find((n) => n.endsWith('.deb'));
+  const rpm = find((n) => n.endsWith('.rpm'));
   const sums = find((n) => n === 'sha256sums' || n.endsWith('.sha256sums'));
 
   const tag = release?.tag_name ?? '';
@@ -259,6 +261,7 @@ export async function getDownloadUrls(): Promise<DownloadUrls> {
     windowsPortable: winPortable,
     linuxAppImage: appImage,
     linuxDeb: deb,
+    linuxRpm: rpm,
     sha256Sums: sums,
     primaryHref,
   };
