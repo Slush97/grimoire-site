@@ -11,13 +11,14 @@
  *
  * NO TELEMETRY. Every number here is a public counter published by
  * someone else about us (GitHub's per-asset download tally, GameBanana's
- * profile page, our own apt Worker's KV/DO counter). Nothing is collected
+ * profile page, our own apt/dnf Worker's DO counter). Nothing is collected
  * from anyone running Grimoire. See the workspace CLAUDE.md.
  */
 
 const REPO = 'Slush97/grimoire';
 const GB_TOOL_ID = '22583';
 const APT_COUNT_URL = 'https://apt.grimoiremods.com/__count';
+const RPM_COUNT_URL = 'https://rpm.grimoiremods.com/__count';
 const UA = 'grimoire-site';
 
 /*
@@ -163,13 +164,20 @@ export async function fetchGithubReach(token?: string): Promise<GithubReach | nu
 }
 
 /*
- * apt.grimoiremods.com counts install events (a new machine's one-time
- * fetch of the repo signing key) separately from .deb downloads (which
- * include upgrades). `installs` is the one that means "new user".
+ * apt.grimoiremods.com and rpm.grimoiremods.com count install events (a new
+ * machine's one-time fetch of the apt signing key or the dnf repo file)
+ * separately from package downloads (which include upgrades). `installs` is
+ * the one that means "new user". The badge shows both repos added together,
+ * so if either can't be read the sum is dropped rather than undercounted.
  */
-export async function fetchAptInstalls(): Promise<number | null> {
+export async function fetchRepoInstalls(): Promise<number | null> {
+  const [apt, rpm] = await Promise.all([fetchInstalls(APT_COUNT_URL), fetchInstalls(RPM_COUNT_URL)]);
+  return apt === null || rpm === null ? null : apt + rpm;
+}
+
+async function fetchInstalls(url: string): Promise<number | null> {
   try {
-    const res = await fetch(APT_COUNT_URL, { headers: { 'User-Agent': UA } });
+    const res = await fetch(url, { headers: { 'User-Agent': UA } });
     if (!res.ok) return null;
     const j = (await res.json()) as { count?: number; installs?: number };
     return typeof j.installs === 'number' ? j.installs : null;
@@ -200,7 +208,7 @@ export async function fetchGameBananaDownloads(): Promise<number | null> {
 
 export interface Reach {
   githubInstalls: number | null;
-  aptInstalls: number | null;
+  repoInstalls: number | null;
   gamebananaDownloads: number | null;
   weekly: GithubReach['weekly'];
   launchesPerDay: number | null;
@@ -213,14 +221,14 @@ export interface Reach {
  * at its own install count is exactly the thing this project does not do.
  */
 export async function fetchReach(token?: string): Promise<Reach> {
-  const [github, aptInstalls, gamebananaDownloads] = await Promise.all([
+  const [github, repoInstalls, gamebananaDownloads] = await Promise.all([
     fetchGithubReach(token),
-    fetchAptInstalls(),
+    fetchRepoInstalls(),
     fetchGameBananaDownloads(),
   ]);
   return {
     githubInstalls: github?.installs ?? null,
-    aptInstalls,
+    repoInstalls,
     gamebananaDownloads,
     weekly: github?.weekly ?? null,
     launchesPerDay: github?.launchesPerDay ?? null,

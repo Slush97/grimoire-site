@@ -2,15 +2,16 @@
 /*
  * /privacy : the website's privacy policy. The app's own network behavior
  * is documented in the synced guide at /docs/privacy; this page covers
- * grimoiremods.com and apt.grimoiremods.com. Every claim here must stay
- * true of the code: if you add a storage key, a third-party request, or a
- * Worker route, update this page in the same change. The bot check section
+ * grimoiremods.com, apt.grimoiremods.com and rpm.grimoiremods.com. Every
+ * claim here must stay true of the code: if you add a storage key, a
+ * third-party request, or a Worker route, update this page in the same
+ * change. The bot check section
  * describes Cloudflare's Bot Fight Mode; drop it if that is ever turned off.
  */
 import Site from '../layouts/Site.astro';
 import { brand } from '../data/content';
 
-const EFFECTIVE = '11 October 2026';
+const EFFECTIVE = '19 October 2026';
 
 const storage = [
   ['grimoire.era', 'which version of the 1996 site you were last on'],
@@ -28,7 +29,8 @@ const storage = [
     <h1>Privacy policy</h1>
 
     <p>
-      This page covers the website (grimoiremods.com) and the apt repo (apt.grimoiremods.com).
+      This page covers the website (grimoiremods.com), the apt repo (apt.grimoiremods.com) and
+      the dnf repo (rpm.grimoiremods.com).
       The Grimoire app has its own page, <a href="/docs/privacy">what leaves your machine</a>,
       which lists every request the app can make.
     </p>
@@ -51,7 +53,7 @@ const storage = [
 
     <h2>What Cloudflare sees</h2>
     <p>
-      The site and the apt repo run on Cloudflare. Every request goes through them, so they see
+      The site and both package repos run on Cloudflare. Every request goes through them, so they see
       your IP address, your browser's user agent and the page you asked for.
       <a href="https://www.cloudflare.com/privacypolicy/">Cloudflare's privacy policy</a> covers
       what they do with it.
@@ -64,8 +66,8 @@ const storage = [
       </li>
       <li>
         <strong>Request logs</strong> for the few parts of the site that run code: the download
-        badges, the "page not found" page and the apt repo. Each log entry has the address that
-        was asked for, the response code, the request headers (which include your IP address and
+        badges, the "page not found" page and the two package repos. Each log entry has the address
+        that was asked for, the response code, the request headers (which include your IP address and
         user agent) and the country and city Cloudflare thinks the request came from. Ordinary page
         views are plain files and don't create these logs. Cloudflare deletes the logs within 7
         days. We only use them to fix problems.
@@ -81,13 +83,14 @@ const storage = [
       ours. We don't get the data it collects. It's the only cookie the site sets.
     </p>
 
-    <h2>What the apt repo counts</h2>
+    <h2>What the package repos count</h2>
     <p>
-      The apt repo keeps one set of totals per day: how many times its signing key was downloaded
-      (a new setup), how many update checks came in, how many times the package list was
-      downloaded, and how many packages were downloaded (split by version and CPU type). It looks
-      at the user agent only to leave bots out of the count, and doesn't save it. It never saves
-      IP addresses or anything else about a single request.
+      The apt and dnf repos each keep one set of totals per day: how many new setups there were
+      (a download of the apt repo's signing key, or of the dnf repo's <code>grimoire.repo</code>
+      file), how many update checks came in, how many times the package list was downloaded, and
+      how many packages were downloaded (split by version and CPU type). They look at the user
+      agent only to leave bots out of the count, and don't save it. They never save IP addresses
+      or anything else about a single request.
     </p>
 
     <h2>What's saved in your browser</h2>
@@ -110,8 +113,8 @@ const storage = [
     </p>
     <ul>
       <li>
-        <strong>Downloads</strong> come from GitHub or from apt.grimoiremods.com. GitHub keeps a
-        public download count for each file.
+        <strong>Downloads</strong> come from GitHub, apt.grimoiremods.com or rpm.grimoiremods.com.
+        GitHub keeps a public download count for each file.
       </li>
       <li>
         <strong>Links</strong> to GitHub, Discord, GameBanana and the AUR take you to those sites,
