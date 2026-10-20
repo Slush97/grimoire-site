@@ -85,7 +85,7 @@ const pms = [
   <div class="os-tabs" role="presentation">
     {platforms.map((p) => (
       <label for={`os-${p.id}`}>
-        <svg aria-hidden="true"><use href={`#i-${p.icon}`} /></svg>
+        <svg class={`ico-${p.icon}`} aria-hidden="true"><use href={`#i-${p.icon}`} /></svg>
         {p.name}
         <span class="yours" aria-hidden="true"></span>
       </label>
@@ -158,7 +158,7 @@ const pms = [
                 {pms.map((m) => (
                   <div class="pm">
                     <div class="pm-head">
-                      <svg aria-hidden="true"><use href={`#i-${m.icon}`} /></svg>
+                      <svg class={`ico-${m.icon}`} aria-hidden="true"><use href={`#i-${m.icon}`} /></svg>
                       <a href={m.href}>{m.name}</a>
                       <span class="pm-via">{m.via}</span>
                       <button class="copy" type="button" data-copy={m.cmd} hidden>Copy</button>
@@ -235,9 +235,8 @@ const pms = [
     color: var(--text);
   }
   .os-tabs svg {
-    width: 16px;
-    height: 16px;
-    fill: currentColor;
+    width: 20px;
+    height: 20px;
   }
   #os-windows:checked ~ .os-tabs [for='os-windows'],
   #os-macos:checked ~ .os-tabs [for='os-macos'],
@@ -415,10 +414,17 @@ const pms = [
     font-size: 14px;
   }
   .pm-head svg {
-    width: 15px;
-    height: 15px;
-    fill: var(--muted);
+    width: 18px;
+    height: 18px;
   }
+  /* Brand colours, lightened where the official one sinks into the dark panel. */
+  .ico-windows { fill: #00a4ef; }
+  .ico-apple { fill: var(--text); }
+  .ico-linux { fill: #fcc624; }
+  .ico-archlinux { fill: #1793d1; }
+  .ico-debian { fill: #d70a53; }
+  .ico-fedora { fill: #51a2da; }
+  .ico-nixos { fill: #7ebae4; }
   .pm-head a {
     color: var(--text);
     font-weight: 600;
