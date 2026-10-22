@@ -92,8 +92,9 @@ const FEED_FETCHES_PER_LAUNCH = 2;
  * once (fresh install or update), so a release's installer count is the
  * number of machines that took it while it was the newest. For a release
  * that stayed newest for about a week, that's weekly users (a floor: it
- * misses package-manager installs and anyone who skipped the update).
- * Releases newest for under 4 or over 10 days don't qualify; if none of the
+ * misses package-manager installs and anyone who skipped the update). A
+ * window shorter than a week only lowers that floor, so 3 days is enough.
+ * Releases newest for under 3 or over 10 days don't qualify; if none of the
  * last month's releases do, the figure is dropped rather than stretched.
  */
 function activity(releases: GhRelease[], now: number): Pick<GithubReach, 'weekly' | 'launchesPerDay'> {
@@ -109,7 +110,7 @@ function activity(releases: GhRelease[], now: number): Pick<GithubReach, 'weekly
     return { tag: r.tag_name, start, days: (end - start) / DAY_MS, installs, feed };
   });
 
-  const week = windows.find((w) => now - w.start < 30 * DAY_MS && w.days >= 4 && w.days <= 10);
+  const week = windows.find((w) => now - w.start < 30 * DAY_MS && w.days >= 3 && w.days <= 10);
   const weekly = week ? { users: week.installs, tag: week.tag, days: Math.round(week.days) } : null;
 
   const daily = windows.find((w) => w.days >= 1 && now - w.start < 30 * DAY_MS);
