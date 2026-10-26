@@ -1,41 +1,33 @@
 ---
 /*
- * /code-signing : the code signing policy SignPath Foundation requires
- * (signpath.org/terms). The footer links here as "Code signing policy" on
- * every page, which covers their "home page and download page" rule. Keep the
- * attribution line and team roles exactly true. Drop the "not signed yet"
- * paragraph once the first signed release ships.
+ * /code-signing : how the Windows builds get signed. The footer links here on
+ * every page. The publisher name must match AZURE_SIGNING_PUBLISHER in the
+ * grimoire repo's Actions variables.
  */
 import Site from '../layouts/Site.astro';
 import { brand } from '../data/content';
 
-const EFFECTIVE = '11 October 2026';
+const EFFECTIVE = '26 October 2026';
 const maintainer = 'https://github.com/Slush97';
 ---
 
-<Site title="Code Signing Policy · Grimoire" description="How the Windows builds of Grimoire get signed, who approves a signature, and where the privacy details live.">
+<Site title="Code Signing Policy · Grimoire" description="How the Windows builds of Grimoire get signed, who can sign one, and how to check a signature.">
   <article class="wrap policy prose">
     <p class="kicker">Effective {EFFECTIVE}</p>
     <h1>Code signing policy</h1>
 
     <p>
-      Free code signing provided by <a href="https://about.signpath.io/">SignPath.io</a>,
-      certificate by <a href="https://signpath.org/">SignPath Foundation</a>.
-    </p>
-
-    <p>
-      Signing starts with the first release after SignPath Foundation accepts the project. Until
-      then the Windows builds are unsigned, and Windows warns about an unknown publisher the first
-      time you run one.
+      Windows builds are signed with Microsoft's Azure Artifact Signing, starting with v1.34.0. The
+      publisher is <strong>Eliott Humes</strong>, the maintainer. Older releases are unsigned.
     </p>
 
     <h2>What gets signed</h2>
     <p>
-      The Windows builds: the installer (<code>Grimoire-Setup-&lt;version&gt;.exe</code>), the
-      portable <code>Grimoire-Portable-&lt;version&gt;.exe</code>, and the <code>Grimoire.exe</code>
-      inside them. GitHub Actions builds them from a tagged commit in
-      <a href={brand.github}>Slush97/grimoire</a>, then hands them to SignPath. Nothing built on
-      someone's own machine gets signed.
+      The installer (<code>Grimoire-Setup-&lt;version&gt;.exe</code>), the portable
+      <code>Grimoire-Portable-&lt;version&gt;.exe</code>, and every <code>.exe</code> inside them.
+      GitHub Actions builds them from <a href={brand.github}>Slush97/grimoire</a> and signs them in
+      the same run, for releases and nightlies. The build fails if any of them comes out unsigned.
+      Nothing built on someone's own machine gets signed.
     </p>
     <p>
       The installer also carries <code>vpkmerge.exe</code>, the open source tool Grimoire uses to
@@ -49,17 +41,12 @@ const maintainer = 'https://github.com/Slush97';
     </p>
 
     <h2>Who can sign</h2>
-    <p>Grimoire has one maintainer, who holds every role.</p>
-    <ul>
-      <li>
-        <strong>Committers and reviewers:</strong> <a href={maintainer}>Slush97</a>. Changes from
-        anyone else get reviewed before they're merged.
-      </li>
-      <li>
-        <strong>Approvers:</strong> <a href={maintainer}>Slush97</a>. Every release is approved by
-        hand before SignPath signs it.
-      </li>
-    </ul>
+    <p>
+      Grimoire has one maintainer, <a href={maintainer}>Slush97</a>, the only account that can merge
+      to <code>main</code> or tag a release. Changes from anyone else get reviewed before they're
+      merged. The signing credentials live in the repo's Actions secrets, and only the Windows build
+      job can read them.
+    </p>
 
     <h2>Privacy</h2>
     <p>
@@ -72,8 +59,14 @@ const maintainer = 'https://github.com/Slush97';
     <h2>Checking a signature</h2>
     <p>
       Right-click the <code>.exe</code>, open <strong>Properties</strong>, then the
-      <strong>Digital Signatures</strong> tab. A signed Grimoire build lists SignPath Foundation
-      as the signer.
+      <strong>Digital Signatures</strong> tab. It should list Eliott Humes. In PowerShell,
+      <code>Get-AuthenticodeSignature &lt;file&gt;</code> should print <code>Valid</code> and
+      <code>CN=Eliott Humes</code>.
+    </p>
+    <p>
+      SmartScreen can still warn about a new release for a while. If the warning names Eliott Humes
+      as the publisher, click <strong>More info</strong>, then <strong>Run anyway</strong>. If it
+      says unknown publisher on v1.34.0 or newer, don't run it.
     </p>
 
     <h2>Something looks wrong?</h2>

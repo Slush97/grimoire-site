@@ -109,4 +109,4 @@ Releases also publish build provenance attestations that tie each installer to t
 gh attestation verify <file> --owner Slush97
 ```
 
-Windows installers are not code-signed, so Windows warns about an unknown publisher on first run. Click **More info**, then **Run anyway**.
+Windows builds are signed by Eliott Humes through Azure Artifact Signing, starting with v1.34.0. The [code signing policy](/code-signing) covers what gets signed and how to check it.
