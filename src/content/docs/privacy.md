@@ -3,7 +3,7 @@ title: Privacy and what leaves your machine
 description: Every network request Grimoire can make, who receives it, what it contains, when it happens, and how to turn it off.
 slug: privacy
 order: 25
-updated: 2026-10-11
+updated: 2026-11-06
 ---
 
 # Privacy and what leaves your machine
@@ -18,6 +18,7 @@ These happen on their own, without a click.
 
 - **Update check (GitHub).** Usually runs twice per launch: when the window loads, and again 5 seconds after start. There is no timer after that. It reads Grimoire's release list and a small version file from github.com. The update library (electron-updater) adds a random ID to these requests. It creates the ID on the first check and saves it as `.updaterId` in Grimoire's data folder. Grimoire itself never receives it. **Turn off:** there is no setting. Installs from apt, AUR, Flatpak, Snap or Nix never check, because your package manager handles updates.
 - **Catalog refresh (GameBanana).** If your local copy of the Deadlock catalog is more than a day old, Grimoire downloads the whole catalog again. Otherwise it asks for the 50 most recently updated Mods, Sounds and WiPs. No setting.
+- **Category lists (GameBanana).** If you have mods from GameBanana, Grimoire downloads GameBanana's category list for each section they come from (Mods, Sounds, WiPs) when its saved copy is missing or more than a day old. The list is the same for everyone, so it doesn't say which mods you have. It's used to show full category paths and to sort mods in the Locker. No setting.
 - **Installed mod check (GameBanana).** The Installed page asks for the current file list of every installed mod that came from GameBanana, at most once per 30 minutes per mod. This lets GameBanana see which mods you have. Thumbnails for your mods also load from GameBanana. **Turn off:** open a mod and turn on **Ignore updates** to skip it.
 - **One font (Google Fonts).** The window loads the font used for the Grimoire title from fonts.googleapis.com and fonts.gstatic.com. A cached copy is reused once you have it. No setting.
 - **Language files (GitHub).** Only if you downloaded a language. Each launch asks raw.githubusercontent.com whether the file changed, and downloads it again only if it did.
