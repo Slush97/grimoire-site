@@ -3,7 +3,7 @@ title: Privacy and what leaves your machine
 description: Every network request Grimoire can make, who receives it, what it contains, when it happens, and how to turn it off.
 slug: privacy
 order: 25
-updated: 2026-11-06
+updated: 2026-11-11
 ---
 
 # Privacy and what leaves your machine
@@ -30,6 +30,7 @@ Three opt-in features below also run at launch once you turn them on: the Grimoi
 - **Browse, search, open a mod, install.** All go to GameBanana: gamebanana.com, api.gamebanana.com, images.gamebanana.com and its file servers. One-click install links from GameBanana's site only accept GameBanana download links.
 - **Settings > Maintenance.** Opening it loads GameBanana's download server list. **Test now** downloads a small sample from three servers.
 - **Settings > Updates.** **Check for Updates** and switching between **Stable** and **Nightly** run the update check above. **Download Update** downloads the installer from GitHub.
+- **Settings > Privacy & Content.** The hidden creators and hidden mods lists show thumbnails, which load from GameBanana when you open the page. The same lists in Browse load them when you open them there.
 - **Settings > Appearance > Language & region.** Opening it loads the language list from raw.githubusercontent.com. Choosing a language downloads that language once.
 - **Settings > Performance.** With **Always use the newest version** on (the default), opening the card asks GitHub for the newest release of the selected preset from its author's repository, at most every 5 minutes, and again right before **Apply**. These requests carry no version or ID. **Turn off:** switch off **Always use the newest version**. See [performance presets](/docs/performance-presets).
 - **Locker > a hero > Sounds.** Ability icons load from deadlock-api.com's image server (assets-bucket.deadlock-api.com).

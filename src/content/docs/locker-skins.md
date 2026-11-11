@@ -32,7 +32,7 @@ Some mods ship several versions of the same skin: a red one, a blue one, one wit
 1. Click the card. It says **Pick a variant** when none are on, or how many are on (like **1/3 active**).
 2. Click a variant in the list that opens to turn it on or off.
 
-You can have more than one variant on if they change different files. If they collide, the same top-wins rule applies. To change the order of the files inside one mod, click its card on **Installed** and drag the files or use the arrows.
+You can have more than one variant on if they change different files. If they collide, the same top-wins rule applies. To change the order of the files inside one mod, click its card on **Installed** (or pick **Choose files** in its menu) and drag the files or use the arrows.
 
 ## The 3D preview
 

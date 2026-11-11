@@ -1,20 +1,24 @@
 ---
 title: Customizing how Grimoire looks
-description: OLED mode, accent color, background glow, sidebar art, language, and date format.
+description: Theme, accent color, background glow, sidebar art, language, and date format.
 slug: appearance
 order: 27
-updated: 2026-10-11
+updated: 2026-11-11
 ---
 
 # Customizing how Grimoire looks
 
 **Settings > Appearance.** Changes save as soon as you click them. The only exception is the custom color pickers, which save when you click **Apply**.
 
-**Grimoire is dark only.** There is no light mode. The closest thing to a theme switch is **OLED mode**.
+## Theme
 
-## OLED mode
+Three tiles, each drawn in its own colors and your accent:
 
-Turn on **OLED mode** to swap the dark grey background and panels for true black and near-black.
+- **Dark**: the default dark grey.
+- **OLED**: true black and near-black instead of dark grey.
+- **Light**: light backgrounds and dark text. Mod art, thumbnails and 3D views stay dark so they read the same in every theme.
+
+The window's title bar follows the theme too.
 
 ## Accent color
 
@@ -24,11 +28,13 @@ Eight presets: Ember (the default orange), Amber, Crimson, Rose, Violet, Azure, 
 
 In the picker, dragging previews the color live. **Apply** saves it. **Cancel**, Escape, or clicking outside throws the change away.
 
+A color you apply stays as a swatch next to the presets, so you can switch back to it later. Grimoire keeps your three newest. Hover a swatch and click its **x** to remove it.
+
 ## Background glow
 
 Tints the app background with light coming in from the top-left and bottom-right corners.
 
-**No glow** is the default. Seven presets: Ember, Dusk, Abyss, Verdant, Nebula, Gold, and Ash. The rainbow swatch opens **Custom background glow**, where you set **Top left** and **Bottom right** separately. Same rules as the accent picker: only **Apply** saves.
+**No glow** is the default. Seven presets: Ember, Dusk, Abyss, Verdant, Nebula, Gold, and Ash. The rainbow swatch opens **Custom background glow**, where you set **Top left** and **Bottom right** separately. Same rules as the accent picker: only **Apply** saves, and your three newest glows stay as swatches.
 
 ## Launcher and sidebar art
 
