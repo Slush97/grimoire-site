@@ -47,7 +47,7 @@ Three opt-in features below also run at launch once you turn them on: the Grimoi
 
 **Settings > Experimental Features > Stats Dashboard.** Off by default.
 
-When you open the Stats tab, Grimoire sends the numeric Steam account ID of each player you track to api.deadlock-api.com, a community-run service, to get rank and match history. From the same service it loads hero, rank and item data, the list of ranked seasons and how many players hold each rank this season. Those carry no account ID and are cached for an hour to a day. Each player's public name and avatar come from steamcommunity.com.
+When you open the Stats tab, Grimoire sends the numeric Steam account ID of each player you track to api.deadlock-api.com, a community-run service, to get rank and match history. From the same service it loads hero, rank and item data, the list of ranked seasons and how many players hold each rank this season. Those carry no account ID and are cached for an hour to a day. Hero, rank and item images load from deadlock-api.com's image server (assets-bucket.deadlock-api.com). Each player's public name and avatar come from steamcommunity.com.
 
 Opening a match's scoreboard sends that match's ID to api.deadlock-api.com, and the account IDs of the players in it to look up their Steam names. See [player stats](/docs/stats).
 
