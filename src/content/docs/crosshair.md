@@ -3,7 +3,7 @@ title: Designing a crosshair
 description: Build a custom crosshair with a live preview, save it as a preset, and get it into the game.
 slug: crosshair
 order: 16
-updated: 2026-10-11
+updated: 2026-11-09
 ---
 
 # Designing a crosshair
@@ -39,13 +39,22 @@ Every slider's number is also a text field, so you can type an exact value inste
 
 ## Tuning it live
 
-Restarting the game for every tweak is miserable. Use **Copy Code** instead.
+Restarting the game for every tweak is miserable. Use **Copy Commands** instead.
 
 It copies the whole crosshair as one line of console commands. Open the console in game (the button's hint says F7), paste, and the change is immediate.
 
 This does not save anything. Once you like what you see, come back and save it as a preset.
 
 **Pin Window** keeps Grimoire on top of the game while you tweak. It pins the whole app, not just this tab.
+
+## Sharing with crosshair codes
+
+Deadlock's crosshair settings can copy and paste crosshair codes (they start with `DL.`). Grimoire speaks the same codes.
+
+- **Copy Code** puts your crosshair on the clipboard as a code. Send it to a friend, or paste it in game with **Paste & apply code**.
+- **Paste Code** loads a code from your clipboard into the editor, from the game or from a friend. Like **Import from Game**, it only fills the editor, so save and apply it as a preset to keep it.
+
+Codes don't carry **Disable Hero Crosshairs**, so pasting one leaves that toggle as it was. Both buttons go through deadlock-api.com, a community-run service, to read and write the code. See [privacy](/docs/privacy).
 
 ## Starting from your in-game crosshair
 

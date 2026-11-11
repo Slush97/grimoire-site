@@ -1,9 +1,9 @@
 ---
 title: Player stats
-description: Track ranked score, match history, and hero performance for any Steam account, and understand exactly what gets sent where.
+description: Track rank, match history, and hero performance for any Steam account, and understand exactly what gets sent where.
 slug: stats
 order: 15
-updated: 2026-10-11
+updated: 2026-11-09
 ---
 
 # Player stats
@@ -28,12 +28,20 @@ You can track more than one account. Hover one in the dropdown and click the sta
 
 | Tab | What it shows |
 |---|---|
-| **Overview** | Ranked score with your rank badge, a ranked trajectory chart, recent matches, and lifetime per-hero performance |
-| **Matches** | Match history grouped by day, with hero, result, K/D/A, and souls. The damage number on each row always reads 0 right now, so ignore it |
+| **Overview** | Your rank and badge, a ranked trajectory chart, recent matches, and lifetime per-hero performance |
+| **Matches** | Match history grouped by day, with hero, result, K/D/A, and souls |
 | **Social** | Best teammates and frequent opponents, by win rate together |
-| **Leaderboard** | The regional top 50, for NA, EU, Asia, SA, and OCE |
+| **Leaderboard** | The regional top 50 for NA, EU, Asia, SA, and OCE, per ranked season |
 
 **Leaderboard** works without tracking anyone. The other three need a player selected.
+
+Under the rank, the Overview shows where you stand this season (**Top 21%**), your ranked win streak, and how many demotion protection shields you have left. The thin bar along the bottom of the rank tile is your progress to the next subrank. Hover it for the points.
+
+Ranked games show the rank points they gave or took next to the result, with a shield when demotion protection was used. Street Brawl games carry a **Brawl** tag, because their souls and K/D don't compare with normal games.
+
+Click any match to open its scoreboard: how the souls lead moved over the match, then both teams with K/D/A, souls, last hits, damage, healing, rank and final build.
+
+A new season's leaderboard stays empty for a while. Until it fills, the tab shows the previous season, and you can switch seasons yourself. If a player you track is on the board, their row is highlighted. The leaderboard only knows Steam names, so on rare occasions it can point at the wrong account.
 
 ## Refreshing
 
@@ -41,15 +49,11 @@ Nothing polls in the background. Data loads when you open the tab and when you p
 
 **Refresh** pulls new matches since the last one it saw, so it gets faster over time rather than slower.
 
-## Two numbers that will not agree
+## Where the Overview numbers come from
 
-This trips people up, so it is worth knowing up front.
+The **Overview** tiles for Matches, Win Rate, KDA, and best streak are built from **matches Grimoire has recorded locally**. When you add an account it records the whole match history deadlock-api.com has for it, then adds new matches as you refresh.
 
-The **Overview** tiles for Matches, Win Rate, KDA, and best streak are built from **matches Grimoire has recorded locally**. It starts with your most recent 20 when you add the account, then grows forward from there.
-
-**Hero Performance** on the same page is **lifetime data** from the API.
-
-So your tile might say 40 matches while Hero Performance reflects hundreds. Both are correct, they are just counting different things. Older history does not backfill, so the tiles catch up only by playing.
+**Hero Performance** on the same page is lifetime data straight from the API, so the two can differ slightly for matches the service hasn't processed yet.
 
 ## Where the data comes from
 
@@ -63,9 +67,9 @@ The **Social** tab needs at least 3 shared matches with someone before they appe
 
 Stats is off by default and sends nothing until you turn it on and add an account. Once you do, these requests happen:
 
-- **api.deadlock-api.com** receives the **numeric account ID** of any player you track, to look up their profile, rank, match history, and hero stats. On the Social tab it also receives the IDs of teammates and opponents it is resolving names for.
+- **api.deadlock-api.com** receives the **numeric account ID** of any player you track, to look up their profile, rank, match history, and hero stats. On the Social tab it also receives the IDs of teammates and opponents it is resolving names for. Opening a match scoreboard sends the match ID and the IDs of the players in it, to get their names.
 - **steamcommunity.com** receives the SteamID64 of each tracked player, to fetch the current display name and avatar.
-- **assets.deadlock-api.com** is asked for hero and rank artwork. No account ID is involved.
+- **api.deadlock-api.com** is also asked for hero, rank and item artwork, the list of ranked seasons, and how many players hold each rank this season. No account ID is involved.
 - **statlocker.gg** is only contacted when you click a Statlocker link, which opens in your browser.
 
 Every request carries your IP address and Grimoire's version, as any web request does. No API key, no cookies, no login token, and nothing about your mods.
